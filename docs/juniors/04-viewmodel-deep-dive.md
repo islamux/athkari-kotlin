@@ -148,6 +148,35 @@ class AthkarMassaViewModel : BaseAthkarViewModel() {
 }
 ```
 
+#### Alternative form for line 145 — explicit `get()` with block body
+
+Line 145 uses Kotlin's **expression-body** getter syntax (`get() = value`). The same property can be written with an explicit **block body** using `{}` braces and a `return` statement:
+
+```kotlin
+class AthkarMassaViewModel : BaseAthkarViewModel() {
+    override val dataList: List<AthkarItem>
+        get() {
+            return AthkarRepository.athkarMassaList
+        }
+
+    override val maxPageCounters: List<Int>
+        get() {
+            return List(22) { 1 }
+        }
+
+    override val completionMessage: String = "أتممت أذكار المساء"
+}
+```
+
+When to use which form:
+
+| Form | Syntax | Use when |
+|------|--------|----------|
+| Expression body | `get() = expr` | The getter returns a single expression directly |
+| Block body | `get() { return expr }` | You need multiple statements, logging, validation, or want the extra readability |
+
+Both forms behave identically at runtime — the compiler lowers the expression form into a block body internally. The block form becomes necessary only when you need to execute extra logic (e.g., logging, conditional return, or computing from multiple steps).
+
 - 22 items, each requiring only 1 tap before advancing
 - Completion message: "I completed the evening athkar"
 
@@ -261,6 +290,55 @@ class FontViewModel : ViewModel() {
 
 Simple state holder with bounds checking. Shared across all athkar screens.
 
+#### Deep Dive: `MutableStateFlow` vs `StateFlow` vs `asStateFlow()`
+
+This three-piece pattern appears in **every** ViewModel. Let's break it apart line by line.
+
+**Step 1 — The mutable storage (private):**
+```kotlin
+private val _fontSize = MutableStateFlow(28.6f)
+```
+* `MutableStateFlow` is a **writable** container that holds a value *and* broadcasts it to anyone listening.
+* `private` means **only the ViewModel itself** can change `_fontSize.value`. The UI cannot reach in and modify it from the outside.
+* The leading underscore `_` is a Kotlin naming convention that says: "This is the private/internal version of a public property."
+
+**Step 2 — The read-only exposure (public):**
+```kotlin
+val fontSize: StateFlow<Float> = _fontSize.asStateFlow()
+```
+* `.asStateFlow()` converts the mutable version into a **read-only** `StateFlow`.
+* This is what the UI sees — it can *read* the current value and *observe* changes, but it **cannot** assign a new value to it.
+
+**Step 3 — The UI listens (Compose side):**
+```kotlin
+// In some Composable
+val size by viewModel.fontSize.collectAsState()    // rebuilds whenever _fontSize changes
+```
+
+> [!TIP]
+> **Why split into two flows instead of one?**
+> It enforces **encapsulation**. The ViewModel is the *only* place that decides *when* and *how* the font size changes (through `increaseFontSize()`, `decreaseFontSize()`). The UI cannot bypass that and just do `viewModel._fontSize.value = 999f`. This prevents bugs and keeps the rules (e.g. bounds checking) in one place.
+
+> [!TIP]
+> **Why "State" in `StateFlow`?**
+> Unlike a normal `Flow` (which is a *stream* of values over time), a `StateFlow` always carries a **current state** — it has a `.value` you can read at any moment, even with no subscribers. The UI can read `viewModel.fontSize.value` synchronously on the very first render, before any new emission happens.
+
+```kotlin
+viewModel.fontSize.value          // 👈 read the current size right now (e.g., 28.6f)
+collectAsState()                  // 👈 also subscribe to future changes
+```
+
+| Property | `MutableStateFlow<T>` | `StateFlow<T>` (after `.asStateFlow()`) |
+|----------|------------------------|------------------------------------------|
+| Can read `.value`? | ✅ Yes | ✅ Yes |
+| Can assign `.value = ...`? | ✅ Yes | ❌ No (read-only) |
+| Can `emit()` new values? | ✅ Yes | ❌ No |
+| Who can use it? | Only inside the ViewModel (because of `private`) | Anyone (UI, other ViewModels, tests) |
+| Purpose | The **backing storage** | The **public read window** |
+
+> [!IMPORTANT]
+> **Beginner trap:** Writing `val fontSize = MutableStateFlow(28.6f)` (without the underscore split) compiles and works, but **breaks encapsulation** — now any screen or test can do `viewModel.fontSize.value = 999f`, skipping your bounds-checking methods. Always split into private-mutable + public-readonly.
+
 ### FloatingCounterViewModel
 ```kotlin
 class FloatingCounterViewModel : ViewModel() {
@@ -308,6 +386,83 @@ class HomeViewModel : ViewModel() {
 ```
 
 Uses `SharedFlow` because navigation is a one-shot event — not something you want to re-emit on rotation.
+
+#### Deep Dive: The Navigation Method Pattern
+
+Let's unpack each part of `HomeViewModel` and the reason it is shaped this way.
+
+**1. Why each screen has its own `goTo...()` method**
+
+```kotlin
+fun goToAthkarSabah() = navigate("athkar_sabah")
+fun goToAthkarMassa() = navigate("athkar_massa")
+// ... 10 more
+```
+
+At first glance this looks repetitive — why not just expose `navigate(route: String)` to the UI and let it pass any string? Three reasons:
+
+* **Type safety.** The UI can only call `goToAthkarSabah()` — it cannot pass a typo like `"athkar_sabha"` that would silently navigate to a non-existent route.
+* **Discoverability & autocomplete.** In Android Studio, typing `viewModel.goTo` shows all available destinations in a popup. Passing raw strings gives you no help.
+* **Single point of change.** If the route `"athkar_sabah"` ever changes (e.g., to `"home/athkar/sabah"`), you update **one line** in the ViewModel, not every screen that navigates to it.
+
+**2. The `fun x() = expr` single-expression syntax**
+
+```kotlin
+fun goToAthkarSabah() = navigate("athkar_sabah")
+```
+
+This is Kotlin's **single-expression function** form — equivalent to:
+
+```kotlin
+fun goToAthkarSabah() {
+    return navigate("athkar_sabah")
+}
+```
+
+It's used here because each method does *exactly one thing*: delegate to `navigate()`. No branching, no logic — just a forwarder. The `=` syntax makes that intent obvious at a glance.
+
+> [!TIP]
+> **Rule of thumb:** If the function body is a *single expression* and you can read it left-to-right (`goToAthkarSabah = navigate("athkar_sabah")`), use `=`. If it has multiple statements, conditions, or side-effects, use the block form `{ }`.
+
+**3. The private `navigate()` helper**
+
+```kotlin
+private fun navigate(route: String) {
+    viewModelScope.launch {
+        _navigationEvent.emit(HomeNavigationEvent.GoToRoute(route))
+    }
+}
+```
+
+This is the **only** place that touches `_navigationEvent` and the **only** place that launches a coroutine for navigation. Every public `goTo...()` method funnels through it. This gives us:
+
+* **One place to add cross-cutting concerns later** — analytics, logging, debouncing, etc. — without touching 11 public methods.
+* **Encapsulation** — the UI cannot emit raw events; it must go through a public method.
+* **Consistency** — every navigation is launched the same way, in the same coroutine scope.
+
+**4. Why `SharedFlow` (and not `StateFlow`) for navigation?**
+
+StateFlow's defining feature is that it always carries a **current value**. If we used `StateFlow` here:
+
+```kotlin
+// ❌ Hypothetical — DON'T do this
+private val _navigationEvent = MutableStateFlow<HomeNavigationEvent?>(null)
+val navigationEvent: StateFlow<HomeNavigationEvent?> = _navigationEvent.asStateFlow()
+```
+
+Then the moment the user **rotates the phone**, Compose re-collects the flow and *re-navigates* to the last route — because the StateFlow still holds the old event as its "current value"! This would either crash the back stack or trap the user in a loop.
+
+`SharedFlow` has **no current value**. It is a *pure signal* — emit it, deliver it, forget it. If no one is listening when you emit, the event is lost. That's exactly what we want for one-shot side effects like navigation, snackbars, or haptic feedback.
+
+| Concern | `StateFlow` | `SharedFlow` |
+|---------|-------------|--------------|
+| Carries "current value"? | ✅ Yes (`.value`) | ❌ No |
+| Re-delivers last value to new collectors? | ✅ Yes (the latest) | ❌ No (only what arrives after they subscribe) |
+| Good for | UI state that should always render correctly (page index, font size, results) | One-shot events (navigate, toast, vibrate, completion) |
+| In Athkarix | `currentPageIndex`, `fontSize`, `query`, `results` | `navigationEvent`, `eventFlow`, `hapticTrigger` |
+
+> [!IMPORTANT]
+> **Beginner trap:** When in doubt, don't reach for `StateFlow` by default. Ask: *"If the user rotates the phone, should this happen again?"* If **no** → `SharedFlow`. If **yes** (it's part of the screen's current state) → `StateFlow`.
 
 ### SearchViewModel
 

@@ -1,131 +1,116 @@
-# Kotlin Concepts Used in Athkarix
+# 🚀 Kotlin Concepts Masterclass: From Beginner to Pro
 
-This document explains every Kotlin language feature used in this project. Each section has a plain-English explanation plus a real code example from this codebase.
+Welcome! This guide is designed to take you on a progressive journey through Kotlin, specifically tailored to how we use it in the **Athkarix** Android app. 
+
+Whether you are a Junior learning the ropes, or a Senior from another language (like Java or Dart) getting comfortable with Kotlin, this guide is built for **you**. 
+
+We’ve divided the concepts into **4 Progressive Phases**. Let's dive in! ☕️
 
 ---
 
-## 1. `val` vs `var`
+## 🟢 Phase 1: The Absolute Basics
+*The foundation of every Kotlin file you will ever write.*
 
-- **`val`** — read-only reference (like `final` in Java). You assign it once, then it cannot change.
-- **`var`** — mutable reference. You can reassign it.
+### 1. `val` vs `var` (Immutability by Default)
+Kotlin loves safety. That means we prefer things that don't change.
+* **`val` (Value):** Read-only. Once assigned, you can never change what it points to (like `final` in Java or `const` in JS).
+* **`var` (Variable):** Mutable. You can reassign it.
 
 ```kotlin
-// From AthkarItem.kt
+// In AthkarItem.kt
 data class AthkarItem(
-    val duaText: String?,   // readable once set, cannot change
-    val footer: String? = null,
+    val duaText: String?,   // ✅ Set once, never changes
+    var readCount: Int = 0  // ⚠️ Can be changed later
 )
 ```
 
-The `val` properties of `AthkarItem` are set when the object is created and never change — the item itself is immutable.
+### 2. Functions (`fun`)
+Functions in Kotlin are clean and concise. Types come *after* the variable names.
 
 ```kotlin
-// From BaseAthkarViewModel.kt
-private val _currentPageIndex = MutableStateFlow(0)  // val: the reference stays the same
-val currentPageIndex: StateFlow<Int> = _currentPageIndex.asStateFlow()
+// In DiacriticUtil.kt
+fun removeDiacritics(text: String): String {
+    return text.replace(Regex("[\u064B-\u065F\u0670]"), "")
+}
+
+// 🔥 Pro-tip: Single-expression functions
+fun increment(counter: Int) = counter + 1
 ```
 
-Even though `_currentPageIndex` is `val`, the *contents* of the `MutableStateFlow` can change. The `val` just means the `_currentPageIndex` variable always points to the same `MutableStateFlow` object.
+### 3. Null Safety (`?`, `?.`, `!!`)
+Kotlin eliminates the dreaded `NullPointerException` by forcing you to declare if something *can* be null.
 
----
-
-## 2. Functions (`fun`)
+> [!TIP]
+> If a type has a `?` at the end, it means "This might be null. Handle it carefully!"
 
 ```kotlin
-// From DiacriticUtil.kt
-object DiacriticUtil {
-    private val diacritics = Regex("[\u064B-\u065F\u0670]")
+val duaText: String? = null // Allowed!
 
-    fun remove(text: String): String = text.replace(diacritics, "")
-    //    ↑            ↑           ↑
-    //  name      parameter    return type
+// ✅ Safe Call (?.) - Only runs if duaText is NOT null
+val length = duaText?.length 
+
+// 🚨 Danger (!!) - "Trust me, it's not null." (Will crash if you're wrong)
+val crashLength = duaText!!.length 
+```
+
+### 4. The Almighty `when` Expression
+Forget `switch` statements. `when` is smarter, safer, and can return values.
+
+```kotlin
+// In AssmaHussnaScreen.kt
+when {
+    isLoading -> CircularProgressIndicator()
+    hasError -> Text("Error loading data")
+    else -> AthkarTextSlider()
 }
 ```
 
-Key points:
-- Parameters are typed: `text: String`
-- Return type comes after `:`: `: String`
-- The `= expression` syntax is a **single-expression function** (no curly braces needed)
-- If a function returns `Unit` (like `void` in Java), you can omit the return type
-
-```kotlin
-// From FloatingCounterViewModel.kt — function returning Unit (void)
-fun increment() {
-    _counter.value++
-}
-```
-
 ---
 
-## 3. `object` — Singleton Pattern
+## 🟡 Phase 2: Object-Oriented Kotlin
+*How we structure data and logic in Athkarix.*
 
-An `object` declaration creates exactly ONE instance. No `new` keyword, no constructor call. It's Kotlin's built-in singleton pattern.
-
-```kotlin
-// From AppColor.kt
-object AppColor {
-    val primaryGold = Color(0xFFFFD700)
-    val darkGold = Color(0xFFD4AF37)
-    val background = Color(0xFF000000)
-    val surface = Color(0xFF1A1A1A)
-    val textPrimary = Color(0xFFFFD700)
-}
-
-// Usage anywhere in the app:
-// AppColor.primaryGold  ← no instance needed, it's already there
-```
-
-Other `object` singletons in this project:
-- `AppModule` — DI container
-- `AthkarRepository` — data hub
-- `AssmaHussnaService` — JSON loader
-- `ShareUtil`, `WhatsAppUtil`, `DiacriticUtil` — stateless utilities
-- `Routes` — route constants
-
-Think of `object` as: "I need a class, but there should only ever be one of them."
-
----
-
-## 4. `data class`
-
-A `data class` automatically generates `equals()`, `hashCode()`, `toString()`, `copy()`, and destructuring operators. It's perfect for holding data.
+### 5. `data class` (Data Holders)
+Need a class just to hold data? Don't write getters, setters, or `toString()`. Kotlin does it for you.
 
 ```kotlin
-// From AthkarItem.kt
-data class AthkarItem(
-    val duaText: String?,
-    val footer: String? = null,   // default value — you can omit this parameter
-)
-```
-
-This tiny declaration gives you:
-
-```kotlin
-val item = AthkarItem(duaText = "اللهم...")
-val item2 = item.copy(duaText = "اللهم something else")  // copy with changes
-println(item)  // AthkarItem(duaText=اللهم..., footer=null)
-item == item2  // true if all properties match
-```
-
-Another example from `SearchViewModel.kt`:
-
-```kotlin
+// Gives you equals(), hashCode(), toString(), and copy() automatically!
 data class SearchResult(
     val category: String,
-    val categoryKey: String,
-    val item: AthkarItem,
-    val index: Int,
+    val item: AthkarItem
 )
+
+// Making a modified copy is trivial:
+val result2 = result1.copy(category = "New Category")
 ```
 
----
+### 6. `sealed class` (Restricted Hierarchies)
 
-## 5. `sealed class`
-
-A sealed class represents a limited set of possibilities. Think of it as: "this value can be one of these specific types, and nothing else."
+هو عبارة عن `enum` لكنه مطور، ويستخدم غالباً مع `when` / `switch`. الفكرة أنه يمثّل **مجموعة مغلقة ومحدودة** من الحالات، لكن — على عكس `enum` — كل حالة (subclass) تستطيع أن تحمل **بياناتها الخاصة المختلفة** عن باقي الحالات.
 
 ```kotlin
-// From BaseAthkarViewModel.kt
+sealed class DeliveryStatus {
+    data class OnTheWay(val driverName: String, val minutesLeft: Int) : DeliveryStatus()
+    data class Delivered(val timeStamp: String) : DeliveryStatus()
+    data class Canceled(val reason: String) : DeliveryStatus()
+}
+
+fun checkStatus(status: DeliveryStatus) {
+    when (status) {
+        is DeliveryStatus.OnTheWay -> println("السائق ${status.driverName} سيصل خلال ${status.minutesLeft} دقيقة.")
+        is DeliveryStatus.Delivered -> println("تم التوصيل بنجاح في: ${status.timeStamp}")
+        is DeliveryStatus.Canceled  -> println("للأسف تم إلغاء الطلب بسبب: ${status.reason}")
+        // لاحظ: لم نكتب else!! الكود آمن 100% لأن الاحتمالات مغلقة ومضمونة.
+    }
+}
+```
+
+*Why use it?* When you use a `when` statement on a sealed class, the compiler **forces** you to handle every case. No bugs!
+
+A `sealed class` is like an `enum` on steroids. It represents a strict, limited set of possibilities, but each possibility can hold its own unique data!
+
+```kotlin
+// In BaseAthkarViewModel.kt
 sealed class ViewEvent {
     data class NavigateTo(val route: String) : ViewEvent()
     data class ShowCompletion(val message: String) : ViewEvent()
@@ -133,308 +118,309 @@ sealed class ViewEvent {
 }
 ```
 
-A `ViewEvent` is either `NavigateTo` (with a route string), `ShowCompletion` (with a message), or `NavigateBack` (no extra data). The compiler knows all possible types, so when you use `when` to handle them:
+### 7. `object` (The Singleton)
+Whenever you need exactly *one* instance of something globally, use `object` instead of `class`. No `new` keywords required.
 
 ```kotlin
-when (event) {
-    is ViewEvent.NavigateTo -> navigate(event.route)
-    is ViewEvent.ShowCompletion -> showSnackbar(event.message)
-    is ViewEvent.NavigateBack -> goBack()
+// A generic teaching example — production code in this project
+// lives in `ui/theme/AppColor.kt`; see 05-ui-layer.md § Theme.
+object AppPalette {
+    val primaryGold = 0xFFFFD700
+    val background = 0xFF000000
 }
-// No `else` needed — compiler knows you covered all cases
+// Usage: AppPalette.primaryGold
 ```
 
-This is much safer than using strings or integers to represent different event types.
+#### `class` vs `object` — What's the Difference?
 
----
+Think of it like a **blueprint** vs a **single physical thing**.
 
-## 6. `companion object`
-
-A `companion object` inside a class gives you static-like members — things that belong to the class itself, not to any instance.
+* **`class` = Blueprint.** A `class` is just a *plan* or *template*. It does nothing by itself — you must **build (instantiate)** it to use it. You can build as many copies as you want.
+* **`object` = The Thing Itself.** An `object` is the *real, one-of-a-kind thing* — it is created automatically the moment your program runs. You can never build another one.
 
 ```kotlin
-// From AthkarixApp.kt
-class AthkarixApp : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        instance = this
-    }
+// 🟦 class — a BLUEPRINT. Calling it directly does nothing.
+class Car {
+    fun drive() = println("Driving...")
+}
 
+// You MUST create an instance with the blueprint:
+val myCar = Car()
+val yourCar = Car()   // ✅ You can have many cars!
+myCar.drive()
+
+// 🟨 object — the REAL thing. Already exists. No creation needed.
+object God {
+    fun isOne() = println("There is no god but Allah")
+}
+
+// You DON'T create it — it's already there:
+God.isOne()           // ✅ Always works. Only ONE God exists.
+```
+
+> [!TIP]
+> **Rule of thumb (the 3 questions):**
+> 1. Do I need **many copies** of this thing? → Use `class`
+> 2. Will there be **only one** of this thing, ever? → Use `object`
+> 3. Am I storing **per-user/per-screen data**? → Use `class` (each instance carries its own data)
+
+```kotlin
+// ✅ Use class — many Athkar items, each with its own count
+class AthkarItem(val text: String) {
+    var readCount: Int = 0   // each item has its own count
+}
+
+// ✅ Use object — only one set of app colors in the whole app
+object AppColor {
+    val primaryGold = Color(0xFFFFD700)
+}
+```
+
+| Question | `class` | `object` |
+|----------|---------|----------|
+| How many exist? | As many as you create | Exactly **one** (the singleton) |
+| Need to use `val x = ...`? | ✅ Yes, you instantiate it | ❌ No, it's already there |
+| Holds per-instance data? | ✅ Yes (e.g. `readCount`) | ❌ No, shared globally |
+| Analogy | A **cookie cutter** (makes many cookies) | The **sun** (only one exists) |
+| Lifetime | Lives as long as your variable holds it | Lives for the whole app |
+
+> [!IMPORTANT]
+> **Beginner trap:** A common mistake is writing `class AppColor { ... }` and then calling `AppColor.primaryGold` directly — this **will not compile** in Kotlin, because a `class` must be instantiated first. If you never need more than one, use `object`!
+
+### 8. `companion object` (Statics)
+Kotlin doesn't have `static` keywords. Instead, we use `companion object` inside a class for things that belong to the class itself, not the instance.
+
+```kotlin
+class AssmaHussnaItem(...) {
     companion object {
-        lateinit var instance: AthkarixApp  // accessible as AthkarixApp.instance
-            private set                     // only this class can set it
+        fun fromJson(json: JSONObject): AssmaHussnaItem = ...
     }
+}
+// Usage: AssmaHussnaItem.fromJson(...)
 }
 ```
 
-And in `AssmaHussnaItem.kt`:
+### 9. Function Overloading (Same Name, Different Signatures)
+Overloading means defining **multiple functions with the same name** in the same scope, as long as their **parameter list differs** (different number of parameters, or different types). The compiler picks the right one based on what you pass in. Return type alone is *not* enough to distinguish overloads.
 
 ```kotlin
-data class AssmaHussnaItem(...) {
-    companion object {
-        fun fromJson(json: JSONObject): AssmaHussnaItem = AssmaHussnaItem(
-            id = json.getInt("id"),
-            name = json.getString("name"),
-            text = json.getString("text"),
-        )
-    }
+// In SearchViewModel.kt — same name, different signatures
+fun search(query: String): List<AthkarItem> {
+    return repository.searchAll(query)
 }
-// Call it: AssmaHussnaItem.fromJson(jsonObject)
+
+fun search(query: String, category: String): List<AthkarItem> {
+    return repository.searchAll(query).filter { it.category == category }
+}
+
+fun search(query: String, maxResults: Int): List<AthkarItem> {
+    return repository.searchAll(query).take(maxResults)
+}
+
+// Usage — the compiler routes to the correct overload automatically:
+search("سبحان")                          // → calls the 1-arg version
+search("سبحان", category = "morning")    // → calls the 2-arg version
+search("سبحان", maxResults = 10)         // → calls the 2-arg version
 ```
 
----
+> [!TIP]
+> **Why overload instead of default parameters?** Both work, but overloading shines when the parameter types differ (e.g., `search(String)` vs `search(AthkarItem)`) — default parameters can't do that.
 
-## 7. Abstract Classes and Inheritance
-
-An `abstract class` defines a template. Subclasses fill in the missing pieces.
+### 10. Function Overriding (Subclass Replaces Parent Behavior)
+Overriding is when a **subclass provides its own implementation** of a function that is already declared (open/abstract) in its parent class. The subclass version is marked with `override`. This is the heart of polymorphism.
 
 ```kotlin
-// From BaseAthkarViewModel.kt — the template
+// In BaseAthkarViewModel.kt — the parent defines the *contract*
 abstract class BaseAthkarViewModel : ViewModel() {
-    // Subclasses MUST provide these:
-    abstract val maxPageCounters: List<Int>
     abstract val dataList: List<AthkarItem>
+    abstract val maxPageCounters: List<Int>
     abstract val completionMessage: String
 
-    // Subclasses INHERIT this method (already implemented):
-    fun incrementPageController() { ... }
-    fun goToHome() { ... }
+    // Shared logic that all subclasses inherit as-is
+    fun incrementPageController() { /* ... */ }
 }
 
-// From AthkarSabahViewModel.kt — one concrete implementation
+// In AthkarSabahViewModel.kt — the subclass fills in the contract
 class AthkarSabahViewModel : BaseAthkarViewModel() {
-    override val dataList: List<AthkarItem> get() = AthkarRepository.athkarSabahList
-    override val completionMessage: String = "أتممت أذكار الصباح"
-    override val maxPageCounters: List<Int> = listOf(1, 1, 3, 1, ...)
-}
-
-// From AthkarMassaViewModel.kt — another concrete implementation
-class AthkarMassaViewModel : BaseAthkarViewModel() {
-    override val dataList: List<AthkarItem> get() = AthkarRepository.athkarMassaList
-    override val completionMessage: String = "أتممت أذكار المساء"
-    override val maxPageCounters: List<Int> = List(22) { 1 }
+    override val dataList: List<AthkarItem> = AthkarRepository.athkarSabahList
+    override val maxPageCounters: List<Int> = listOf(1, 1, 3, 1, /* ... */ 10)
+    override val completionMessage: String = "أنهيت أذكار الصباح !"
 }
 ```
 
-The pattern: 11 different athkar categories share the same logic (swiping, counter, completion), but each has its own data, messages, and tap requirements. The abstract base class avoids duplicating the shared logic 11 times.
+> [!IMPORTANT]
+> **Overloading vs Overriding — don't mix them up!**
+>
+> | Aspect | Overloading | Overriding |
+> |--------|-------------|------------|
+> | Where? | Same class | Parent → child class |
+> | Signature | Must be **different** | Must be **identical** |
+> | Keyword | None | `override` (required) |
+> | Purpose | Multiple ways to call the same operation | Subclass customizes parent behavior |
+> | Decision time | Compile-time (which overload?) | Runtime (which override?) |
 
 ---
+## 🟠 Phase 3: The Asynchronous World
+*Handling background work and UI states without freezing the app.*
 
-## 8. Coroutines (`viewModelScope`, `launch`, `Dispatchers`)
-
-Coroutines let you write asynchronous code (loading data, waiting, responding to events) that reads like normal sequential code.
+### 9. Coroutines (`viewModelScope`, `launch`)
+Coroutines are Kotlin's lightweight threads. They make asynchronous code (like fetching JSON or saving data) read like normal, sequential code.
 
 ```kotlin
-// From AssmaHussnaViewModel.kt
 fun loadData() {
-    viewModelScope.launch(Dispatchers.IO) {   // run on background thread
-        try {
-            val data = AssmaHussnaService.getAllAssmaHussna(appContext)
-            _dataList.value = data.map { item ->
-                AthkarItem(duaText = "[${item.name}]\n\n${item.text}")
-            }
-            _isLoading.value = false           // update UI state
-        } catch (e: Exception) {
-            _hasError.value = true
-            _errorMessage.value = e.message ?: "فشل تحميل البيانات"
-        }
+    // Launches a coroutine tied to the ViewModel's lifecycle
+    viewModelScope.launch(Dispatchers.IO) {
+        val data = AssmaHussnaService.getAll() // Runs in background!
+        _dataList.value = data                 // Updates UI
     }
 }
 ```
 
-What's happening:
-- `viewModelScope` — a built-in coroutine scope tied to the ViewModel's lifecycle. If the ViewModel is destroyed, all coroutines in this scope are cancelled automatically.
-- `launch { }` — starts a coroutine (like `Thread.start()` but cheaper)
-- `Dispatchers.IO` — runs the coroutine on a thread pool for I/O (file/network operations). `Dispatchers.Main` is for UI updates.
-- Inside `launch`, you can use regular `try/catch` — no callback hell.
+### 10. `StateFlow` vs `MutableStateFlow`
+A one-paragraph pointer is enough at this stage — the **full deep dive** (private-mutable / public-readonly split, `collectAsState()`, why-`StateFlow`-not-`var`, Flutter GetX `.obs` comparison table) lives in **[`04-viewmodel-deep-dive.md`](./04-viewmodel-deep-dive.md)** under *Deep Dive: MutableStateFlow vs StateFlow vs asStateFlow()*. Read it once you reach the ViewModel chapter.
+
+The mental model in one sentence: **`StateFlow` is a radio station — the UI subscribes once and rebuilds whenever the value changes.**
+
+> [!TIP]
+> **Coming from Flutter (GetX)?** `MutableStateFlow` is the equivalent of `.obs`; `collectAsState()` is the equivalent of `Obx(() => …)`. The full side-by-side table is in `04`.
+
+---
+## 🔴 Phase 4: Functional & Compose Magic
+*Advanced tricks that make Kotlin incredibly expressive.*
+
+### 11. Higher-Order Functions & Lambdas
+A function that accepts *another function* as a parameter. This is how Jetpack Compose handles all button clicks and events!
 
 ```kotlin
-// From HomeViewModel.kt
-private fun navigate(route: String) {
-    viewModelScope.launch {
-        _navigationEvent.emit(HomeNavigationEvent.GoToRoute(route))
-    }
+@Composable
+fun PrimaryButton(text: String, onClick: () -> Unit) { ... }
+
+// Usage: The code inside { } is a lambda function!
+PrimaryButton(text = "التالي") {
+    viewModel.goToNextPage()
 }
 ```
 
-`emit` on a `SharedFlow` is a suspend function — it must be called from a coroutine.
+### 12. Scope Functions (`let`, `apply`)
+Run code blocks within the context of an object to keep code extremely clean.
+
+* **`let` (For Null Safety):**
+```kotlin
+// Only runs the block if duaText is NOT null. 'it' represents the text.
+athkarItem.duaText?.let {
+    println("Dua: $it")
+}
+```
+
+* **`apply` (For Object Configuration):**
+```kotlin
+// Configure the intent immediately after creating it
+val shareIntent = Intent(Intent.ACTION_SEND).apply {
+    type = "text/plain"
+    putExtra(Intent.EXTRA_TEXT, "نص الدعاء")
+}
+```
+
+### 13. Extension Functions
+Want to add a new method to the built-in `String` or `Context` classes without modifying their source code?
+
+```kotlin
+fun String.toArabicNumerals(): String {
+    return this.replace("1", "١").replace("2", "٢") //...
+}
+
+// Now EVERY string in your app can do this!
+val translated = "Page 1".toArabicNumerals()
+```
+
+### 14. Compose Effects (`remember`, `LaunchedEffect`)
+For the full story on how Compose remembers state and runs side effects (including how `remember { AppModule.provideHomeViewModel() }` ties into the manual DI graph), see **[`05-ui-layer.md`](./05-ui-layer.md)** § *Key Components* and **[`07-navigation-and-di.md`](./07-navigation-and-di.md)** § *How NavGraph Uses AppModule*.
+
+The mental model in one sentence each:
+
+* **`remember`** — "Keep this value across recompositions of the same screen."
+* **`LaunchedEffect(key)`** — "Run this coroutine once, and re-run it if `key` changes."
 
 ---
 
-## 9. `StateFlow` and `SharedFlow`
+## 🔴 Phase 4: Functional & Compose Magic
+*Advanced tricks that make Kotlin incredibly expressive.*
 
-These are Kotlin's reactive state containers — they hold a value and emit updates to anyone listening.
-
-### StateFlow — for continuous state
+### 11. Higher-Order Functions & Lambdas
+A function that accepts *another function* as a parameter. This is how Jetpack Compose handles all button clicks and events!
 
 ```kotlin
-// From FontViewModel.kt
-class FontViewModel : ViewModel() {
-    private val _fontSize = MutableStateFlow(28.6f)  // private mutable version
-    val fontSize: StateFlow<Float> = _fontSize.asStateFlow()  // public read-only version
+@Composable
+fun PrimaryButton(text: String, onClick: () -> Unit) { ... }
 
-    fun increaseFontSize() {
-        if (_fontSize.value < maxFontSize) {
-            _fontSize.value += 2.0f
-        }
-    }
+// Usage: The code inside { } is a lambda function!
+PrimaryButton(text = "التالي") { 
+    viewModel.goToNextPage() 
 }
 ```
 
-- `StateFlow` always has a current value (28.6f initially)
-- `asStateFlow()` creates a read-only snapshot for external code
-- In the Compose UI, you collect it: `val fontSize by fontViewModel.fontSize.collectAsState()`
-- Every time the value changes, the Composable automatically recomposes
+### 12. Scope Functions (`let`, `apply`)
+Run code blocks within the context of an object to keep code extremely clean.
 
-### SharedFlow — for one-shot events
-
+* **`let` (For Null Safety):**
 ```kotlin
-// From BaseAthkarViewModel.kt
-private val _eventFlow = MutableSharedFlow<ViewEvent>()
-val eventFlow: SharedFlow<ViewEvent> = _eventFlow.asSharedFlow()
-
-fun incrementPageController() {
-    // ... when last page is completed:
-    viewModelScope.launch {
-        _eventFlow.emit(ViewEvent.ShowCompletion(completionMessage))
-    }
+// Only runs the block if duaText is NOT null. 'it' represents the text.
+athkarItem.duaText?.let { 
+    println("Dua: $it") 
 }
 ```
 
-- `SharedFlow` does NOT have a current value — it emits events that are consumed once
-- Perfect for: navigation commands, snackbar messages, haptic feedback
-- Collected in Compose via `LaunchedEffect`: collects events and reacts to each one
-
-### The Pattern
-
-```
-StateFlow  → "the page index is 3 right now"  (continuous, has "now" value)
-SharedFlow → "navigate to settings"            (one-shot, no "now" value)
-```
-
----
-
-## 10. Null Safety: `?`, `?.`, `!!`, `lateinit`
-
+* **`apply` (For Object Configuration):**
 ```kotlin
-// From AthkarItem.kt — ? means the value CAN be null
-data class AthkarItem(
-    val duaText: String?,      // two possibilities: a String, or null
-    val footer: String? = null, // defaults to null
-)
-```
-
-```kotlin
-// Safe call ?. — only proceed if NOT null
-dataList.getOrNull(index)?.duaText  // returns null if index is out of bounds or duaText is null
-```
-
-```kotlin
-// Non-null assertion !! — "I PROMISE this is not null" (dangerous if you're wrong)
-fun provideFontViewModel(): FontViewModel {
-    if (fontViewModel == null) {
-        fontViewModel = FontViewModel()
-    }
-    return fontViewModel!!  // crash if fontViewModel is somehow still null
+// Configure the intent immediately after creating it
+val shareIntent = Intent(Intent.ACTION_SEND).apply {
+    type = "text/plain"
+    putExtra(Intent.EXTRA_TEXT, "نص الدعاء")
 }
 ```
 
+### 13. Extension Functions
+Want to add a new method to the built-in `String` or `Context` classes without modifying their source code?
+
 ```kotlin
-// lateinit — "I will set this before it's used, trust me"
-class AthkarixApp : Application() {
-    companion object {
-        lateinit var instance: AthkarixApp  // initialized in onCreate(), not in constructor
-    }
+fun String.toArabicNumerals(): String {
+    return this.replace("1", "١").replace("2", "٢") //...
 }
+
+// Now EVERY string in your app can do this!
+val translated = "Page 1".toArabicNumerals() 
 ```
 
-Rules of thumb:
-- Prefer `?.` over `!!` — safe calls never crash
-- Use `!!` only when you're absolutely certain (like after null-check + assignment)
-- Use `lateinit` for dependencies set after construction
+### 14. Compose Effects (`remember`, `LaunchedEffect`)
+When working in Compose UI, these two are your best friends:
 
----
-
-## 11. `when` Expressions
-
-`when` is Kotlin's more powerful version of `switch`. It can match types, values, and conditions.
-
+* **`remember`**: Tells Compose, "Hey, remember this value even if you redraw the screen."
 ```kotlin
-// From AssmaHussnaScreen.kt — exhaustive when with 3 branches
-when {
-    isLoading -> CircularProgressIndicator(...)
-    hasError -> Column { Text(errorMsg); Button("إعادة المحاولة") }
-    else -> AthkarTextSlider(...)
-}
+val viewModel = remember { AppModule.provideHomeViewModel() }
 ```
 
-With sealed classes, `when` becomes even more powerful:
-
+* **`LaunchedEffect`**: Tells Compose, "Hey, run this background coroutine exactly *once* when this screen opens."
 ```kotlin
-when (event) {
-    is ViewEvent.NavigateTo -> handleNavigation(event.route)
-    is ViewEvent.ShowCompletion -> showSnackbar(event.message)
-    is ViewEvent.NavigateBack -> handleBack()
-    // No else needed — the compiler knows these are ALL the possibilities
+LaunchedEffect(Unit) { 
+    viewModel.loadData() 
 }
 ```
 
 ---
 
-## 12. `remember` and `LaunchedEffect` (Compose)
+## 📊 Quick Cheatsheet
 
-These are Compose-specific Kotlin functions for managing state and side effects.
+| Concept | Use Case | Example |
+|---------|----------|---------|
+| `val` | Constant reference | `val name = "App"` |
+| `data class` | Holding data | `data class User(val id: Int)` |
+| `object` | Singletons | `object Analytics { }` |
+| `sealed class` | Strict UI States | `sealed class UiState` |
+| `StateFlow` | Reactive UI State | `val text = MutableStateFlow("")` |
+| `let` | Safe null-unwrapping | `user?.let { login(it) }` |
+| Extension | Custom utility | `fun Context.showToast()` |
+| `launch` | Background work | `viewModelScope.launch { }` |
+| Overload | Same name, different params | `fun search(q: String)` / `fun search(q: String, n: Int)` |
+| Override | Subclass replaces parent | `override val dataList: List<AthkarItem>` |
 
-### `remember`
-
-Keeps a value across recompositions. Without `remember`, the ViewModel would be recreated on every frame.
-
-```kotlin
-// From AthkarixNavGraph.kt
-composable(Routes.HOME) {
-    val vm = remember { AppModule.provideHomeViewModel() }
-    // vm is created once and remembered — survives recompositions
-    HomeScreen(viewModel = vm, ...)
-}
-```
-
-### `LaunchedEffect`
-
-Runs a coroutine when the Composable enters the composition. Perfect for collecting SharedFlows and one-time work.
-
-```kotlin
-// From AssmaHussnaScreen.kt
-LaunchedEffect(Unit) { viewModel.loadData() }
-// Runs once when the screen appears. Unit means "don't re-run on recomposition."
-```
-
-```kotlin
-// From AthkarTextSlider.kt
-LaunchedEffect(pageIndex) {
-    if (pagerState.currentPage != pageIndex) {
-        pagerState.animateScrollToPage(pageIndex)
-    }
-}
-// Re-runs whenever pageIndex changes — syncs the pager with the ViewModel
-```
-
----
-
-## Summary: Kotlin Features by Usage Frequency
-
-| Feature | Used where? | How many times? |
-|---------|-------------|-----------------|
-| `val`/`var` | Every file | Hundreds |
-| `fun` | Every file | Hundreds |
-| `object` | Singletons (8 files) | 8 |
-| `data class` | Models | 6+ |
-| `sealed class` | Events | 2 (ViewEvent, HomeNavigationEvent) |
-| `companion object` | Static members | 2 (AthkarixApp, AssmaHussnaItem) |
-| `abstract class` | ViewModel base | 1 (BaseAthkarViewModel + 11 subclasses) |
-| Coroutines | ViewModels | ~10 files |
-| `StateFlow` | All ViewModels | ~15 files |
-| `SharedFlow` | Event buses | 3 files |
-| Null safety (`?.`) | Throughout | ~30+ places |
-| `when` | Screen composables | ~5 places |
-| `remember` | NavGraph, screens | ~15 places |
-| `LaunchedEffect` | Side effects | ~5 places |
+> *“Code is read much more often than it is written.”* — Keep it clean, keep it Kotlin! 🚀
