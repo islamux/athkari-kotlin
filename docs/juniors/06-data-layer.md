@@ -242,6 +242,8 @@ Registered in `AndroidManifest.xml`:
 └───────────────────────────────────────────────────────────────┘
 ```
 
+For the layered unidirectional picture (UI → ViewModel → Repository → Assets) with the Mermaid graph, see **[`03-architecture-overview.md`](./03-architecture-overview.md)** § *The Big Picture: Data Flow*. The diagram above is the data-only zoom-in.
+
 Key insight: There's no database, no API calls, no Retrofit, no Room. All data is either:
 - Compiled into the app as Kotlin constants (athkar text)
 - Loaded from a JSON asset (99 Names)
