@@ -44,21 +44,16 @@ Start with the [official Kotlin tour](https://kotlinlang.org/docs/getting-starte
 - Or: Build → Make Project (or Ctrl+F9)
 
 ### From the Command Line
+The **canonical command reference** (build, install, lint, test, emulator launch) lives in **[`../run-without-studio.md`](../run-without-studio.md)**. The one-liner summary:
+
 ```bash
-# Build debug APK
-./gradlew assembleDebug
-
-# Build release APK
-./gradlew assembleRelease
-
-# Run lint checks
-./gradlew lint
-
-# Run unit tests
-./gradlew test
+./gradlew assembleDebug   # build APK
+./gradlew installDebug    # build + install on connected device
+./gradlew lint            # run lint checks
+./gradlew test            # run unit tests
 ```
 
-The APK will be at `app/build/outputs/apk/debug/app-debug.apk`.
+The APK lands at `app/build/outputs/apk/debug/app-debug.apk`.
 
 ## Project Directory Structure
 
@@ -104,19 +99,26 @@ If you want to understand how the app works from end to end, read these files in
 - No network libraries — everything is local
 - No Hilt/Dagger — manual dependency injection (simple `object` pattern)
 
+## Next Docs
+
+- [`01-kotlin-concepts.md`](./01-kotlin-concepts.md) — Every Kotlin feature used here, explained with real code
+- [`02-flutter-to-compose.md`](./02-flutter-to-compose.md) — Mapping Flutter concepts to Jetpack Compose
+- [`03-architecture-overview.md`](./03-architecture-overview.md) — MVVM and data flow
+- [`04-viewmodel-deep-dive.md`](./04-viewmodel-deep-dive.md) — How ViewModels manage state (canonical home for `StateFlow`, `BaseAthkarViewModel`)
+- [`05-ui-layer.md`](./05-ui-layer.md) — Compose screens and components (canonical home for `AppTheme` / `AppColor`)
+- [`06-data-layer.md`](./06-data-layer.md) — Text data, JSON, preferences, services
+- [`07-navigation-and-di.md`](./07-navigation-and-di.md) — Screen routing and manual DI (canonical home for both)
+- [`08-project-audit.md`](./08-project-audit.md) — Current status and deep dive into structure
+- [`09-unit-testing-guide.md`](./09-unit-testing-guide.md) — How to write local JVM unit tests without an emulator
+
+> **Not sure where to look?** See the Q&A index in [`README.md`](./README.md).
+
 ## Common Gradle Commands
+
+The full reference lives in [`../run-without-studio.md`](../run-without-studio.md) § *Common Tasks*. A few extras worth knowing:
 
 ```bash
 ./gradlew tasks                    # List all available tasks
 ./gradlew :app:dependencies        # Show dependency tree
 ./gradlew clean assembleDebug      # Clean build
 ```
-
-## Next Docs
-
-- `01-kotlin-concepts.md` — Every Kotlin feature used here, explained with real code
-- `02-architecture-overview.md` — MVVM and data flow
-- `03-viewmodel-deep-dive.md` — How ViewModels manage state
-- `04-ui-layer.md` — Compose screens and components
-- `05-data-layer.md` — Text data, JSON, preferences, services
-- `06-navigation-and-di.md` — Screen routing and manual DI
