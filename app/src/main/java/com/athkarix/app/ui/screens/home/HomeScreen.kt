@@ -1,7 +1,7 @@
 package com.athkarix.app.ui.screens.home
 
 import android.app.Activity
-import androidx.activity.compose.BackHandler
+import com.athkarix.app.ui.components.common.ExitGuard
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -37,7 +37,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.athkarix.app.ui.components.common.BackgroundImage
-import com.athkarix.app.ui.components.AlertExitApp
 import com.athkarix.app.ui.components.CustomButton
 import com.athkarix.app.ui.components.CustomDrawer
 import com.athkarix.app.ui.theme.AppColor
@@ -91,19 +90,15 @@ fun HomeScreen(
         )
     }
 
-    BackHandler(enabled = true) {
-        showExitDialog = true
-    }
-
-    if (showExitDialog) {
-        AlertExitApp(
-            onConfirmExit = {
-                showExitDialog = false
-                (context as? Activity)?.finishAffinity()
-            },
-            onDismiss = { showExitDialog = false },
-        )
-    }
+    ExitGuard(
+        showDialog = showExitDialog,
+        onRequestExit = { showExitDialog = true },
+        onConfirmExit = {
+            showExitDialog = false
+            (context as? Activity)?.finishAffinity()
+        },
+        onDismiss = { showExitDialog = false },
+    )
 
     ModalNavigationDrawer(
         drawerState = drawerState,
