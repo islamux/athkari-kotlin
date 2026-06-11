@@ -10,8 +10,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import com.athkarix.app.ui.components.AthkarTextSlider
-import com.athkarix.app.ui.components.FontControls
+import com.athkarix.app.ui.components.dua.AthkarTextSlider
+import com.athkarix.app.ui.components.dua.FontControls
 import com.athkarix.app.ui.components.common.AthkarixTopAppBar
 import com.athkarix.app.ui.components.common.LoadingErrorContent
 import com.athkarix.app.viewmodel.AssmaHussnaViewModel

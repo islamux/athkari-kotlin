@@ -1,4 +1,4 @@
-package com.athkarix.app.ui.components
+package com.athkarix.app.ui.components.navigation
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

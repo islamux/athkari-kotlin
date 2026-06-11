@@ -2,7 +2,7 @@ package com.athkarix.app.ui.components.common
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
-import com.athkarix.app.ui.components.AlertExitApp
+import com.athkarix.app.ui.components.common.AlertExitApp
 
 @Composable
 fun ExitGuard(
