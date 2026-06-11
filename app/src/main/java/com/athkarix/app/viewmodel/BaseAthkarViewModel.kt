@@ -11,18 +11,22 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/** Events that any Athkar screen can emit — navigation, completion snackbar, or back. */
 sealed class ViewEvent {
     data class NavigateTo(val route: String) : ViewEvent()
     data class ShowCompletion(val message: String) : ViewEvent()
     object NavigateBack : ViewEvent()
 }
 
+/** Shared logic for every athkar category ViewModel: page tracking, counter, haptics, completion detection. */
 abstract class BaseAthkarViewModel : ViewModel() {
 
+    // — Subclass contracts —
     abstract val maxPageCounters: List<Int>
     abstract val dataList: List<AthkarItem>
     abstract val completionMessage: String
 
+    // — Mutable state (private backing, public read-only flow) —
     private val _currentPageIndex = MutableStateFlow(0)
     val currentPageIndex: StateFlow<Int> = _currentPageIndex.asStateFlow()
 
@@ -32,6 +36,7 @@ abstract class BaseAthkarViewModel : ViewModel() {
     private val _eventFlow = MutableSharedFlow<ViewEvent>()
     val eventFlow: SharedFlow<ViewEvent> = _eventFlow.asSharedFlow()
 
+    // — Haptic feedback so the user feels page turns —
     private val _hapticTrigger = MutableSharedFlow<Unit>()
     val hapticTrigger: SharedFlow<Unit> = _hapticTrigger.asSharedFlow()
 
@@ -44,6 +49,7 @@ abstract class BaseAthkarViewModel : ViewModel() {
         resetCounter()
     }
 
+    // — Core counter logic (advance page when count reaches max, or show completion) —
     fun incrementPageController() {
         val max = maxPageCounters.getOrElse(_currentPageIndex.value) { 1 }
         val newCount = _currentPageCounter.value + 1

@@ -3,6 +3,7 @@ package com.athkarix.app.viewmodel
 import com.athkarix.app.data.model.AthkarItem
 import com.athkarix.app.data.repository.AthkarRepository
 
+/** Morning athkar — 24 items with custom repetition counts (some recited 3×, 7×, 10×, 100×). */
 class AthkarSabahViewModel : BaseAthkarViewModel() {
 
     override val dataList: List<AthkarItem> = AthkarRepository.athkarSabahList

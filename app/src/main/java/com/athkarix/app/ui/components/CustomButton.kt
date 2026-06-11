@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.athkarix.app.ui.theme.AppColor
 
+/** Reusable styled button with icon, rounded corners, and the app's dark-gold colour. */
 @Composable
 fun CustomButton(
     icon: ImageVector = Icons.Default.ArrowBack,

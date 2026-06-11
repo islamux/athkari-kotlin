@@ -10,6 +10,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.athkarix.app.ui.theme.AppColor
 
+/** Circular gold FAB showing a counter number — used for independent tasbih counting. */
 @Composable
 fun FloatingCounterFab(
     counter: Int,

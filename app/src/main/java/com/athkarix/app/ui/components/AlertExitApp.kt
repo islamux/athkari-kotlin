@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.athkarix.app.ui.theme.AppColor
 
+/** Exit-confirmation dialog that uses the app's CustomButton for confirm/dismiss. */
 @Composable
 fun AlertExitApp(
     onConfirmExit: () -> Unit,

@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.athkarix.app.ui.theme.AppColor
 import com.athkarix.app.viewmodel.NotificationSettingsViewModel
 
+/** Settings screen for toggling morning/evening reminder notifications and viewing scheduled times. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationSettingsScreen(

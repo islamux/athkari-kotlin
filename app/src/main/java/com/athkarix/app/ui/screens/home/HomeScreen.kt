@@ -5,7 +5,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -19,9 +18,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -29,7 +26,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,23 +37,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.athkarix.app.R
 import com.athkarix.app.ui.components.AlertExitApp
 import com.athkarix.app.ui.components.CustomButton
+import com.athkarix.app.ui.components.CustomDrawer
 import com.athkarix.app.ui.theme.AppColor
 import com.athkarix.app.util.ShareUtil
 import com.athkarix.app.util.WhatsAppUtil
 import kotlinx.coroutines.launch
 
+/** Data for each category button on the home screen — label, route, and click handler. */
 data class HomeButtonItem(
     val label: String,
     val route: String,
     val onClick: () -> Unit,
 )
 
+/** Main home screen: navigation drawer, background image, scrollable category buttons, exit dialog on back. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -69,6 +67,7 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     var showExitDialog by remember { mutableStateOf(false) }
 
+    // — Observe navigation events from ViewModel —
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect { event ->
             when (event) {
@@ -77,8 +76,10 @@ fun HomeScreen(
         }
     }
 
+    // — 11 athkar category buttons —
     val buttons = remember {
         listOf(
+          // viewModel::goToAssmaHussna = {viewModel.goToAssmaHussna()} *** viewModel.goToAssmaHussna WRONG becues  it exute before click btn the code 
             HomeButtonItem("أسماء الله الحسنى", "assma_hussna", viewModel::goToAssmaHussna),
             HomeButtonItem("الإستغفار", "estigfar", viewModel::goToEstigfar),
             HomeButtonItem("التسبيح", "tasbih", viewModel::goToTasbih),
@@ -110,52 +111,20 @@ fun HomeScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Athkarix",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = AppColor.primaryGold,
-                        modifier = Modifier.padding(vertical = 16.dp)
-                    )
-                    androidx.compose.material3.Divider()
-                    Spacer(Modifier.height(8.dp))
-                    NavigationDrawerItem(
-                        icon = { Icon(Icons.Default.Menu, contentDescription = null) },
-                        label = { Text("إعدادات التنبيهات") },
-                        selected = false,
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            onNavigate("notification_settings")
-                        },
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-                    NavigationDrawerItem(
-                        icon = { Icon(Icons.Default.Menu, contentDescription = null) },
-                        label = { Text("تواصل معنا") },
-                        selected = false,
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            WhatsAppUtil.openWhatsApp(context)
-                        },
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-                    NavigationDrawerItem(
-                        icon = { Icon(Icons.Default.Menu, contentDescription = null) },
-                        label = { Text("شارك التطبيق عبر وسائل التواصل") },
-                        selected = false,
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            ShareUtil.shareApp(context)
-                        },
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-                }
-            }
+            CustomDrawer(
+                onNotificationSettings = {
+                    scope.launch { drawerState.close() }
+                    onNavigate("notification_settings")
+                },
+                onContactUs = {
+                    scope.launch { drawerState.close() }
+                    WhatsAppUtil.openWhatsApp(context)
+                },
+                onShare = {
+                    scope.launch { drawerState.close() }
+                    ShareUtil.shareApp(context)
+                },
+            )
         },
     ) {
         Scaffold(
@@ -168,6 +137,7 @@ fun HomeScreen(
                         actionIconContentColor = AppColor.amber,
                     ),
                     actions = {
+                      // viewModel:: goToSearch = {viewModel.goToSearch()}
                         IconButton(onClick = { viewModel.goToSearch() }) {
                             Icon(Icons.Default.Search, contentDescription = "بحث")
                         }

@@ -7,15 +7,18 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
+/** Navigation events emitted from the Home screen to the NavHost. */
 sealed class HomeNavigationEvent {
     data class GoToRoute(val route: String) : HomeNavigationEvent()
 }
 
+/** Emits navigation events for each of the 11 category buttons on the home screen. */
 class HomeViewModel : ViewModel() {
 
     private val _navigationEvent = MutableSharedFlow<HomeNavigationEvent>()
     val navigationEvent: SharedFlow<HomeNavigationEvent> = _navigationEvent.asSharedFlow()
 
+    // — One navigation method per category button —
     fun goToAthkarSabah() = navigate("athkar_sabah")
     fun goToAthkarMassa() = navigate("athkar_massa")
     fun goToTasbih() = navigate("tasbih")
@@ -30,6 +33,7 @@ class HomeViewModel : ViewModel() {
     fun goToNotificationSettings() = navigate("notification_settings")
     fun goToSearch() = navigate("search")
 
+    // — Shared single-shot emit —
     private fun navigate(route: String) {
         viewModelScope.launch {
             _navigationEvent.emit(HomeNavigationEvent.GoToRoute(route))

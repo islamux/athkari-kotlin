@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.athkarix.app.ui.theme.AppColor
 
+/** Live-search screen: text field filters across all athkar categories with diacritic-insensitive matching. */
 @Composable
 fun SearchScreen(
     viewModel: SearchViewModel,
@@ -40,6 +41,7 @@ fun SearchScreen(
             .fillMaxSize()
             .background(Color.Black)
     ) {
+        // — Search input field —
         TextField(
             value = query,
             onValueChange = { viewModel.search(it) },
@@ -64,6 +66,7 @@ fun SearchScreen(
                 .padding(8.dp),
             singleLine = true,
         )
+        // — Empty state vs results list —
         if (query.isNotEmpty() && results.isEmpty()) {
             Box(Modifier.fillMaxSize()) {
                 Text(

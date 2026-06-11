@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+/** Bridges SharedPrefsManager and NotificationService so the settings screen can toggle and schedule reminders. */
 class NotificationSettingsViewModel(
     private val prefs: SharedPrefsManager,
     private val notificationService: NotificationService,
@@ -30,6 +31,7 @@ class NotificationSettingsViewModel(
     private val _eveningMinute = MutableStateFlow(prefs.eveningMinute)
     val eveningMinute: StateFlow<Int> = _eveningMinute.asStateFlow()
 
+    // — Toggle morning/evening (persist + schedule or cancel) —
     fun setMorningEnabled(enabled: Boolean) {
         _morningEnabled.value = enabled
         prefs.morningEnabled = enabled
@@ -50,6 +52,7 @@ class NotificationSettingsViewModel(
         }
     }
 
+    // — Update reminder times (re-schedule if currently enabled) —
     fun setMorningTime(hour: Int, minute: Int) {
         _morningHour.value = hour
         _morningMinute.value = minute
