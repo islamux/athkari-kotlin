@@ -22,10 +22,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.athkarix.app.ui.theme.AppColor
 
+/** Navigation drawer with app branding, notification settings, contact us, and share. */
 @Composable
 fun CustomDrawer(
-    drawerState: DrawerState,
     onNotificationSettings: () -> Unit,
+    onContactUs: () -> Unit,
     onShare: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -45,14 +46,21 @@ fun CustomDrawer(
             Spacer(Modifier.height(8.dp))
             NavigationDrawerItem(
                 icon = { Icon(Icons.Default.Notifications, contentDescription = null) },
-                label = { Text("إعدادات الإشعارات") },
+                label = { Text("إعدادات التنبيهات") },
                 selected = false,
                 onClick = onNotificationSettings,
                 modifier = Modifier.fillMaxWidth()
             )
             NavigationDrawerItem(
+                icon = { Icon(Icons.Default.Notifications, contentDescription = null) },
+                label = { Text("تواصل معنا") },
+                selected = false,
+                onClick = onContactUs,
+                modifier = Modifier.fillMaxWidth()
+            )
+            NavigationDrawerItem(
                 icon = { Icon(Icons.Default.Share, contentDescription = null) },
-                label = { Text("مشاركة التطبيق") },
+                label = { Text("شارك التطبيق عبر وسائل التواصل") },
                 selected = false,
                 onClick = onShare,
                 modifier = Modifier.fillMaxWidth()

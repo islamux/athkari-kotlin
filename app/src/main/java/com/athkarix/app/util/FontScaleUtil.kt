@@ -3,6 +3,7 @@ package com.athkarix.app.util
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 
+/** Detect tablet screens and scale font sizes accordingly for a good reading experience. */
 object FontScaleUtil {
 
     @Composable

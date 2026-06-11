@@ -7,6 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import com.athkarix.app.navigation.AthkarixNavGraph
 import com.athkarix.app.ui.theme.AthkarixTheme
 
+/** Single activity — sets the Compose content with the app theme and navigation graph. */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

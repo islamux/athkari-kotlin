@@ -19,12 +19,16 @@ import com.athkarix.app.viewmodel.NotificationSettingsViewModel
 import com.athkarix.app.viewmodel.SalatAlaRasoulViewModel
 import com.athkarix.app.viewmodel.TasbihViewModel
 
+/** Manual dependency injection — singleton factory for all ViewModels and shared services.
+ *  A real DI framework (Hilt/Koin) could replace this, but a plain object keeps the
+ *  dependency graph visible and easy to trace for a junior dev. */
 object AppModule {
 
     private var sharedPrefsManager: SharedPrefsManager? = null
     private var fontViewModel: FontViewModel? = null
     private var floatingCounterViewModel: FloatingCounterViewModel? = null
 
+    // — Shared singleton services (created once, reused) —
     fun provideSharedPrefsManager(context: Context): SharedPrefsManager {
         if (sharedPrefsManager == null) {
             sharedPrefsManager = SharedPrefsManager(context)
@@ -46,6 +50,7 @@ object AppModule {
         return floatingCounterViewModel!!
     }
 
+    // — ViewModel factories (fresh instance each call, no shared state) —
     fun provideHomeViewModel(): HomeViewModel = HomeViewModel()
     fun provideAthkarSabahViewModel(): AthkarSabahViewModel = AthkarSabahViewModel()
     fun provideAthkarMassaViewModel(): AthkarMassaViewModel = AthkarMassaViewModel()

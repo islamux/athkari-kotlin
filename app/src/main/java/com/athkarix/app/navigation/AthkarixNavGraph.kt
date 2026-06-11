@@ -27,6 +27,7 @@ import com.athkarix.app.ui.screens.search.SearchViewModel
 import com.athkarix.app.ui.screens.settings.NotificationSettingsScreen
 import com.athkarix.app.util.ShareUtil
 
+/** String constants for every navigation route in the app — single source of truth. */
 object Routes {
     const val HOME = "home"
     const val ATHKAR_SABAH = "athkar_sabah"
@@ -45,18 +46,23 @@ object Routes {
     const val SEARCH_RESULT = "search_result/{categoryIndex}/{itemIndex}"
 }
 
+/** Top-level NavHost wiring every route constant to its screen composable + ViewModel. */
 @Composable
 fun AthkarixNavGraph(navController: NavHostController) {
     val context = LocalContext.current
     val fontVM = remember { AppModule.provideFontViewModel() }
     val floatingCounterVM = remember { AppModule.provideFloatingCounterViewModel() }
 
+    
     fun back() { navController.popBackStack() }
 
+    // — Route definitions —
     NavHost(
         navController = navController,
         startDestination = Routes.HOME,
     ) {
+    
+      // Home screen
         composable(Routes.HOME) {
             val vm = remember { AppModule.provideHomeViewModel() }
             HomeScreen(
@@ -64,6 +70,8 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 onNavigate = { route -> navController.navigate(route) },
             )
         }
+
+        // ATHKAR_SABAH screen
         composable(Routes.ATHKAR_SABAH) {
             val vm = remember { AppModule.provideAthkarSabahViewModel() }
             AthkarScreen(
@@ -73,6 +81,8 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
         }
+
+        // ATHKAR_MASSA screen
         composable(Routes.ATHKAR_MASSA) {
             val vm = remember { AppModule.provideAthkarMassaViewModel() }
             AthkarScreen(
@@ -82,6 +92,8 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
         }
+
+        // ATHKAR_AFTER_SALAT screen
         composable(Routes.ATHKAR_AFTER_SALAT) {
             val vm = remember { AppModule.provideAthkarAfterSalatViewModel() }
             AthkarScreen(
@@ -91,6 +103,8 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
         }
+
+        // ATHKAR_BEFORE_BED screen
         composable(Routes.ATHKAR_BEFORE_BED) {
             val vm = remember { AppModule.provideAthkarBeforeBedViewModel() }
             AthkarScreen(
@@ -100,6 +114,8 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
         }
+
+        // TASBIH screen
         composable(Routes.TASBIH) {
             val vm = remember { AppModule.provideTasbihViewModel() }
             AthkarScreen(
@@ -111,6 +127,8 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
         }
+
+        // ESTIGFAR screen
         composable(Routes.ESTIGFAR) {
             val vm = remember { AppModule.provideEstigfarViewModel() }
             AthkarScreen(
@@ -122,6 +140,8 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
         }
+
+        // HAMD screen
         composable(Routes.HAMD) {
             val vm = remember { AppModule.provideHamdViewModel() }
             AthkarScreen(
@@ -133,6 +153,9 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
         }
+
+
+        // SALAT_ALA_RASOUL screen
         composable(Routes.SALAT_ALA_RASOUL) {
             val vm = remember { AppModule.provideSalatAlaRasoulViewModel() }
             AthkarScreen(
@@ -144,6 +167,8 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
         }
+
+        // DUAA_QURAN screen
         composable(Routes.DUAA_QURAN) {
             val vm = remember { AppModule.provideDuaMenQuranViewModel() }
             AthkarScreen(
@@ -153,6 +178,8 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
         }
+
+        // DUAA_SUNNAH screen
         composable(Routes.DUAA_SUNNAH) {
             val vm = remember { AppModule.provideDuaMenSunnahViewModel() }
             AthkarScreen(
@@ -162,6 +189,8 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
         }
+
+        // ASSMA_HUSSNA screen
         composable(Routes.ASSMA_HUSSNA) {
             val vm = remember { AppModule.provideAssmaHussnaViewModel(context) }
             AssmaHussnaScreen(
@@ -170,6 +199,8 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 onBack = { back() },
             )
         }
+
+        // NOTIFICATION_SETTINGS screen
         composable(Routes.NOTIFICATION_SETTINGS) {
             val vm = remember { AppModule.provideNotificationSettingsViewModel(context) }
             NotificationSettingsScreen(
@@ -177,6 +208,8 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 onBack = { back() },
             )
         }
+
+        // SEARCH screen
         composable(Routes.SEARCH) {
             val searchVM = remember { SearchViewModel() }
             SearchScreen(
@@ -186,6 +219,8 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 },
             )
         }
+
+        // SEARCH_RESULT screen
         composable(
             route = Routes.SEARCH_RESULT,
             arguments = listOf(
@@ -204,6 +239,7 @@ fun AthkarixNavGraph(navController: NavHostController) {
     }
 }
 
+/** Fallback screen for routes whose real UI is not yet implemented (e.g., search result display). */
 @Composable
 fun PlaceholderScreenWithVM(
     name: String,

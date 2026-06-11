@@ -3,6 +3,7 @@ package com.athkarix.app.util
 import android.content.Context
 import android.content.Intent
 
+/** System share-sheet helpers for sharing athkar text or the app itself. */
 object ShareUtil {
     fun shareText(context: Context, text: String) {
         val sendIntent = Intent().apply {
