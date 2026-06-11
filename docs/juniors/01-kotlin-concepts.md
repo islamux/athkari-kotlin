@@ -276,13 +276,124 @@ fun loadData() {
 }
 ```
 
-### 10. `StateFlow` vs `MutableStateFlow`
+### 10. `StateFlow` vs `MutableStateFlow` + Backing Property
+
 A one-paragraph pointer is enough at this stage — the **full deep dive** (private-mutable / public-readonly split, `collectAsState()`, why-`StateFlow`-not-`var`, Flutter GetX `.obs` comparison table) lives in **[`04-viewmodel-deep-dive.md`](./04-viewmodel-deep-dive.md)** under *Deep Dive: MutableStateFlow vs StateFlow vs asStateFlow()*. Read it once you reach the ViewModel chapter.
 
 The mental model in one sentence: **`StateFlow` is a radio station — the UI subscribes once and rebuilds whenever the value changes.**
 
 > [!TIP]
 > **Coming from Flutter (GetX)?** `MutableStateFlow` is the equivalent of `.obs`; `collectAsState()` is the equivalent of `Obx(() => …)`. The full side-by-side table is in `04`.
+
+#### 🎯 Backing Property Pattern (نمط الملكية الخلفية)
+
+**English:**
+This is the **#1 most important pattern** you will see in every ViewModel in Athkarix. Understanding it unlocks all the reactive state management in the app.
+
+**بالعربية:**
+هذا هو **أهم نمط** ستشاهده في كل ViewModel في تطبيق Athkarix. فهمه يفتح لك الباب لفهم إدارة الحالة التفاعلية في التطبيق بأكمله.
+
+```kotlin
+class FontViewModel : ViewModel() {
+
+    private val _fontSize = MutableStateFlow(28.6f)   // 1
+    val fontSize: StateFlow<Float> = _fontSize.asStateFlow()  // 2
+}
+```
+
+##### 🤝 Bridge from Java: Private Field + Getter/Setter
+
+**English:**
+If you come from Java, this pattern will feel familiar. It is the exact same idea as a **private field with a public getter** — but adapted for reactive streams:
+
+```java
+// Java — traditional encapsulation
+public class FontViewModel {
+    private float fontSize = 28.6f;          // private field ← like _fontSize
+
+    public float getFontSize() {              // public getter  ← like fontSize (read-only)
+        return fontSize;
+    }
+
+    public void setFontSize(float value) {    // public setter  ← like increaseFontSize() / decreaseFontSize()
+        this.fontSize = value;
+    }
+}
+```
+
+| Java Concept | Kotlin Equivalent |
+|-------------|-------------------|
+| `private float fontSize` | `private val _fontSize = MutableStateFlow(28.6f)` |
+| `public float getFontSize()` | `val fontSize: StateFlow<Float> = _fontSize.asStateFlow()` |
+| `public void setFontSize(float)` | `fun increaseFontSize()` / `fun decreaseFontSize()` |
+| Encapsulation (hide data, expose behavior) | Same principle — `private` mutable, `public` read-only |
+
+The key difference: in Java, the getter returns a plain value. In Kotlin + Flows, `fontSize` is a **reactive stream** — the UI subscribes to it and gets **automatically notified** whenever the value changes.
+
+**بالعربية:**
+إذا كنت قادماً من Java، ستجد هذا النمط مألوفاً. إنه نفس فكرة **الحقل الخاص مع دالة إحضار عامة** — لكن مُكيّف للتدفقات التفاعلية:
+
+| مفهوم Java | المقابل في Kotlin |
+|------------|-------------------|
+| `private float fontSize` | `private val _fontSize = MutableStateFlow(28.6f)` |
+| `public float getFontSize()` | `val fontSize: StateFlow<Float> = _fontSize.asStateFlow()` |
+| `public void setFontSize(float)` | `fun increaseFontSize()` / `fun decreaseFontSize()` |
+| التغليف (إخفاء البيانات، إظهار السلوك) | نفس المبدأ — قابل للتعديل `private`، للقراءة فقط `public` |
+
+الفرق الجوهري: في Java، الدالة `getFontSize()` ترجع قيمة عادية. في Kotlin مع Flows، المتغير `fontSize` هو **تدفق تفاعلي** — الـ UI يشترك فيه ويتم **إعلامه تلقائياً** كلما تغيرت القيمة.
+
+##### Line-by-Line Breakdown (English)
+
+| # | Variable | Type | Visibility | Purpose |
+|---|----------|------|------------|---------|
+| 1 | `_fontSize` | `MutableStateFlow<Float>` | `private` | Holds the mutable value. ViewModel writes to this. |
+| 2 | `fontSize` | `StateFlow<Float>` | `public` | Exposes the same value as **read-only** to the UI. |
+| `.asStateFlow()` | *(conversion)* | — | — | Bridges the two: removes the `set` capability. |
+
+##### Line-by-Line Breakdown (بالعربية)
+
+| # | المتغير | النوع | الظهور | الهدف |
+|---|---------|-------|--------|-------|
+| 1 | `_fontSize` | `MutableStateFlow<Float>` | `private` | يخزن القيمة القابلة للتعديل. الـ ViewModel يكتب فيه. |
+| 2 | `fontSize` | `StateFlow<Float>` | `public` | يعرض نفس القيمة ولكن **للقراءة فقط** للـ UI. |
+| `.asStateFlow()` | *(تحويل)* | — | — | يربط بينهما: يزيل خاصية التعديل (`set`). |
+
+##### Why this pattern?
+
+**English — Encapsulation:**
+By keeping the mutable version `private`, you guarantee that **only the ViewModel** controls state changes. The UI (Composable functions) cannot accidentally corrupt the state.
+
+```kotlin
+// ✅ Correct — ViewModel controls state
+viewModel.increaseFontSize()  // ViewModel changes _fontSize internally
+
+// ❌ Impossible — fontSize is read-only
+// viewModel.fontSize.value = 50f  // Compile error!
+```
+
+**بالعربية — التغليف:**
+من خلال جعل النسخة القابلة للتعديل `private`، أنت تضمن أن **الـ ViewModel فقط** هو من يتحكم في تغييرات الحالة. الـ UI لا يستطيع إفساد الحالة عن طريق الخطأ.
+
+##### Visualization
+
+```
+┌─────────────────────────────────┐
+│          FontViewModel          │
+│                                 │
+│  private _fontSize  ──asStateFlow──►  public fontSize  ──collectAsState──►  UI
+│  (MutableStateFlow) │           │  (StateFlow)         │                 │
+│                     │ can write │                      │ can read         │
+│  changeFont() ──────┘           │                      ◄─────────────────┘
+│  increaseFontSize()             │
+│  decreaseFontSize()             │
+└─────────────────────────────────┘
+```
+
+**English:**
+The arrow shows the **one-way data flow**: ViewModel writes → UI reads. Never the reverse.
+
+**بالعربية:**
+السهم يوضح **تدفق البيانات باتجاه واحد**: الـ ViewModel يكتب ← الـ UI يقرأ. أبداً العكس.
 
 ---
 ## 🔴 Phase 4: Functional & Compose Magic
@@ -301,7 +412,51 @@ PrimaryButton(text = "التالي") {
 }
 ```
 
-### 12. Scope Functions (`let`, `apply`)
+> [!TIP]
+> **From Java?** A lambda `{ viewModel.goToNextPage() }` is like a `Runnable` — an object that wraps the code for later execution.
+
+### 12. Function Call vs Function Reference (`()` vs `::`)
+
+**The #1 bug juniors make in Compose:** calling a function instead of passing it.
+
+**English — The Difference:**
+
+```kotlin
+// ❌ WRONG — calls the function IMMEDIATELY
+HomeButtonItem("الإستغفار", "estigfar", viewModel.goToEstigfar())
+//                                    👆 The () executes goToEstigfar() right now,
+//                                    before the user even sees the button!
+
+// ✅ CORRECT — passes the function to be called LATER
+HomeButtonItem("الإستغفار", "estigfar", viewModel::goToEstigfar)
+//                                    👆 The :: passes a *reference* to the function.
+//                                    The button stores it and calls it onClick only.
+```
+
+| Syntax | Meaning | When does it run? |
+|--------|---------|-------------------|
+| `viewModel.goToEstigfar()` | **Call** the function | **Immediately**, at this exact line of code |
+| `viewModel::goToEstigfar` | **Reference** the function | **Later**, when the button is clicked |
+| `{ viewModel.goToEstigfar() }` | **Lambda wrapping** the call | **Later**, when the button is clicked |
+
+**بالعربية — الفرق:**
+
+إذا كتبت `viewModel.goToEstigfar()` (باستخدام الأقواس): أنت تخبر التطبيق: "قم بتنفيذ الدالة الآن فوراً بمجرد بناء زر الـ HomeButtonItem"، وهذا سيؤدي إلى الانتقال لصفحة الاستغفار مباشرة **قبل أن يضغط المستخدم على الزر**، وهو سلوك خاطئ.
+
+أما باستخدام `viewModel::goToEstigfar`: أنت تخبر الزر: "خذ هذه الدالة واحتفظ بها لديك، وعندما يقوم المستخدم بالضغط فعلياً على الزر، قم بتنفيذها". أنت تمرر الدالة كـ **كائن (Object)** أو كـ "مؤشر" لها.
+
+```kotlin
+// ✅ الطريقة المطولة (Lambda)
+HomeButtonItem("الإستغفار", "estigfar", { viewModel.goToEstigfar() })
+
+// ✅ الطريقة المختصرة الذكية (Function Reference) — الأفضل
+HomeButtonItem("الإستغفار", "estigfar", viewModel::goToEstigfar)
+```
+
+> [!TIP]
+> **Remember:** `()` means **now**. `::` means **later**. In Compose, almost everything should be **later**.
+
+### 13. Scope Functions (`let`, `apply`)
 Run code blocks within the context of an object to keep code extremely clean.
 
 * **`let` (For Null Safety):**
@@ -321,19 +476,30 @@ val shareIntent = Intent(Intent.ACTION_SEND).apply {
 }
 ```
 
-### 13. Extension Functions
-Want to add a new method to the built-in `String` or `Context` classes without modifying their source code?
+### 14. Extension Functions
+Want to add a new method to a class without modifying its source code? You can *extend* any existing class — even ones you don't own.
 
 ```kotlin
-fun String.toArabicNumerals(): String {
-    return this.replace("1", "١").replace("2", "٢") //...
-}
+// Real example from AthkarixNavGraph.kt (line 66)
+// `composable` is an extension function on NavGraphBuilder, defined by the AndroidX library:
+fun NavGraphBuilder.composable(
+    route: String,
+    content: @Composable (NavBackStackEntry) -> Unit
+)
 
-// Now EVERY string in your app can do this!
-val translated = "Page 1".toArabicNumerals()
+// That's what lets us call it inside NavHost { } like a built-in method:
+NavHost(navController = navController, startDestination = Routes.HOME) {
+    composable(Routes.HOME) {   // ← `composable` is an extension function!
+        val vm = remember { AppModule.provideHomeViewModel() }
+        HomeScreen(viewModel = vm, onNavigate = { route -> navController.navigate(route) })
+    }
+}
 ```
 
-### 14. Compose Effects (`remember`, `LaunchedEffect`)
+> [!TIP]
+> The pattern is `fun ReceiverType.functionName(...)`. The receiver (`NavGraphBuilder` here) becomes `this` inside the function body — exactly like `String` is the receiver in `fun String.toArabicNumerals()`.
+
+### 15. Compose Effects (`remember`, `LaunchedEffect`)
 For the full story on how Compose remembers state and runs side effects (including how `remember { AppModule.provideHomeViewModel() }` ties into the manual DI graph), see **[`05-ui-layer.md`](./05-ui-layer.md)** § *Key Components* and **[`07-navigation-and-di.md`](./07-navigation-and-di.md)** § *How NavGraph Uses AppModule*.
 
 The mental model in one sentence each:
@@ -343,84 +509,4 @@ The mental model in one sentence each:
 
 ---
 
-## 🔴 Phase 4: Functional & Compose Magic
-*Advanced tricks that make Kotlin incredibly expressive.*
-
-### 11. Higher-Order Functions & Lambdas
-A function that accepts *another function* as a parameter. This is how Jetpack Compose handles all button clicks and events!
-
-```kotlin
-@Composable
-fun PrimaryButton(text: String, onClick: () -> Unit) { ... }
-
-// Usage: The code inside { } is a lambda function!
-PrimaryButton(text = "التالي") { 
-    viewModel.goToNextPage() 
-}
-```
-
-### 12. Scope Functions (`let`, `apply`)
-Run code blocks within the context of an object to keep code extremely clean.
-
-* **`let` (For Null Safety):**
-```kotlin
-// Only runs the block if duaText is NOT null. 'it' represents the text.
-athkarItem.duaText?.let { 
-    println("Dua: $it") 
-}
-```
-
-* **`apply` (For Object Configuration):**
-```kotlin
-// Configure the intent immediately after creating it
-val shareIntent = Intent(Intent.ACTION_SEND).apply {
-    type = "text/plain"
-    putExtra(Intent.EXTRA_TEXT, "نص الدعاء")
-}
-```
-
-### 13. Extension Functions
-Want to add a new method to the built-in `String` or `Context` classes without modifying their source code?
-
-```kotlin
-fun String.toArabicNumerals(): String {
-    return this.replace("1", "١").replace("2", "٢") //...
-}
-
-// Now EVERY string in your app can do this!
-val translated = "Page 1".toArabicNumerals() 
-```
-
-### 14. Compose Effects (`remember`, `LaunchedEffect`)
-When working in Compose UI, these two are your best friends:
-
-* **`remember`**: Tells Compose, "Hey, remember this value even if you redraw the screen."
-```kotlin
-val viewModel = remember { AppModule.provideHomeViewModel() }
-```
-
-* **`LaunchedEffect`**: Tells Compose, "Hey, run this background coroutine exactly *once* when this screen opens."
-```kotlin
-LaunchedEffect(Unit) { 
-    viewModel.loadData() 
-}
-```
-
----
-
 ## 📊 Quick Cheatsheet
-
-| Concept | Use Case | Example |
-|---------|----------|---------|
-| `val` | Constant reference | `val name = "App"` |
-| `data class` | Holding data | `data class User(val id: Int)` |
-| `object` | Singletons | `object Analytics { }` |
-| `sealed class` | Strict UI States | `sealed class UiState` |
-| `StateFlow` | Reactive UI State | `val text = MutableStateFlow("")` |
-| `let` | Safe null-unwrapping | `user?.let { login(it) }` |
-| Extension | Custom utility | `fun Context.showToast()` |
-| `launch` | Background work | `viewModelScope.launch { }` |
-| Overload | Same name, different params | `fun search(q: String)` / `fun search(q: String, n: Int)` |
-| Override | Subclass replaces parent | `override val dataList: List<AthkarItem>` |
-
-> *“Code is read much more often than it is written.”* — Keep it clean, keep it Kotlin! 🚀

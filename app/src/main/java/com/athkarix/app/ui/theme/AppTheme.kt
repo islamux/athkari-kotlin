@@ -10,6 +10,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
+/** Custom dark colour scheme mapping AppColor values to Material3 colour roles. */
 private val DarkColorScheme = darkColorScheme(
     primary = AppColor.primaryGold,
     onPrimary = AppColor.background,
@@ -60,6 +61,7 @@ private val AppTypography = Typography(
     ),
 )
 
+/** Root theme composable: wraps every screen in the app with Material3 dark colours + custom typography. */
 @Composable
 fun AthkarixTheme(content: @Composable () -> Unit) {
     MaterialTheme(

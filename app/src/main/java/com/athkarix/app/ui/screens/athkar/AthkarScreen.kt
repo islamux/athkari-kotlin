@@ -32,6 +32,7 @@ import com.athkarix.app.viewmodel.FloatingCounterViewModel
 import com.athkarix.app.viewmodel.FontViewModel
 import com.athkarix.app.viewmodel.ViewEvent
 
+/** Generic screen for any athkar category: top bar with back/share/font controls, text slider, optional floating counter. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AthkarScreen(
@@ -46,6 +47,7 @@ fun AthkarScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val view = LocalView.current
 
+    // — Show completion snackbar when all items are done —
     LaunchedEffect(Unit) {
         viewModel.eventFlow.collect { event ->
             when (event) {
@@ -57,6 +59,7 @@ fun AthkarScreen(
         }
     }
 
+    // — Haptic feedback on page advance —
     LaunchedEffect(Unit) {
         viewModel.hapticTrigger.collect {
             view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)

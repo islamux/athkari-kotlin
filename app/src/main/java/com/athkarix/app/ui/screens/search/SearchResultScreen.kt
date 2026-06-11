@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.athkarix.app.data.model.AthkarItem
 import com.athkarix.app.ui.theme.AppColor
 
+/** Displays a single search result — the full dua text + footer with back navigation. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchResultScreen(

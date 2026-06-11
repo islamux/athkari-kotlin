@@ -30,6 +30,7 @@ import com.athkarix.app.ui.theme.AppColor
 import com.athkarix.app.viewmodel.BaseAthkarViewModel
 import com.athkarix.app.viewmodel.FontViewModel
 
+/** Swipeable horizontal pager that renders each athkar page. RTL layout, scrollable content, click-to-advance. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AthkarTextSlider(
@@ -41,6 +42,7 @@ fun AthkarTextSlider(
     val fontSize by fontViewModel.fontSize.collectAsState()
     val fontFamily by fontViewModel.selectedFont.collectAsState()
 
+    // — Sync pager with ViewModel page index —
     val pagerState = rememberPagerState(
         initialPage = pageIndex,
         pageCount = { viewModel.dataList.size }
@@ -58,6 +60,7 @@ fun AthkarTextSlider(
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.4f))
         )
+        // — HorizontalPager with RTL: each page is one athkar item —
         HorizontalPager(
             state = pagerState,
             reverseLayout = true,

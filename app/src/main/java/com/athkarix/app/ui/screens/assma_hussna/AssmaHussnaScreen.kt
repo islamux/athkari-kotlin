@@ -31,6 +31,7 @@ import com.athkarix.app.ui.theme.AppColor
 import com.athkarix.app.viewmodel.AssmaHussnaViewModel
 import com.athkarix.app.viewmodel.FontViewModel
 
+/** Displays the 99 Names with loading spinner, error+retry state, and the AthkarTextSlider. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AssmaHussnaScreen(
@@ -42,6 +43,7 @@ fun AssmaHussnaScreen(
     val hasError by viewModel.hasError.collectAsState()
     val errorMsg by viewModel.errorMessage.collectAsState()
 
+    // — Three states: loading, error, or the slider —
     LaunchedEffect(Unit) { viewModel.loadData() }
 
     Scaffold(
