@@ -2,7 +2,6 @@ package com.athkarix.app.ui.screens.home
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -34,12 +33,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.athkarix.app.R
+import com.athkarix.app.ui.components.common.BackgroundImage
 import com.athkarix.app.ui.components.AlertExitApp
 import com.athkarix.app.ui.components.CustomButton
 import com.athkarix.app.ui.components.CustomDrawer
@@ -150,12 +147,7 @@ fun HomeScreen(
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                Image(
-                    painter = painterResource(R.drawable.bg_home),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
+                BackgroundImage()
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
