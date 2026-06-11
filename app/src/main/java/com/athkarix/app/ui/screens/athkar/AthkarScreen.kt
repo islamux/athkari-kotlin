@@ -19,9 +19,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
-import com.athkarix.app.ui.components.AthkarTextSlider
-import com.athkarix.app.ui.components.FloatingCounterFab
-import com.athkarix.app.ui.components.FontControls
+import com.athkarix.app.ui.components.dua.AthkarTextSlider
+import com.athkarix.app.ui.components.dua.FontControls
+import com.athkarix.app.ui.components.navigation.FloatingCounterFab
 import com.athkarix.app.ui.components.common.AthkarixTopAppBar
 import com.athkarix.app.ui.theme.AppColor
 import com.athkarix.app.viewmodel.BaseAthkarViewModel

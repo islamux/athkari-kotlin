@@ -37,8 +37,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.athkarix.app.ui.components.common.BackgroundImage
-import com.athkarix.app.ui.components.CustomButton
-import com.athkarix.app.ui.components.CustomDrawer
+import com.athkarix.app.ui.components.common.CustomButton
+import com.athkarix.app.ui.components.navigation.CustomDrawer
 import com.athkarix.app.ui.theme.AppColor
 import com.athkarix.app.util.ShareUtil
 import com.athkarix.app.util.WhatsAppUtil

@@ -1,4 +1,4 @@
-package com.athkarix.app.ui.components
+package com.athkarix.app.ui.components.dua
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
