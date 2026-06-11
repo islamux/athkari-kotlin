@@ -2,6 +2,7 @@ package com.athkarix.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+/** Single source of truth for every colour used in the golden-dark theme. */
 object AppColor {
     val primaryGold = Color(0xFFFFD700)
     val darkGold = Color(0xFFD4AF37)

@@ -3,6 +3,7 @@ package com.athkarix.app.viewmodel
 import com.athkarix.app.data.model.AthkarItem
 import com.athkarix.app.data.repository.AthkarRepository
 
+/** Evening athkar — 23 items, each recited once before advancing. */
 class AthkarMassaViewModel : BaseAthkarViewModel() {
 
     override val dataList: List<AthkarItem> = AthkarRepository.athkarMassaList

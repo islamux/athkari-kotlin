@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+/** Searches all 10 athkar categories by diacritic-insensitive text matching. */
 class SearchViewModel : ViewModel() {
 
     private val _query = MutableStateFlow("")
@@ -16,6 +17,7 @@ class SearchViewModel : ViewModel() {
     private val _results = MutableStateFlow<List<SearchResult>>(emptyList())
     val results: StateFlow<List<SearchResult>> = _results.asStateFlow()
 
+    /** A single matching athkar with its category label and original index. */
     data class SearchResult(
         val category: String,
         val categoryKey: String,
@@ -42,6 +44,7 @@ class SearchViewModel : ViewModel() {
         SearchCategory("دعاء من السنة", "duaa_sunnah", AthkarRepository.duaMenSunnahList),
     )
 
+    // — Perform search (strips diacritics for matching, keeps original in results) —
     fun search(q: String) {
         _query.value = q
         if (q.isBlank()) {

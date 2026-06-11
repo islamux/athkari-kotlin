@@ -3,10 +3,12 @@ package com.athkarix.app.data.local
 import android.content.Context
 import android.content.SharedPreferences
 
+/** Wraps SharedPreferences to persist notification settings (morning/evening toggles and times). */
 class SharedPrefsManager(context: Context) {
     private val prefs: SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
+    // — Notification toggles —
     var morningEnabled: Boolean
         get() = prefs.getBoolean(KEY_MORNING_ENABLED, false)
         set(value) = prefs.edit().putBoolean(KEY_MORNING_ENABLED, value).apply()
@@ -15,6 +17,7 @@ class SharedPrefsManager(context: Context) {
         get() = prefs.getBoolean(KEY_EVENING_ENABLED, false)
         set(value) = prefs.edit().putBoolean(KEY_EVENING_ENABLED, value).apply()
 
+    // — Time-of-day settings —
     var morningHour: Int
         get() = prefs.getInt(KEY_MORNING_HOUR, 8)
         set(value) = prefs.edit().putInt(KEY_MORNING_HOUR, value).apply()

@@ -10,10 +10,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/** Loads the 99 Names from JSON, exposes loading/error states, and converts to AthkarItem list for the slider. */
 class AssmaHussnaViewModel(
     private val appContext: Context
 ) : BaseAthkarViewModel() {
 
+    // — Loading / error states distinct from the base ViewModel —
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
@@ -34,6 +36,7 @@ class AssmaHussnaViewModel(
         loadData()
     }
 
+    // — Data loading (runs on IO, posts result to main) —
     fun loadData() {
         _isLoading.value = true
         _hasError.value = false

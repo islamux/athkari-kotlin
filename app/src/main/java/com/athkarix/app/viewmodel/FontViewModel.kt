@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+/** Controls font size (21–37 range) and font family (Amiri serif / sans-serif) across screens. */
 class FontViewModel : ViewModel() {
 
     private val _fontSize = MutableStateFlow(28.6f)

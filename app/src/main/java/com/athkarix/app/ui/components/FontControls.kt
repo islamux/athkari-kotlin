@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.athkarix.app.viewmodel.FontViewModel
 
+/** +/- buttons to increase / decrease the app-wide font size. */
 @Composable
 fun FontControls(
     fontViewModel: FontViewModel,

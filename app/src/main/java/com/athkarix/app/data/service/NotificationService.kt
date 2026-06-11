@@ -11,6 +11,7 @@ import androidx.core.app.NotificationCompat
 import com.athkarix.app.R
 import java.util.Calendar
 
+/** BroadcastReceiver that displays athkar reminder notifications when AlarmManager fires. */
 class AthkarReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val title = when (intent.action) {
@@ -31,6 +32,7 @@ class AthkarReminderReceiver : BroadcastReceiver() {
     }
 }
 
+/** Manages notification channel creation and AlarmManager-based scheduling for morning/evening reminders. */
 class NotificationService(private val context: Context) {
     companion object {
         const val CHANNEL_ID = "athkar_reminders"
@@ -38,6 +40,7 @@ class NotificationService(private val context: Context) {
         const val EVENING_REQUEST_CODE = 1002
     }
 
+    // — Channel & scheduling —
     fun initialize() {
         val channel = NotificationChannel(
             CHANNEL_ID,
@@ -75,6 +78,7 @@ class NotificationService(private val context: Context) {
         )
     }
 
+    // — Cancellation —
     fun cancelMorning() = cancel(MORNING_REQUEST_CODE)
     fun cancelEvening() = cancel(EVENING_REQUEST_CODE)
     fun cancelAll() { cancelMorning(); cancelEvening() }
