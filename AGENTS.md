@@ -92,6 +92,27 @@ cc get-project-status
 ccui
 ```
 
+> **Note:** Use `./gradlew gitflow` to create a branch, commit all changes, push, create a PR, and merge (keeps branches for reference).
+
+---
+
+## Documentation
+
+Read first:
+
+`docs/juniors/00-getting-started.md`
+
+Testing:
+
+`docs/juniors/09-unit-testing-guide.md`
+`docs/juniors/10-unit-testing-implementation-guide.md`
+
+## Workflow Rules
+
+See the complete workflow rules including the updated `gitflow` with smart branch creation:
+
+`docs/workflow-rules-updated.md`
+
 ---
 
 ## Documentation
@@ -103,6 +124,7 @@ docs/juniors/00-getting-started.md
 Testing:
 
 docs/juniors/09-unit-testing-guide.md
+docs/juniors/10-unit-testing-implementation-guide.md
 
 ---
 

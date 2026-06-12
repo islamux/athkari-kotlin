@@ -1,4 +1,4 @@
-package com.athkarix.app.ui.components
+package com.athkarix.app.ui.components.common
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
