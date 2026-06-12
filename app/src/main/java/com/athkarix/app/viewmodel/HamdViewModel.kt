@@ -8,7 +8,5 @@ class HamdViewModel : BaseAthkarViewModel() {
 
     override val dataList: List<AthkarItem> = AthkarRepository.hamdList
 
-    override val maxPageCounters: List<Int> = List(dataList.size) { 1 }
-
     override val completionMessage: String = "أنهيت قراءة رسائل الحمد"
 }
