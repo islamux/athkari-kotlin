@@ -8,7 +8,5 @@ class TasbihViewModel : BaseAthkarViewModel() {
 
     override val dataList: List<AthkarItem> = AthkarRepository.tasbihList
 
-    override val maxPageCounters: List<Int> = List(dataList.size) { 1 }
-
     override val completionMessage: String = "أنهيت قراءة رسائل التسبيح "
 }
