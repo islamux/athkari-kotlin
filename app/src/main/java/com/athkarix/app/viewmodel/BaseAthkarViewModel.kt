@@ -22,7 +22,6 @@ sealed class ViewEvent {
 abstract class BaseAthkarViewModel : ViewModel() {
 
     // — Subclass contracts —
-    abstract val maxPageCounters: List<Int>
     abstract val dataList: List<AthkarItem>
     abstract val completionMessage: String
 
@@ -51,7 +50,7 @@ abstract class BaseAthkarViewModel : ViewModel() {
 
     // — Core counter logic (advance page when count reaches max, or show completion) —
     fun incrementPageController() {
-        val max = maxPageCounters.getOrElse(_currentPageIndex.value) { 1 }
+        val max = 1
         val newCount = _currentPageCounter.value + 1
         if (newCount >= max) {
             _currentPageCounter.value = 0
