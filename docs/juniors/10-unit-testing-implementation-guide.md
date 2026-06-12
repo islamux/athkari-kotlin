@@ -203,20 +203,19 @@ class FontViewModelTest {
 
 **Concept:** Some ViewModels launch coroutines (`viewModelScope`). To test them, we need `runTest` from `kotlinx-coroutines-test` and Turbine for `SharedFlow`.
 
-**Target:** `BaseAthkarViewModel.incrementPageController()` — the most complex logic in the app.
+**Target:** `BaseAthkarViewModel.incrementPageController()` — the core page-advance logic.
 
 ### The Logic We're Testing
 
 `incrementPageController()` does:
-1. Read `maxPageCounters[currentPage]` to know how many taps needed.
-2. Increment counter.
-3. If counter reaches max → reset counter, advance page (or emit completion if last page).
-4. If page advances → emit haptic trigger.
-5. If all pages done → emit `ShowCompletion` event.
+1. Increment the current page counter.
+2. If counter reaches max (default 1 per page) → reset counter, advance page (or emit completion if last page).
+3. If page advances → emit haptic trigger.
+4. If all pages done → emit `ShowCompletion` event.
 
 ### Making It Testable
 
-`BaseAthkarViewModel` is abstract. We need a concrete subclass for testing. Create a minimal one in the test file itself.
+`BaseAthkarViewModel` is abstract. We need a concrete subclass for testing. The test uses `StandardTestDispatcher` to control coroutine timing.
 
 **Test file:** `app/src/test/java/com/athkarix/app/viewmodel/BaseAthkarViewModelTest.kt`
 
@@ -225,163 +224,138 @@ package com.athkarix.app.viewmodel
 
 import app.cash.turbine.test
 import com.athkarix.app.data.model.AthkarItem
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
 
 class BaseAthkarViewModelTest {
 
-    // A concrete subclass with 3 pages: tap counts [1, 2, 3]
+    @Before
+    fun setup() {
+        Dispatchers.setMain(StandardTestDispatcher())
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
+    // A concrete subclass with 3 pages (default max = 1 tap per page)
     private class TestAthkarViewModel : BaseAthkarViewModel() {
         override val dataList = List(3) { AthkarItem(duaText = "Dua $it") }
-        override val maxPageCounters = listOf(1, 2, 3)
         override val completionMessage = "All done!"
+    }
+
+    // Subclass with empty data list
+    private class EmptyAthkarViewModel : BaseAthkarViewModel() {
+        override val dataList = emptyList<AthkarItem>()
+        override val completionMessage = "لا توجد أذكار"
     }
 
     @Test
     fun `start on page 0 with counter 0`() {
-        println("DEBUG: Creating TestAthkarViewModel")
         val vm = TestAthkarViewModel()
-        println("DEBUG: Initial page index = ${vm.currentPageIndex.value}")
-        println("DEBUG: Initial page counter = ${vm.currentPageCounter.value}")
         assertEquals(0, vm.currentPageIndex.value)
         assertEquals(0, vm.currentPageCounter.value)
-        println("DEBUG: Test passed - starts at page 0 with counter 0")
     }
 
     @Test
     fun `one tap on page 0 advances to page 1`() {
-        println("DEBUG: Creating fresh TestAthkarViewModel")
         val vm = TestAthkarViewModel()
-        println("DEBUG: Before tap - page ${vm.currentPageIndex.value}, counter ${vm.currentPageCounter.value}")
-
         vm.incrementPageController()
-
-        println("DEBUG: After tap - page ${vm.currentPageIndex.value}, counter ${vm.currentPageCounter.value}")
         assertEquals(1, vm.currentPageIndex.value)
         assertEquals(0, vm.currentPageCounter.value)
-        println("DEBUG: Test passed - one tap advances to page 1")
     }
 
     @Test
-    fun `page 1 requires 2 taps to advance`() {
-        println("DEBUG: Creating fresh TestAthkarViewModel for page 1 test")
+    fun `tap advances to next page and resets counter`() {
         val vm = TestAthkarViewModel()
-        println("DEBUG: Switching to page 1")
-        vm.onPageChanged(1)
+        assertEquals(0, vm.currentPageIndex.value)
 
-        println("DEBUG: Tap 1 on page 1")
         vm.incrementPageController()
-        println("DEBUG: Page ${vm.currentPageIndex.value}, counter ${vm.currentPageCounter.value}")
         assertEquals(1, vm.currentPageIndex.value)
-        assertEquals(1, vm.currentPageCounter.value)
+        assertEquals(0, vm.currentPageCounter.value)
 
-        println("DEBUG: Tap 2 on page 1 (reaches max)")
         vm.incrementPageController()
-        println("DEBUG: Page ${vm.currentPageIndex.value}, counter ${vm.currentPageCounter.value}")
         assertEquals(2, vm.currentPageIndex.value)
         assertEquals(0, vm.currentPageCounter.value)
-        println("DEBUG: Test passed - page 1 requires 2 taps to advance")
     }
 
     @Test
-    fun `resetCounter sets page counter to 0`() {
-        println("DEBUG: Creating fresh TestAthkarViewModel")
+    fun `counter resets after each page advance`() {
         val vm = TestAthkarViewModel()
-        println("DEBUG: Tapping once to get counter to 1")
-        vm.incrementPageController()
-        println("DEBUG: Counter before reset = ${vm.currentPageCounter.value}")
-        vm.resetCounter()
-        println("DEBUG: Counter after reset = ${vm.currentPageCounter.value}")
         assertEquals(0, vm.currentPageCounter.value)
-        println("DEBUG: Test passed - resetCounter works")
+        vm.incrementPageController()
+        assertEquals(0, vm.currentPageCounter.value)
+        vm.incrementPageController()
+        assertEquals(0, vm.currentPageCounter.value)
     }
 
     @Test
     fun `goToPage changes page and resets counter`() {
-        println("DEBUG: Creating fresh TestAthkarViewModel")
         val vm = TestAthkarViewModel()
-        println("DEBUG: Tapping on page 0")
         vm.incrementPageController()
-        println("DEBUG: Page ${vm.currentPageIndex.value}, counter ${vm.currentPageCounter.value}")
-        println("DEBUG: Calling goToPage(0)")
+        assertEquals(1, vm.currentPageIndex.value)
         vm.goToPage(0)
-
-        println("DEBUG: Page after goToPage = ${vm.currentPageIndex.value}, counter = ${vm.currentPageCounter.value}")
         assertEquals(0, vm.currentPageIndex.value)
         assertEquals(0, vm.currentPageCounter.value)
-        println("DEBUG: Test passed - goToPage resets counter")
+    }
+
+    @Test
+    fun `multiple taps followed by sudden scroll should switch page and reset counter to 0`() {
+        val vm = TestAthkarViewModel()
+        vm.incrementPageController()
+        vm.incrementPageController()
+        vm.goToPage(1)
+
+        assertEquals(1, vm.currentPageIndex.value)
+        assertEquals(0, vm.currentPageCounter.value)
+    }
+
+    @Test
+    fun `incrementPageController on empty list should not crash`() {
+        val vm = EmptyAthkarViewModel()
+        vm.incrementPageController()
+
+        assertEquals(0, vm.currentPageIndex.value)
+        assertEquals(0, vm.currentPageCounter.value)
     }
 
     @Test
     fun `completing all pages emits ShowCompletion`() = runTest {
-        println("DEBUG: Creating TestAthkarViewModel for completion test")
         val vm = TestAthkarViewModel()
-
-        // Collect events using Turbine
-        println("DEBUG: Collecting events via Turbine")
         vm.eventFlow.test {
-            println("DEBUG: Tap through all 3 pages")
-            println("DEBUG: Page 0 (needs 1) → 1")
             vm.incrementPageController() // page 0 → 1
-            println("DEBUG: Page 1 count 1")
-            vm.incrementPageController() // page 1 count 1
-            println("DEBUG: Page 1 → 2")
             vm.incrementPageController() // page 1 → 2
-            println("DEBUG: Page 2 count 1")
-            vm.incrementPageController() // page 2 count 1
-            println("DEBUG: Page 2 count 2")
-            vm.incrementPageController() // page 2 count 2
-            println("DEBUG: Page 2 count 3 (complete)")
             vm.incrementPageController() // page 2 → done!
-
-            println("DEBUG: Waiting for completion event")
             val event = awaitItem()
-            println("DEBUG: Received event: $event")
             assertEquals(ViewEvent.ShowCompletion("All done!"), event)
-            println("DEBUG: Test passed - completion event emitted")
         }
     }
 
     @Test
     fun `hapticTrigger emits on page advance`() = runTest {
-        println("DEBUG: Creating TestAthkarViewModel for haptic test")
         val vm = TestAthkarViewModel()
-
-        println("DEBUG: Collecting haptic triggers via Turbine")
         vm.hapticTrigger.test {
-            println("DEBUG: Page 0 → 1 (advance should trigger haptic)")
-            vm.incrementPageController() // page 0 → 1 (advance)
-
-            println("DEBUG: Waiting for haptic Unit emission")
-            awaitItem() // should emit Unit
-            println("DEBUG: Haptic trigger received!")
+            vm.incrementPageController()
+            awaitItem()
         }
     }
 
     @Test
     fun `hapticTrigger does not emit on completion`() = runTest {
-        println("DEBUG: Creating TestAthkarViewModel for haptic no-emission test")
         val vm = TestAthkarViewModel()
-
-        println("DEBUG: Collecting haptic triggers")
         vm.hapticTrigger.test {
-            // Tap through all 3 pages — 6 total taps
-            println("DEBUG: Performing 6 taps through all pages")
-            repeat(6) { vm.incrementPageController() }
-
-            // Only page advances trigger haptic: 5 advances, 1 completion
-            println("DEBUG: Collecting 5 haptic emissions (page advances)")
+            repeat(3) { vm.incrementPageController() }
             val received = mutableListOf<Unit>()
-            repeat(5) { received.add(awaitItem()) }
-            println("DEBUG: Collected 5 haptics as expected")
-
-            // No more items should be available
-            println("DEBUG: Verifying no more haptic events")
+            repeat(2) { received.add(awaitItem()) }
             expectNoEvents()
-            println("DEBUG: Test passed - no haptic on completion")
         }
     }
 
@@ -404,7 +378,8 @@ class BaseAthkarViewModelTest {
 - `runTest { }` creates a coroutine scope for testing. Without it, `viewModelScope` calls crash.
 - `vm.eventFlow.test { ... }` from Turbine lets you `awaitItem()` — it suspends until a new event is emitted.
 - `expectNoEvents()` asserts no unexpected events leaked.
-- The test creates a lightweight `TestAthkarViewModel` — no mock data files needed.
+- `Dispatchers.setMain(StandardTestDispatcher())` in `@Before` ensures coroutines run predictably.
+- Test edge cases: empty data list should not crash; scrolling mid-tap resets counter.
 
 ---
 
