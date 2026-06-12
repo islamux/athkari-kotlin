@@ -1,56 +1,12 @@
 package com.athkarix.app.viewmodel
 
-import android.content.Context
-import androidx.lifecycle.viewModelScope
 import com.athkarix.app.data.model.AthkarItem
-import com.athkarix.app.data.service.AssmaHussnaService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import com.athkarix.app.data.repository.AthkarRepository
 
-/** Loads the 99 Names from JSON, exposes loading/error states, and converts to AthkarItem list for the slider. */
-class AssmaHussnaViewModel(
-    private val appContext: Context
-) : BaseAthkarViewModel() {
+/** Displays 216 educational texts about Allah's 99 Names — one swipe per text. */
+class AssmaHussnaViewModel : BaseAthkarViewModel() {
 
-    // — Loading / error states distinct from the base ViewModel —
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    override val dataList: List<AthkarItem> = AthkarRepository.assmaHussnaList
 
-    private val _hasError = MutableStateFlow(false)
-    val hasError: StateFlow<Boolean> = _hasError.asStateFlow()
-
-    private val _errorMessage = MutableStateFlow("")
-    val errorMessage: StateFlow<String> = _errorMessage.asStateFlow()
-
-    private val _dataList = MutableStateFlow<List<AthkarItem>>(emptyList())
-
-    init {
-        loadData()
-    }
-
-    // — Data loading (runs on IO, posts result to main) —
-    fun loadData() {
-        _isLoading.value = true
-        _hasError.value = false
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val data = AssmaHussnaService.getAllAssmaHussna(appContext)
-                _dataList.value = data.map { item ->
-                    AthkarItem(duaText = "[${item.name}]\\n\\n${item.text}")
-                }
-                _isLoading.value = false
-            } catch (e: Exception) {
-                _dataList.value = emptyList()
-                _isLoading.value = false
-                _hasError.value = true
-                _errorMessage.value = e.message ?: "فشل تحميل البيانات"
-            }
-        }
-    }
-
-    fun searchByName(query: String) = AssmaHussnaService.searchByName(appContext, query)
-    fun searchByText(query: String) = AssmaHussnaService.searchByText(appContext, query)
+    override val completionMessage: String = "انهيت قراءة اسماء الله الحسنى"
 }

@@ -62,7 +62,7 @@ object AppModule {
     fun provideSalatAlaRasoulViewModel(): SalatAlaRasoulViewModel = SalatAlaRasoulViewModel()
     fun provideDuaMenQuranViewModel(): DuaMenQuranViewModel = DuaMenQuranViewModel()
     fun provideDuaMenSunnahViewModel(): DuaMenSunnahViewModel = DuaMenSunnahViewModel()
-    fun provideAssmaHussnaViewModel(context: Context): AssmaHussnaViewModel = AssmaHussnaViewModel(context)
+    fun provideAssmaHussnaViewModel(): AssmaHussnaViewModel = AssmaHussnaViewModel()
     fun provideNotificationService(context: Context): NotificationService {
         val service = NotificationService(context)
         service.initialize()
