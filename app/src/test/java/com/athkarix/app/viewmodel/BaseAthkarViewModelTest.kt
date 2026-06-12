@@ -30,6 +30,38 @@ class BaseAthkarViewModelTest {
         override val completionMessage = "All done!"
     }
 
+    // A concrete subclass : emptyList
+    private class EmptyAthkarViewModel: BaseAthkarViewModel(){
+       override val dataList = emptyList<AthkarItem>() // empty 
+       override val completionMessage = "لا توجد أذكار"
+    }
+   
+    @Test 
+    fun `multiple taps folllowd by sudden scroll should switch page and reset counter 0`(){
+      val viewmodel = TestAthkarViewModel()
+      // 2 tabs 
+      viewmodel.incrementPageController()
+      viewmodel.incrementPageController()
+      // scroll to page 1
+      viewmodel.goToPage(1)
+
+      // Read 
+      assertEquals(1, viewmodel.currentPageIndex.value)
+      assertEquals(0, viewmodel.currentPageCounter.value)
+    }
+
+
+    @Test 
+    fun `incrementPageController on empty list should not crash`(){
+      val viewmodel = EmptyAthkarViewModel()
+      viewmodel.incrementPageController()
+
+      assertEquals(0, viewmodel.currentPageIndex.value)
+      assertEquals(0, viewmodel.currentPageCounter.value)
+
+    }
+
+
     @Test
     fun `start on page 0 with counter 0`() {
         val vm = TestAthkarViewModel()
