@@ -26,11 +26,6 @@ class AssmaHussnaViewModel(
     val errorMessage: StateFlow<String> = _errorMessage.asStateFlow()
 
     private val _dataList = MutableStateFlow<List<AthkarItem>>(emptyList())
-    override val dataList: List<AthkarItem> get() = _dataList.value
-
-    override val maxPageCounters: List<Int> get() = List(_dataList.value.size) { 1 }
-
-    override val completionMessage: String = "انهيت قراءة أسماء الله الحسنى"
 
     init {
         loadData()
@@ -44,7 +39,7 @@ class AssmaHussnaViewModel(
             try {
                 val data = AssmaHussnaService.getAllAssmaHussna(appContext)
                 _dataList.value = data.map { item ->
-                    AthkarItem(duaText = "[${item.name}]\n\n${item.text}")
+                    AthkarItem(duaText = "[${item.name}]\\n\\n${item.text}")
                 }
                 _isLoading.value = false
             } catch (e: Exception) {
