@@ -1,4 +1,4 @@
-package com.athkarix.app.ui.components
+package com.athkarix.app.ui.components.navigation
 
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton

@@ -9,15 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
+import com.athkarix.app.ui.components.search.SearchTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,30 +35,9 @@ fun SearchScreen(
             .fillMaxSize()
             .background(Color.Black)
     ) {
-        // — Search input field —
-        TextField(
-            value = query,
-            onValueChange = { viewModel.search(it) },
-            placeholder = { Text("بحث في الأذكار...", color = AppColor.textSecondary) },
-            colors = TextFieldDefaults.colors(
-                focusedTextColor = AppColor.primaryGold,
-                unfocusedTextColor = AppColor.primaryGold,
-                focusedContainerColor = AppColor.surface,
-                unfocusedContainerColor = AppColor.surface,
-                cursorColor = AppColor.primaryGold,
-            ),
-            leadingIcon = { Icon(Icons.Default.Search, null, tint = AppColor.primaryGold) },
-            trailingIcon = {
-                if (query.isNotEmpty()) {
-                    IconButton(onClick = { viewModel.search("") }) {
-                        Icon(Icons.Default.Clear, "مسح", tint = AppColor.primaryGold)
-                    }
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            singleLine = true,
+        SearchTextField(
+            query = query,
+            onQueryChange = { viewModel.search(it) },
         )
         // — Empty state vs results list —
         if (query.isNotEmpty() && results.isEmpty()) {

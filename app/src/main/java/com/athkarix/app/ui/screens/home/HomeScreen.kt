@@ -1,8 +1,7 @@
 package com.athkarix.app.ui.screens.home
 
 import android.app.Activity
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
+import com.athkarix.app.ui.components.common.ExitGuard
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -34,15 +33,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.athkarix.app.R
-import com.athkarix.app.ui.components.AlertExitApp
-import com.athkarix.app.ui.components.CustomButton
-import com.athkarix.app.ui.components.CustomDrawer
+import com.athkarix.app.ui.components.common.BackgroundImage
+import com.athkarix.app.ui.components.common.CustomButton
+import com.athkarix.app.ui.components.navigation.CustomDrawer
 import com.athkarix.app.ui.theme.AppColor
 import com.athkarix.app.util.ShareUtil
 import com.athkarix.app.util.WhatsAppUtil
@@ -94,19 +90,15 @@ fun HomeScreen(
         )
     }
 
-    BackHandler(enabled = true) {
-        showExitDialog = true
-    }
-
-    if (showExitDialog) {
-        AlertExitApp(
-            onConfirmExit = {
-                showExitDialog = false
-                (context as? Activity)?.finishAffinity()
-            },
-            onDismiss = { showExitDialog = false },
-        )
-    }
+    ExitGuard(
+        showDialog = showExitDialog,
+        onRequestExit = { showExitDialog = true },
+        onConfirmExit = {
+            showExitDialog = false
+            (context as? Activity)?.finishAffinity()
+        },
+        onDismiss = { showExitDialog = false },
+    )
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -150,12 +142,7 @@ fun HomeScreen(
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                Image(
-                    painter = painterResource(R.drawable.bg_home),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
+                BackgroundImage()
                 Box(
                     modifier = Modifier
                         .fillMaxSize()

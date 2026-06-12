@@ -1,4 +1,4 @@
-package com.athkarix.app.ui.components
+package com.athkarix.app.ui.components.dua
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background

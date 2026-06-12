@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# Smart Branch Creation (if on main)
+CURRENT_BRANCH=$(git branch --show-current)
+if [[ "$CURRENT_BRANCH" == "main" ]]; then
+    echo "📊 Analyzing changes..."
+    ADDED_FILES=$(git diff --name-only --cached)
+    
+    # Simple branch guessing
+    TYPE="feature"
+    DESC="enhanced-workflow"
+    
+    echo "Suggested branch: $TYPE/$DESC"
+    echo -n "Use this (y/N): "
+    read CONFIRM
+    if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
+        BRANCH_NAME="$TYPE/$DESC"
+        echo "🌿 Creating branch: $BRANCH_NAME"
+        git checkout -b "$BRANCH_NAME"
+    fi
+fi
+
+# 1. Stage all
+git add .
+
+# 2. Commit (ask for message)
+if [[ -n "$1" ]]; then
+    COMMIT_MESSAGE="$1"
+else
+    echo -n "Enter commit message: "
+    read COMMIT_MESSAGE
+fi
+
+if [[ -n "$COMMIT_MESSAGE" ]]; then
+    git commit -m "$COMMIT_MESSAGE"
+fi
+
+# 3. Push
+git push -u origin "$CURRENT_BRANCH"
+
+# 4. Create PR
+PR_URL=$(gh pr create --title "$COMMIT_MESSAGE" --body "Automated PR from gitflow")
+PR_NUMBER=$(echo "$PR_URL" | grep -oE '[0-9]+$')
+
+# 5. Merge PR (do NOT use --delete-branch or -d)
+echo "🔄 Merging PR #$PR_NUMBER..."
+gh pr merge "$PR_NUMBER" --merge
+
+# 6. Update local main
+git checkout main
+git pull origin main
+
+# 7. Go back to working branch
+git checkout "$CURRENT_BRANCH"
+
+echo "✅ gitflow completed on $CURRENT_BRANCH"

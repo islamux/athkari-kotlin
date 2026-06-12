@@ -23,13 +23,15 @@ class FontViewModel : ViewModel() {
 
     fun increaseFontSize() {
         if (_fontSize.value < maxFontSize) {
-            _fontSize.value += 2.0f
+            val newSize = _fontSize.value + 2.0f
+            _fontSize.value = if (newSize > maxFontSize) maxFontSize else newSize
         }
     }
 
     fun decreaseFontSize() {
         if (_fontSize.value > minFontSize) {
-            _fontSize.value -= 2.0f
+            val newSize = _fontSize.value - 2.0f
+            _fontSize.value = if (newSize < minFontSize) minFontSize else newSize
         }
     }
 }
