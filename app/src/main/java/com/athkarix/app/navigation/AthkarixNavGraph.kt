@@ -20,7 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.athkarix.app.di.AppModule
 import com.athkarix.app.ui.screens.athkar.AthkarScreen
-import com.athkarix.app.ui.screens.assma_hussna.AssmaHussnaScreen
+
 import com.athkarix.app.ui.screens.home.HomeScreen
 import com.athkarix.app.ui.screens.search.SearchScreen
 import com.athkarix.app.ui.screens.search.SearchViewModel
@@ -192,11 +192,12 @@ fun AthkarixNavGraph(navController: NavHostController) {
 
         // ASSMA_HUSSNA screen
         composable(Routes.ASSMA_HUSSNA) {
-            val vm = remember { AppModule.provideAssmaHussnaViewModel(context) }
-            AssmaHussnaScreen(
+            val vm = remember { AppModule.provideAssmaHussnaViewModel() }
+            AthkarScreen(
                 viewModel = vm,
                 fontViewModel = fontVM,
                 onBack = { back() },
+                onShare = { text -> ShareUtil.shareText(context, text) },
             )
         }
 
