@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.athkarix.app.ui.components.common.AthkarixTopAppBar
 import com.athkarix.app.ui.components.common.BackgroundImage
@@ -40,7 +39,6 @@ fun NotificationSettingsScreen(
                     onBack = onBack,
                 )
             },
-            containerColor = Color.Black,
         ) { padding ->
             Column(
                 Modifier
