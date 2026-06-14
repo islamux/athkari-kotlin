@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.athkarix.app.ui.theme.AppColor
 
 /** Reusable styled button with icon, rounded corners, and the app's dark-gold colour. */
@@ -39,6 +40,11 @@ fun CustomButton(
     ) {
         Icon(icon, contentDescription = null, tint = Color.White)
         Spacer(Modifier.width(12.dp))
-        Text(text, color = Color.White, fontFamily = FontFamily.SansSerif)
+        Text(
+            text = text,
+            color = Color.White,
+            fontFamily = FontFamily.SansSerif,
+            fontSize = 18.sp,
+        )
     }
 }
