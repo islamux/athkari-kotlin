@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.athkarix.app.ui.components.common.AthkarixTopAppBar
 import com.athkarix.app.ui.components.common.BackgroundImage
 import com.athkarix.app.ui.theme.AppColor
 
@@ -27,6 +28,7 @@ import com.athkarix.app.ui.theme.AppColor
 fun SearchScreen(
     viewModel: SearchViewModel,
     onResultClick: (SearchViewModel.SearchResult) -> Unit,
+    onBack: () -> Unit,
 ) {
     val query by viewModel.query.collectAsState()
     val results by viewModel.results.collectAsState()
@@ -38,6 +40,9 @@ fun SearchScreen(
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.4f))
         ) {
+            AthkarixTopAppBar(
+                onBack = onBack,
+            )
             SearchTextField(
                 query = query,
                 onQueryChange = { viewModel.search(it) },
