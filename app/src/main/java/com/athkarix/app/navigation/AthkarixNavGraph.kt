@@ -215,6 +215,7 @@ fun AthkarixNavGraph(navController: NavHostController) {
             val searchVM = remember { SearchViewModel() }
             SearchScreen(
                 viewModel = searchVM,
+                onBack = { back() },
                 onResultClick = { result ->
                     navController.navigate("${Routes.SEARCH_RESULT.replace("{categoryIndex}", result.categoryKey).replace("{itemIndex}", "${result.index}")}")
                 },
