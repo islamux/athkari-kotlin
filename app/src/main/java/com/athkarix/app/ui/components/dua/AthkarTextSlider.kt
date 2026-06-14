@@ -81,6 +81,7 @@ fun AthkarTextSlider(
                     text = item.duaText ?: "",
                     fontFamily = if (fontFamily == "Amiri") FontFamily.Serif else FontFamily.SansSerif,
                     fontSize = fontSize.sp,
+                    lineHeight = (fontSize * 1.5f).sp,
                     color = AppColor.primaryGold,
                     textAlign = TextAlign.Center,
                 )
@@ -90,6 +91,7 @@ fun AthkarTextSlider(
                         text = item.footer,
                         fontFamily = FontFamily.Serif,
                         fontSize = (fontSize * 0.7f).sp,
+                        lineHeight = (fontSize * 0.7f * 1.5f).sp,
                         color = AppColor.footer,
                         textAlign = TextAlign.Center,
                     )
