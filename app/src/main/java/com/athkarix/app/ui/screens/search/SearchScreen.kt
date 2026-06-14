@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.athkarix.app.ui.components.common.BackgroundImage
 import com.athkarix.app.ui.theme.AppColor
 
 /** Live-search screen: text field filters across all athkar categories with diacritic-insensitive matching. */
@@ -30,39 +31,42 @@ fun SearchScreen(
     val query by viewModel.query.collectAsState()
     val results by viewModel.results.collectAsState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-    ) {
-        SearchTextField(
-            query = query,
-            onQueryChange = { viewModel.search(it) },
-        )
-        // — Empty state vs results list —
-        if (query.isNotEmpty() && results.isEmpty()) {
-            Box(Modifier.fillMaxSize()) {
-                Text(
-                    "لا توجد نتائج",
-                    color = AppColor.textSecondary,
-                    modifier = Modifier.padding(16.dp),
-                )
-            }
-        } else {
-            LazyColumn {
-                items(results) { result ->
-                    ListItem(
-                        headlineContent = {
-                            Text(
-                                result.item.duaText ?: "",
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                color = AppColor.primaryGold,
-                            )
-                        },
-                        supportingContent = { Text(result.category, color = AppColor.textSecondary) },
-                        modifier = Modifier.clickable { onResultClick(result) }
+    Box(Modifier.fillMaxSize()) {
+        BackgroundImage(scrimAlpha = 0.6f)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.4f))
+        ) {
+            SearchTextField(
+                query = query,
+                onQueryChange = { viewModel.search(it) },
+            )
+            // — Empty state vs results list —
+            if (query.isNotEmpty() && results.isEmpty()) {
+                Box(Modifier.fillMaxSize()) {
+                    Text(
+                        "لا توجد نتائج",
+                        color = AppColor.textSecondary,
+                        modifier = Modifier.padding(16.dp),
                     )
+                }
+            } else {
+                LazyColumn {
+                    items(results) { result ->
+                        ListItem(
+                            headlineContent = {
+                                Text(
+                                    result.item.duaText ?: "",
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = AppColor.primaryGold,
+                                )
+                            },
+                            supportingContent = { Text(result.category, color = AppColor.textSecondary) },
+                            modifier = Modifier.clickable { onResultClick(result) }
+                        )
+                    }
                 }
             }
         }
