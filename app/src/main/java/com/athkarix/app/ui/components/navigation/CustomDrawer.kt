@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
@@ -27,6 +28,7 @@ import com.athkarix.app.ui.theme.AppColor
 fun CustomDrawer(
     onNotificationSettings: () -> Unit,
     onContactUs: () -> Unit,
+    onEmailUs: () -> Unit,
     onShare: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -56,6 +58,13 @@ fun CustomDrawer(
                 label = { Text("تواصل معنا") },
                 selected = false,
                 onClick = onContactUs,
+                modifier = Modifier.fillMaxWidth()
+            )
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Default.Email, contentDescription = null) },
+                label = { Text("تواصل عبر البريد الإلكتروني") },
+                selected = false,
+                onClick = onEmailUs,
                 modifier = Modifier.fillMaxWidth()
             )
             NavigationDrawerItem(

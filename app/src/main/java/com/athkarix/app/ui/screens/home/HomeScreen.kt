@@ -1,6 +1,8 @@
 package com.athkarix.app.ui.screens.home
 
 import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import com.athkarix.app.ui.components.common.ExitGuard
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -111,6 +113,15 @@ fun HomeScreen(
                 onContactUs = {
                     scope.launch { drawerState.close() }
                     WhatsAppUtil.openWhatsApp(context)
+                },
+                onEmailUs = {
+                    scope.launch { drawerState.close() }
+                    val intent = Intent(Intent.ACTION_SENDTO).apply {
+                        data = Uri.parse("mailto:fathi733@gmail.com")
+                    }
+                    try {
+                        context.startActivity(intent)
+                    } catch (_: Exception) { }
                 },
                 onShare = {
                     scope.launch { drawerState.close() }

@@ -18,12 +18,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
+import com.athkarix.app.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.athkarix.app.ui.theme.AppColor
@@ -40,7 +44,21 @@ fun AthkarTextSlider(
 ) {
     val pageIndex by viewModel.currentPageIndex.collectAsState()
     val fontSize by fontViewModel.fontSize.collectAsState()
-    val fontFamily by fontViewModel.selectedFont.collectAsState()
+    val selectedFontName by fontViewModel.selectedFont.collectAsState()
+    val fontFamily by remember {
+        derivedStateOf {
+            when (selectedFontName) {
+                "Cairo" -> FontFamily(
+                    Font(R.font.cairo_regular),
+                    Font(R.font.cairo_bold)
+                )
+                else -> FontFamily(
+                    Font(R.font.amiri_regular),
+                    Font(R.font.amiri_bold)
+                )
+            }
+        }
+    }
 
     // — Sync pager with ViewModel page index —
     val pagerState = rememberPagerState(
@@ -79,7 +97,7 @@ fun AthkarTextSlider(
             ) {
                 Text(
                     text = item.duaText ?: "",
-                    fontFamily = if (fontFamily == "Amiri") FontFamily.Serif else FontFamily.SansSerif,
+                    fontFamily = fontFamily,
                     fontSize = fontSize.sp,
                     lineHeight = (fontSize * 1.5f).sp,
                     color = AppColor.primaryGold,
