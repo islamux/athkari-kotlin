@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -24,7 +24,7 @@ fun FontControls(
         horizontalArrangement = Arrangement.Center,
     ) {
         IconButton(onClick = { fontViewModel.decreaseFontSize() }) {
-            Icon(Icons.Default.Clear, contentDescription = "تصغير الخط")
+            Icon(Icons.Default.Remove, contentDescription = "تصغير الخط")
         }
         IconButton(onClick = { fontViewModel.increaseFontSize() }) {
             Icon(Icons.Default.Add, contentDescription = "تكبير الخط")
