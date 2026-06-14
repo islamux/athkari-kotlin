@@ -77,6 +77,8 @@ fun AthkarixNavGraph(navController: NavHostController) {
             AthkarScreen(
                 viewModel = vm,
                 fontViewModel = fontVM,
+                floatingCounterVM = floatingCounterVM,
+                showFloatingCounter = true,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
@@ -88,6 +90,8 @@ fun AthkarixNavGraph(navController: NavHostController) {
             AthkarScreen(
                 viewModel = vm,
                 fontViewModel = fontVM,
+                floatingCounterVM = floatingCounterVM,
+                showFloatingCounter = true,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
