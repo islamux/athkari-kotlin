@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
+import com.athkarix.app.ui.components.common.BackgroundImage
 import com.athkarix.app.ui.components.dua.AthkarTextSlider
 import com.athkarix.app.ui.components.dua.FontControls
 import com.athkarix.app.ui.components.navigation.FloatingCounterFab
@@ -63,30 +64,33 @@ fun AthkarScreen(
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            AthkarixTopAppBar(
-                onBack = onBack,
-                actions = {
-                    IconButton(onClick = {
-                        onShare(viewModel.getShareText(viewModel.currentPageIndex.value))
-                    }) {
-                        Icon(Icons.Default.Share, "مشاركة", tint = AppColor.primaryGold)
-                    }
-                    FontControls(fontViewModel)
-                },
-            )
-        },
-        floatingActionButton = {
-            if (showFloatingCounter && floatingCounterVM != null) {
-                val count by floatingCounterVM.counter.collectAsState()
-                FloatingCounterFab(counter = count, onClick = { floatingCounterVM.increment() })
+    Box(modifier = Modifier.fillMaxSize()) {
+        BackgroundImage(scrimAlpha = 0.6f)
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            topBar = {
+                AthkarixTopAppBar(
+                    onBack = onBack,
+                    actions = {
+                        IconButton(onClick = {
+                            onShare(viewModel.getShareText(viewModel.currentPageIndex.value))
+                        }) {
+                            Icon(Icons.Default.Share, "مشاركة", tint = AppColor.primaryGold)
+                        }
+                        FontControls(fontViewModel)
+                    },
+                )
+            },
+            floatingActionButton = {
+                if (showFloatingCounter && floatingCounterVM != null) {
+                    val count by floatingCounterVM.counter.collectAsState()
+                    FloatingCounterFab(counter = count, onClick = { floatingCounterVM.increment() })
+                }
             }
-        }
-    ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
-            AthkarTextSlider(viewModel = viewModel, fontViewModel = fontViewModel)
+        ) { padding ->
+            Box(Modifier.fillMaxSize().padding(padding)) {
+                AthkarTextSlider(viewModel = viewModel, fontViewModel = fontViewModel)
+            }
         }
     }
 }
