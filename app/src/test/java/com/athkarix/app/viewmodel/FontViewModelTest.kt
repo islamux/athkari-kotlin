@@ -52,11 +52,11 @@ class FontViewModelTest {
     }
 
     @Test
-    fun `changeFont updates selected font`() {
-        println("DEBUG: Starting test - initial font = ${viewModel.selectedFont.value}")
-        viewModel.changeFont("sans-serif")
-        println("DEBUG: Changed font to = ${viewModel.selectedFont.value}")
-        assertEquals("sans-serif", viewModel.selectedFont.value)
-        println("DEBUG: Test passed")
+    fun `toggleFont switches between Amiri and Cairo`() {
+        assertEquals("Amiri", viewModel.selectedFont.value)
+        viewModel.toggleFont()
+        assertEquals("Cairo", viewModel.selectedFont.value)
+        viewModel.toggleFont()
+        assertEquals("Amiri", viewModel.selectedFont.value)
     }
 }
