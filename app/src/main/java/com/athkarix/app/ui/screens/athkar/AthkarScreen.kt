@@ -40,6 +40,7 @@ fun AthkarScreen(
     onShare: (String) -> Unit,
     floatingCounterVM: FloatingCounterViewModel? = null,
     showFloatingCounter: Boolean = false,
+    screenKey: String = "",
 ) {
     val pageCounter by viewModel.currentPageCounter.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -83,8 +84,9 @@ fun AthkarScreen(
             },
             floatingActionButton = {
                 if (showFloatingCounter && floatingCounterVM != null) {
-                    val count by floatingCounterVM.counter.collectAsState()
-                    FloatingCounterFab(counter = count, onClick = { floatingCounterVM.increment() })
+                    val counters by floatingCounterVM.counters.collectAsState()
+                    val count = counters[screenKey] ?: 0
+                    FloatingCounterFab(counter = count, onClick = { floatingCounterVM.increment(screenKey) })
                 }
             }
         ) { padding ->

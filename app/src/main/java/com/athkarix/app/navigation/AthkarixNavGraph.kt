@@ -79,6 +79,7 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 fontViewModel = fontVM,
                 floatingCounterVM = floatingCounterVM,
                 showFloatingCounter = true,
+                screenKey = Routes.ATHKAR_SABAH,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
@@ -92,6 +93,7 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 fontViewModel = fontVM,
                 floatingCounterVM = floatingCounterVM,
                 showFloatingCounter = true,
+                screenKey = Routes.ATHKAR_MASSA,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
@@ -127,6 +129,7 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 fontViewModel = fontVM,
                 floatingCounterVM = floatingCounterVM,
                 showFloatingCounter = true,
+                screenKey = Routes.TASBIH,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
@@ -140,6 +143,7 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 fontViewModel = fontVM,
                 floatingCounterVM = floatingCounterVM,
                 showFloatingCounter = true,
+                screenKey = Routes.ESTIGFAR,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
@@ -153,6 +157,7 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 fontViewModel = fontVM,
                 floatingCounterVM = floatingCounterVM,
                 showFloatingCounter = true,
+                screenKey = Routes.HAMD,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
@@ -167,6 +172,7 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 fontViewModel = fontVM,
                 floatingCounterVM = floatingCounterVM,
                 showFloatingCounter = true,
+                screenKey = Routes.SALAT_ALA_RASOUL,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
             )
