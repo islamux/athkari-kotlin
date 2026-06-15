@@ -27,12 +27,13 @@ fun CustomButton(
     icon: ImageVector = Icons.Default.ArrowBack,
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fillMaxWidth: Boolean = true,
 ) {
     Button(
         onClick = onClick,
         modifier = modifier
-            .fillMaxWidth()
+            .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)
             .height(56.dp)
             .padding(horizontal = 16.dp, vertical = 4.dp),
         colors = ButtonDefaults.buttonColors(containerColor = AppColor.darkGold),

@@ -13,7 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.athkarix.app.R
 import com.athkarix.app.ui.components.common.AthkarixTopAppBar
 import com.athkarix.app.ui.components.common.BackgroundImage
 import com.athkarix.app.ui.components.notification.NotificationToggleRow
@@ -31,8 +33,9 @@ fun NotificationSettingsScreen(
     val eveningEnabled by viewModel.eveningEnabled.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
-        BackgroundImage(scrimAlpha = 0.6f)
+        BackgroundImage(drawableRes = R.drawable.bg_91k)
         Scaffold(
+            containerColor = Color.Transparent,
             topBar = {
                 AthkarixTopAppBar(
                     title = "إعدادات التذكير",

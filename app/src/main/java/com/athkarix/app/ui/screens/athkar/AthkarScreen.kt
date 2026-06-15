@@ -4,9 +4,14 @@ import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -17,8 +22,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.dp
+import com.athkarix.app.R
 import com.athkarix.app.ui.components.common.BackgroundImage
 import com.athkarix.app.ui.components.dua.AthkarTextSlider
 import com.athkarix.app.ui.components.dua.FontControls
@@ -38,6 +47,7 @@ fun AthkarScreen(
     fontViewModel: FontViewModel,
     onBack: () -> Unit,
     onShare: (String) -> Unit,
+    onSearch: () -> Unit = {},
     floatingCounterVM: FloatingCounterViewModel? = null,
     showFloatingCounter: Boolean = false,
     screenKey: String = "",
@@ -66,13 +76,17 @@ fun AthkarScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        BackgroundImage(scrimAlpha = 0.6f)
+        BackgroundImage(drawableRes = R.drawable.bg_91k)
         Scaffold(
+            containerColor = Color.Transparent,
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 AthkarixTopAppBar(
                     onBack = onBack,
                     actions = {
+                        IconButton(onClick = onSearch) {
+                            Icon(Icons.Filled.Search, "بحث", tint = AppColor.primaryGold)
+                        }
                         IconButton(onClick = {
                             onShare(viewModel.getShareText(viewModel.currentPageIndex.value))
                         }) {
@@ -84,14 +98,27 @@ fun AthkarScreen(
             },
             floatingActionButton = {
                 if (showFloatingCounter && floatingCounterVM != null) {
-                    val counters by floatingCounterVM.counters.collectAsState()
-                    val count = counters[screenKey] ?: 0
-                    FloatingCounterFab(counter = count, onClick = { floatingCounterVM.increment(screenKey) })
+                    FloatingCounterFab(counter = pageCounter, onClick = { viewModel.incrementPageController() })
                 }
             }
         ) { padding ->
             Box(Modifier.fillMaxSize().padding(padding)) {
                 AthkarTextSlider(viewModel = viewModel, fontViewModel = fontViewModel)
+            }
+        }
+
+        if (showFloatingCounter) {
+            FloatingActionButton(
+                onClick = { viewModel.resetPageController() },
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(16.dp)
+                    .size(40.dp),
+                containerColor = AppColor.darkGold,
+                contentColor = Color.White,
+                shape = CircleShape,
+            ) {
+                Icon(Icons.Default.Refresh, contentDescription = "إعادة تعيين")
             }
         }
     }

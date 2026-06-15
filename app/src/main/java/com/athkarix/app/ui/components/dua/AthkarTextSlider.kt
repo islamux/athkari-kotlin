@@ -1,7 +1,6 @@
 package com.athkarix.app.ui.components.dua
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,7 +29,6 @@ import androidx.compose.ui.text.style.TextAlign
 import com.athkarix.app.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.athkarix.app.ui.theme.AppColor
 import com.athkarix.app.viewmodel.BaseAthkarViewModel
 import com.athkarix.app.viewmodel.FontViewModel
 
@@ -73,11 +71,6 @@ fun AthkarTextSlider(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.4f))
-        )
         // — HorizontalPager with RTL: each page is one athkar item —
         HorizontalPager(
             state = pagerState,
@@ -100,7 +93,7 @@ fun AthkarTextSlider(
                     fontFamily = fontFamily,
                     fontSize = fontSize.sp,
                     lineHeight = (fontSize * 1.5f).sp,
-                    color = AppColor.primaryGold,
+                    color = Color.Black,
                     textAlign = TextAlign.Center,
                 )
                 if (!item.footer.isNullOrBlank()) {
@@ -110,7 +103,7 @@ fun AthkarTextSlider(
                         fontFamily = FontFamily.Serif,
                         fontSize = (fontSize * 0.7f).sp,
                         lineHeight = (fontSize * 0.7f * 1.5f).sp,
-                        color = AppColor.footer,
+                        color = Color(0xFF333333),
                         textAlign = TextAlign.Center,
                     )
                 }
