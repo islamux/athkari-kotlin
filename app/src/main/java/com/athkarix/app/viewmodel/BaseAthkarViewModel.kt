@@ -18,12 +18,15 @@ sealed class ViewEvent {
     object NavigateBack : ViewEvent()
 }
 
+enum class CounterMode { AUTO_ADVANCE, INFINITE_COUNT }
+
 /** Shared logic for every athkar category ViewModel: page tracking, counter, haptics, completion detection. */
 abstract class BaseAthkarViewModel : ViewModel() {
 
     // — Subclass contracts —
     abstract val dataList: List<AthkarItem>
     abstract val completionMessage: String
+    open val counterMode: CounterMode = CounterMode.AUTO_ADVANCE
 
     // — Mutable state (private backing, public read-only flow) —
     private val _currentPageIndex = MutableStateFlow(0)
@@ -39,18 +42,38 @@ abstract class BaseAthkarViewModel : ViewModel() {
     private val _hapticTrigger = MutableSharedFlow<Unit>()
     val hapticTrigger: SharedFlow<Unit> = _hapticTrigger.asSharedFlow()
 
+    private var cumulativeTaps: Int = 0
+
     fun resetCounter() {
         _currentPageCounter.value = 0
     }
 
+    fun resetPageController() {
+        _currentPageIndex.value = 0
+        _currentPageCounter.value = 0
+        cumulativeTaps = 0
+    }
+
     fun onPageChanged(index: Int) {
         _currentPageIndex.value = index
-        resetCounter()
+        if (counterMode != CounterMode.INFINITE_COUNT) {
+            resetCounter()
+        }
     }
 
     // — Core counter logic (advance page when count reaches max, or show completion) —
     fun incrementPageController() {
-        val max = 1
+        cumulativeTaps++
+
+        if (counterMode == CounterMode.INFINITE_COUNT) {
+            _currentPageCounter.value = cumulativeTaps
+            if (cumulativeTaps % 100 == 0) {
+                viewModelScope.launch { _hapticTrigger.emit(Unit) }
+            }
+            return
+        }
+
+        val max = dataList.getOrNull(_currentPageIndex.value)?.maxCount ?: 1
         val newCount = _currentPageCounter.value + 1
         if (newCount >= max) {
             _currentPageCounter.value = 0
@@ -70,7 +93,9 @@ abstract class BaseAthkarViewModel : ViewModel() {
 
     fun goToPage(index: Int) {
         _currentPageIndex.value = index
-        _currentPageCounter.value = 0
+        if (counterMode != CounterMode.INFINITE_COUNT) {
+            _currentPageCounter.value = 0
+        }
     }
 
     fun goToHome() {

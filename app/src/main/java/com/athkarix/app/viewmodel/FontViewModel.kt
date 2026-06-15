@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/** Controls font size (21–37 range) and font family (Amiri serif / sans-serif) across screens. */
 class FontViewModel : ViewModel() {
 
     private val _fontSize = MutableStateFlow(28.6f)
@@ -17,21 +16,25 @@ class FontViewModel : ViewModel() {
     private val maxFontSize = 37.0f
     private val minFontSize = 21.0f
 
-    fun changeFont(font: String) {
+    fun setFont(font: String) {
         _selectedFont.value = font
     }
 
-    fun increaseFontSize() {
-        if (_fontSize.value < maxFontSize) {
-            val newSize = _fontSize.value + 2.0f
-            _fontSize.value = if (newSize > maxFontSize) maxFontSize else newSize
-        }
+    fun toggleFont() {
+        _selectedFont.value = if (_selectedFont.value == "Amiri") "Cairo" else "Amiri"
     }
 
-    fun decreaseFontSize() {
-        if (_fontSize.value > minFontSize) {
-            val newSize = _fontSize.value - 2.0f
-            _fontSize.value = if (newSize < minFontSize) minFontSize else newSize
+        fun increaseFontSize() {
+            if (_fontSize.value < maxFontSize) {
+                val newSize = _fontSize.value + 2.0f
+                _fontSize.value = if (newSize > maxFontSize) maxFontSize else newSize
+            }
+        }
+
+        fun decreaseFontSize() {
+            if (_fontSize.value > minFontSize) {
+                val newSize = _fontSize.value - 2.0f
+                _fontSize.value = if (newSize < minFontSize) minFontSize else newSize
+            }
         }
     }
-}

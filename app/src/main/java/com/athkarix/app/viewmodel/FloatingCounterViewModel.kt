@@ -5,22 +5,20 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/** A simple 0–99 wrap-around counter displayed as a floating FAB on tasbih/estigfar/etc. screens. */
 class FloatingCounterViewModel : ViewModel() {
 
-    private val _counter = MutableStateFlow(0)
-    val counter: StateFlow<Int> = _counter.asStateFlow()
+    private val _counters = MutableStateFlow<Map<String, Int>>(emptyMap())
+    val counters: StateFlow<Map<String, Int>> = _counters.asStateFlow()
 
-    fun increment() {
-        _counter.value++
+    fun increment(screenKey: String) {
+        _counters.value = _counters.value.toMutableMap().apply {
+            put(screenKey, (get(screenKey) ?: 0) + 1)
+        }
     }
 
-    fun incrementUntil100() {
-        val next = _counter.value + 1
-        _counter.value = if (next >= 100) 0 else next
-    }
-
-    fun reset() {
-        _counter.value = 0
+    fun reset(screenKey: String) {
+        _counters.value = _counters.value.toMutableMap().apply {
+            put(screenKey, 0)
+        }
     }
 }

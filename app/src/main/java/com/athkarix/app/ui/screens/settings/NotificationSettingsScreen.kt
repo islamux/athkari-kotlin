@@ -1,5 +1,6 @@
 package com.athkarix.app.ui.screens.settings
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,7 +15,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.athkarix.app.R
 import com.athkarix.app.ui.components.common.AthkarixTopAppBar
+import com.athkarix.app.ui.components.common.BackgroundImage
 import com.athkarix.app.ui.components.notification.NotificationToggleRow
 import com.athkarix.app.ui.theme.AppColor
 import com.athkarix.app.viewmodel.NotificationSettingsViewModel
@@ -29,36 +32,39 @@ fun NotificationSettingsScreen(
     val morningEnabled by viewModel.morningEnabled.collectAsState()
     val eveningEnabled by viewModel.eveningEnabled.collectAsState()
 
-    Scaffold(
-        topBar = {
-            AthkarixTopAppBar(
-                title = "إعدادات التذكير",
-                onBack = onBack,
-            )
-        },
-        containerColor = Color.Black,
-    ) { padding ->
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-        ) {
-            NotificationToggleRow(
-                label = "تذكير الصباح",
-                enabled = morningEnabled,
-                onEnabledChange = { viewModel.setMorningEnabled(it) },
-                timeText = "${viewModel.morningHour.value}:${String.format("%02d", viewModel.morningMinute.value)}",
-                onTimeClick = { /* show TimePicker */ },
-            )
-            Spacer(Modifier.height(24.dp))
-            NotificationToggleRow(
-                label = "تذكير المساء",
-                enabled = eveningEnabled,
-                onEnabledChange = { viewModel.setEveningEnabled(it) },
-                timeText = "${viewModel.eveningHour.value}:${String.format("%02d", viewModel.eveningMinute.value)}",
-                onTimeClick = { /* show TimePicker */ },
-            )
+    Box(modifier = Modifier.fillMaxSize()) {
+        BackgroundImage(drawableRes = R.drawable.bg_91k)
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = {
+                AthkarixTopAppBar(
+                    title = "إعدادات التذكير",
+                    onBack = onBack,
+                )
+            },
+        ) { padding ->
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp)
+            ) {
+                NotificationToggleRow(
+                    label = "تذكير الصباح",
+                    enabled = morningEnabled,
+                    onEnabledChange = { viewModel.setMorningEnabled(it) },
+                    timeText = "${viewModel.morningHour.value}:${String.format("%02d", viewModel.morningMinute.value)}",
+                    onTimeClick = { /* show TimePicker */ },
+                )
+                Spacer(Modifier.height(24.dp))
+                NotificationToggleRow(
+                    label = "تذكير المساء",
+                    enabled = eveningEnabled,
+                    onEnabledChange = { viewModel.setEveningEnabled(it) },
+                    timeText = "${viewModel.eveningHour.value}:${String.format("%02d", viewModel.eveningMinute.value)}",
+                    onTimeClick = { /* show TimePicker */ },
+                )
+            }
         }
     }
 }

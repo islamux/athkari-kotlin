@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.athkarix.app.ui.theme.AppColor
 
 /** Reusable styled button with icon, rounded corners, and the app's dark-gold colour. */
@@ -26,12 +27,13 @@ fun CustomButton(
     icon: ImageVector = Icons.Default.ArrowBack,
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fillMaxWidth: Boolean = true,
 ) {
     Button(
         onClick = onClick,
         modifier = modifier
-            .fillMaxWidth()
+            .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)
             .height(56.dp)
             .padding(horizontal = 16.dp, vertical = 4.dp),
         colors = ButtonDefaults.buttonColors(containerColor = AppColor.darkGold),
@@ -39,6 +41,11 @@ fun CustomButton(
     ) {
         Icon(icon, contentDescription = null, tint = Color.White)
         Spacer(Modifier.width(12.dp))
-        Text(text, color = Color.White, fontFamily = FontFamily.SansSerif)
+        Text(
+            text = text,
+            color = Color.White,
+            fontFamily = FontFamily.SansSerif,
+            fontSize = 18.sp,
+        )
     }
 }

@@ -4,9 +4,14 @@ import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -17,8 +22,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.dp
+import com.athkarix.app.R
+import com.athkarix.app.ui.components.common.BackgroundImage
 import com.athkarix.app.ui.components.dua.AthkarTextSlider
 import com.athkarix.app.ui.components.dua.FontControls
 import com.athkarix.app.ui.components.navigation.FloatingCounterFab
@@ -37,8 +47,10 @@ fun AthkarScreen(
     fontViewModel: FontViewModel,
     onBack: () -> Unit,
     onShare: (String) -> Unit,
+    onSearch: () -> Unit = {},
     floatingCounterVM: FloatingCounterViewModel? = null,
     showFloatingCounter: Boolean = false,
+    screenKey: String = "",
 ) {
     val pageCounter by viewModel.currentPageCounter.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -63,30 +75,51 @@ fun AthkarScreen(
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            AthkarixTopAppBar(
-                onBack = onBack,
-                actions = {
-                    IconButton(onClick = {
-                        onShare(viewModel.getShareText(viewModel.currentPageIndex.value))
-                    }) {
-                        Icon(Icons.Default.Share, "مشاركة", tint = AppColor.primaryGold)
-                    }
-                    FontControls(fontViewModel)
-                },
-            )
-        },
-        floatingActionButton = {
-            if (showFloatingCounter && floatingCounterVM != null) {
-                val count by floatingCounterVM.counter.collectAsState()
-                FloatingCounterFab(counter = count, onClick = { floatingCounterVM.increment() })
+    Box(modifier = Modifier.fillMaxSize()) {
+        BackgroundImage(drawableRes = R.drawable.bg_91k)
+        Scaffold(
+            containerColor = Color.Transparent,
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            topBar = {
+                AthkarixTopAppBar(
+                    onBack = onBack,
+                    actions = {
+                        IconButton(onClick = onSearch) {
+                            Icon(Icons.Filled.Search, "بحث", tint = AppColor.primaryGold)
+                        }
+                        IconButton(onClick = {
+                            onShare(viewModel.getShareText(viewModel.currentPageIndex.value))
+                        }) {
+                            Icon(Icons.Default.Share, "مشاركة", tint = AppColor.primaryGold)
+                        }
+                        FontControls(fontViewModel)
+                    },
+                )
+            },
+            floatingActionButton = {
+                if (showFloatingCounter && floatingCounterVM != null) {
+                    FloatingCounterFab(counter = pageCounter, onClick = { viewModel.incrementPageController() })
+                }
+            }
+        ) { padding ->
+            Box(Modifier.fillMaxSize().padding(padding)) {
+                AthkarTextSlider(viewModel = viewModel, fontViewModel = fontViewModel)
             }
         }
-    ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
-            AthkarTextSlider(viewModel = viewModel, fontViewModel = fontViewModel)
+
+        if (showFloatingCounter) {
+            FloatingActionButton(
+                onClick = { viewModel.resetPageController() },
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(16.dp)
+                    .size(40.dp),
+                containerColor = AppColor.darkGold,
+                contentColor = Color.White,
+                shape = CircleShape,
+            ) {
+                Icon(Icons.Default.Refresh, contentDescription = "إعادة تعيين")
+            }
         }
     }
 }
