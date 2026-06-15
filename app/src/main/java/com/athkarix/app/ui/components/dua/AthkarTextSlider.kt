@@ -1,7 +1,6 @@
 package com.athkarix.app.ui.components.dua
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,15 +17,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
+import com.athkarix.app.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.athkarix.app.ui.theme.AppColor
 import com.athkarix.app.viewmodel.BaseAthkarViewModel
 import com.athkarix.app.viewmodel.FontViewModel
 
@@ -40,7 +42,21 @@ fun AthkarTextSlider(
 ) {
     val pageIndex by viewModel.currentPageIndex.collectAsState()
     val fontSize by fontViewModel.fontSize.collectAsState()
-    val fontFamily by fontViewModel.selectedFont.collectAsState()
+    val selectedFontName by fontViewModel.selectedFont.collectAsState()
+    val fontFamily by remember {
+        derivedStateOf {
+            when (selectedFontName) {
+                "Cairo" -> FontFamily(
+                    Font(R.font.cairo_regular),
+                    Font(R.font.cairo_bold)
+                )
+                else -> FontFamily(
+                    Font(R.font.amiri_regular),
+                    Font(R.font.amiri_bold)
+                )
+            }
+        }
+    }
 
     // — Sync pager with ViewModel page index —
     val pagerState = rememberPagerState(
@@ -55,11 +71,6 @@ fun AthkarTextSlider(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.4f))
-        )
         // — HorizontalPager with RTL: each page is one athkar item —
         HorizontalPager(
             state = pagerState,
@@ -79,9 +90,10 @@ fun AthkarTextSlider(
             ) {
                 Text(
                     text = item.duaText ?: "",
-                    fontFamily = if (fontFamily == "Amiri") FontFamily.Serif else FontFamily.SansSerif,
+                    fontFamily = fontFamily,
                     fontSize = fontSize.sp,
-                    color = AppColor.primaryGold,
+                    lineHeight = (fontSize * 1.5f).sp,
+                    color = Color.Black,
                     textAlign = TextAlign.Center,
                 )
                 if (!item.footer.isNullOrBlank()) {
@@ -90,7 +102,8 @@ fun AthkarTextSlider(
                         text = item.footer,
                         fontFamily = FontFamily.Serif,
                         fontSize = (fontSize * 0.7f).sp,
-                        color = AppColor.footer,
+                        lineHeight = (fontSize * 0.7f * 1.5f).sp,
+                        color = Color(0xFF333333),
                         textAlign = TextAlign.Center,
                     )
                 }

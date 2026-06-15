@@ -8,34 +8,34 @@ class FloatingCounterViewModelTest {
     private val viewModel = FloatingCounterViewModel()
 
     @Test
-    fun `increment increases counter by 1`() {
-        println("DEBUG: Incrementing counter from ${viewModel.counter.value}")
-        viewModel.increment()
-        println("DEBUG: Counter after increment = ${viewModel.counter.value}")
-        assertEquals(1, viewModel.counter.value)
-        println("DEBUG: Test passed")
+    fun `increment increases counter for specific key by 1`() {
+        viewModel.increment("tasbih")
+        assertEquals(1, viewModel.counters.value["tasbih"])
     }
 
     @Test
-    fun `incrementUntil100 wraps from 99 to 0`() {
-        println("DEBUG: Incrementing to 99")
-        repeat(100) { viewModel.increment() }
-        println("DEBUG: Counter at 99, now calling incrementUntil100()")
-        viewModel.incrementUntil100()
-        println("DEBUG: Counter after incrementUntil100 = ${viewModel.counter.value}")
-        assertEquals(0, viewModel.counter.value)
-        println("DEBUG: Test passed")
+    fun `counters for different keys are independent`() {
+        viewModel.increment("tasbih")
+        viewModel.increment("tasbih")
+        viewModel.increment("estigfar")
+        assertEquals(2, viewModel.counters.value["tasbih"])
+        assertEquals(1, viewModel.counters.value["estigfar"])
     }
 
     @Test
-    fun `reset sets counter to 0`() {
-        println("DEBUG: Incrementing twice to 2")
-        viewModel.increment()
-        viewModel.increment()
-        println("DEBUG: Counter at 2, calling reset()")
-        viewModel.reset()
-        println("DEBUG: Counter after reset = ${viewModel.counter.value}")
-        assertEquals(0, viewModel.counter.value)
-        println("DEBUG: Test passed")
+    fun `reset sets counter to 0 for specific key`() {
+        viewModel.increment("tasbih")
+        viewModel.increment("tasbih")
+        viewModel.reset("tasbih")
+        assertEquals(0, viewModel.counters.value["tasbih"])
+    }
+
+    @Test
+    fun `reset does not affect other keys`() {
+        viewModel.increment("tasbih")
+        viewModel.increment("estigfar")
+        viewModel.reset("tasbih")
+        assertEquals(0, viewModel.counters.value["tasbih"] ?: 0)
+        assertEquals(1, viewModel.counters.value["estigfar"] ?: 0)
     }
 }

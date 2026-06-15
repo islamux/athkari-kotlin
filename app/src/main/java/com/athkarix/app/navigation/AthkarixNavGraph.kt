@@ -77,8 +77,12 @@ fun AthkarixNavGraph(navController: NavHostController) {
             AthkarScreen(
                 viewModel = vm,
                 fontViewModel = fontVM,
+                floatingCounterVM = floatingCounterVM,
+                showFloatingCounter = true,
+                screenKey = Routes.ATHKAR_SABAH,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
+                onSearch = { navController.navigate(Routes.SEARCH) },
             )
         }
 
@@ -88,8 +92,12 @@ fun AthkarixNavGraph(navController: NavHostController) {
             AthkarScreen(
                 viewModel = vm,
                 fontViewModel = fontVM,
+                floatingCounterVM = floatingCounterVM,
+                showFloatingCounter = true,
+                screenKey = Routes.ATHKAR_MASSA,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
+                onSearch = { navController.navigate(Routes.SEARCH) },
             )
         }
 
@@ -101,6 +109,7 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 fontViewModel = fontVM,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
+                onSearch = { navController.navigate(Routes.SEARCH) },
             )
         }
 
@@ -112,6 +121,7 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 fontViewModel = fontVM,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
+                onSearch = { navController.navigate(Routes.SEARCH) },
             )
         }
 
@@ -123,8 +133,10 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 fontViewModel = fontVM,
                 floatingCounterVM = floatingCounterVM,
                 showFloatingCounter = true,
+                screenKey = Routes.TASBIH,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
+                onSearch = { navController.navigate(Routes.SEARCH) },
             )
         }
 
@@ -136,8 +148,10 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 fontViewModel = fontVM,
                 floatingCounterVM = floatingCounterVM,
                 showFloatingCounter = true,
+                screenKey = Routes.ESTIGFAR,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
+                onSearch = { navController.navigate(Routes.SEARCH) },
             )
         }
 
@@ -149,8 +163,10 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 fontViewModel = fontVM,
                 floatingCounterVM = floatingCounterVM,
                 showFloatingCounter = true,
+                screenKey = Routes.HAMD,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
+                onSearch = { navController.navigate(Routes.SEARCH) },
             )
         }
 
@@ -163,8 +179,10 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 fontViewModel = fontVM,
                 floatingCounterVM = floatingCounterVM,
                 showFloatingCounter = true,
+                screenKey = Routes.SALAT_ALA_RASOUL,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
+                onSearch = { navController.navigate(Routes.SEARCH) },
             )
         }
 
@@ -176,6 +194,7 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 fontViewModel = fontVM,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
+                onSearch = { navController.navigate(Routes.SEARCH) },
             )
         }
 
@@ -187,6 +206,7 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 fontViewModel = fontVM,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
+                onSearch = { navController.navigate(Routes.SEARCH) },
             )
         }
 
@@ -198,6 +218,7 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 fontViewModel = fontVM,
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
+                onSearch = { navController.navigate(Routes.SEARCH) },
             )
         }
 
@@ -215,6 +236,7 @@ fun AthkarixNavGraph(navController: NavHostController) {
             val searchVM = remember { SearchViewModel() }
             SearchScreen(
                 viewModel = searchVM,
+                onBack = { back() },
                 onResultClick = { result ->
                     navController.navigate("${Routes.SEARCH_RESULT.replace("{categoryIndex}", result.categoryKey).replace("{itemIndex}", "${result.index}")}")
                 },
