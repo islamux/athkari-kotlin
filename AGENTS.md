@@ -76,7 +76,7 @@ Run:
 ./gradlew test
 ```
 
-Fix issues before marking work complete.
+Fix issues before marking work complete. Note: `./gradlew lint` has pre-existing errors in `NotificationService.kt` (NewApi) — only flag NEW lint issues from your changes.
 
 ---
 
@@ -92,7 +92,7 @@ cc get-project-status
 ccui
 ```
 
-> **Note:** Use `./gradlew gitflow` to create a branch, commit all changes, push, create a PR, and merge (keeps branches for reference).
+> **Note:** Use `./gitflow` to create a branch, commit all changes, push, create a PR, and merge (keeps branches for reference).
 
 ---
 

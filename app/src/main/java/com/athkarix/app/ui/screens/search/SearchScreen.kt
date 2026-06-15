@@ -1,6 +1,5 @@
 package com.athkarix.app.ui.screens.search
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,9 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.athkarix.app.R
 import com.athkarix.app.ui.components.common.AthkarixTopAppBar
 import com.athkarix.app.ui.components.common.BackgroundImage
 import com.athkarix.app.ui.theme.AppColor
@@ -34,11 +33,10 @@ fun SearchScreen(
     val results by viewModel.results.collectAsState()
 
     Box(Modifier.fillMaxSize()) {
-        BackgroundImage(scrimAlpha = 0.6f)
+        BackgroundImage(drawableRes = R.drawable.bg_91k)
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.4f))
         ) {
             AthkarixTopAppBar(
                 onBack = onBack,
