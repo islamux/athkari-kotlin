@@ -21,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.athkarix.app.R
 import com.athkarix.app.ui.theme.AppColor
 
 /** Navigation drawer with app branding, notification settings, contact us, and share. */
@@ -38,9 +40,9 @@ fun CustomDrawer(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Athkarix",
+                text = stringResource(R.string.drawer_title),
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Normal,
                 color = AppColor.primaryGold,
                 modifier = Modifier.padding(vertical = 16.dp)
             )
@@ -48,28 +50,28 @@ fun CustomDrawer(
             Spacer(Modifier.height(8.dp))
             NavigationDrawerItem(
                 icon = { Icon(Icons.Default.Notifications, contentDescription = null) },
-                label = { Text("إعدادات التنبيهات") },
+                label = { Text(stringResource(R.string.drawer_notification_settings)) },
                 selected = false,
                 onClick = onNotificationSettings,
                 modifier = Modifier.fillMaxWidth()
             )
             NavigationDrawerItem(
                 icon = { Icon(Icons.Default.Notifications, contentDescription = null) },
-                label = { Text("تواصل معنا") },
+                label = { Text(stringResource(R.string.drawer_contact_us)) },
                 selected = false,
                 onClick = onContactUs,
                 modifier = Modifier.fillMaxWidth()
             )
             NavigationDrawerItem(
                 icon = { Icon(Icons.Default.Email, contentDescription = null) },
-                label = { Text("تواصل عبر البريد الإلكتروني") },
+                label = { Text(stringResource(R.string.drawer_email_us)) },
                 selected = false,
                 onClick = onEmailUs,
                 modifier = Modifier.fillMaxWidth()
             )
             NavigationDrawerItem(
                 icon = { Icon(Icons.Default.Share, contentDescription = null) },
-                label = { Text("شارك التطبيق عبر وسائل التواصل") },
+                label = { Text(stringResource(R.string.drawer_share)) },
                 selected = false,
                 onClick = onShare,
                 modifier = Modifier.fillMaxWidth()
