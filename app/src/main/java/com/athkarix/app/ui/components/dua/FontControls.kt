@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.athkarix.app.ui.theme.AppColor
 import com.athkarix.app.viewmodel.FontViewModel
 
-private val fontDisplayNames = mapOf("Amiri" to "أميري", "Cairo" to "القاهرة")
+private val fontDisplayNames = mapOf("Amiri" to "خط 1", "Cairo" to "خط 2")
 
 /** +/- buttons to increase/decrease font size and dropdown for font selection with Arabic labels. */
 @Composable

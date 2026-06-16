@@ -55,7 +55,7 @@ fun AthkarIndexDrawer(
                 Text(
                     text = "${index + 1}. $label...",
                     color = if (isCurrent) AppColor.primaryGold else Color(0xFFCCCCCC),
-                    fontSize = 13.sp,
+                    fontSize = 16.sp,
                     fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
                     modifier = Modifier
                         .fillMaxWidth()

@@ -1,6 +1,7 @@
 package com.athkarix.app.ui.components.dua
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -24,7 +26,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -119,39 +123,60 @@ fun AthkarTextSlider(
         // — Page slider / progress —
         val totalPages = viewModel.dataList.size
         if (totalPages > 1) {
-            Row(
+            var isDragging by remember { mutableStateOf(false) }
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(
-                    text = "${pageIndex + 1}",
-                    color = AppColor.darkGold,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-                Spacer(Modifier.width(8.dp))
-                Slider(
-                    value = pageIndex.toFloat(),
-                    onValueChange = { viewModel.goToPage(it.toInt()) },
-                    valueRange = 0f..(totalPages - 1).toFloat(),
-                    steps = totalPages - 2,
-                    modifier = Modifier.weight(1f),
-                    colors = SliderDefaults.colors(
-                        thumbColor = AppColor.primaryGold,
-                        activeTrackColor = AppColor.darkGold,
-                        inactiveTrackColor = Color(0xFF555555),
-                    ),
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    text = "${totalPages}",
-                    color = AppColor.darkGold,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                )
+                if (isDragging) {
+                    Text(
+                        text = "${pageIndex + 1}",
+                        modifier = Modifier
+                            .background(AppColor.darkGold, RoundedCornerShape(4.dp))
+                            .padding(horizontal = 10.dp, vertical = 4.dp),
+                        color = Color.White,
+                        fontSize = 12.sp,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Text(
+                        text = "${pageIndex + 1}",
+                        color = AppColor.darkGold,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Slider(
+                        value = pageIndex.toFloat(),
+                        onValueChange = {
+                            isDragging = true
+                            viewModel.goToPage(it.toInt())
+                        },
+                        onValueChangeFinished = { isDragging = false },
+                        valueRange = 0f..(totalPages - 1).toFloat(),
+                        steps = totalPages - 2,
+                        modifier = Modifier.weight(1f),
+                        colors = SliderDefaults.colors(
+                            thumbColor = AppColor.primaryGold,
+                            activeTrackColor = AppColor.darkGold,
+                            inactiveTrackColor = Color(0xFF555555),
+                        ),
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = "${totalPages}",
+                        color = AppColor.darkGold,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                    )
+                }
             }
         }
     }
