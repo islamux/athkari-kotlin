@@ -5,14 +5,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,12 +28,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.runtime.CompositionLocalProvider
 import com.athkarix.app.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.athkarix.app.ui.theme.AppColor
 import com.athkarix.app.viewmodel.BaseAthkarViewModel
 import com.athkarix.app.viewmodel.FontViewModel
 
@@ -46,14 +56,8 @@ fun AthkarTextSlider(
     val fontFamily by remember {
         derivedStateOf {
             when (selectedFontName) {
-                "Cairo" -> FontFamily(
-                    Font(R.font.cairo_regular),
-                    Font(R.font.cairo_bold)
-                )
-                else -> FontFamily(
-                    Font(R.font.amiri_regular),
-                    Font(R.font.amiri_bold)
-                )
+                "Cairo" -> FontFamily(Font(R.font.cairo_regular, weight = FontWeight.Normal))
+                else -> FontFamily(Font(R.font.amiri_regular, weight = FontWeight.Normal))
             }
         }
     }
@@ -70,44 +74,86 @@ fun AthkarTextSlider(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        // — HorizontalPager with RTL: each page is one athkar item —
-        HorizontalPager(
-            state = pagerState,
-            reverseLayout = true,
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable { viewModel.incrementPageController() }
-                .padding(horizontal = 24.dp, vertical = 48.dp),
-        ) { page ->
-            val item = viewModel.dataList.getOrNull(page) ?: return@HorizontalPager
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+    Column(modifier = modifier.fillMaxSize()) {
+        // — HorizontalPager (RTL via CompositionLocal) —
+        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            HorizontalPager(
+                state = pagerState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Text(
-                    text = item.duaText ?: "",
-                    fontFamily = fontFamily,
-                    fontSize = fontSize.sp,
-                    lineHeight = (fontSize * 1.5f).sp,
-                    color = Color.Black,
-                    textAlign = TextAlign.Center,
-                )
-                if (!item.footer.isNullOrBlank()) {
-                    Spacer(Modifier.height(16.dp))
+                    .clickable { viewModel.incrementPageController() }
+                    .padding(horizontal = 24.dp, vertical = 48.dp),
+            ) { page ->
+                val item = viewModel.dataList.getOrNull(page) ?: return@HorizontalPager
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
                     Text(
-                        text = item.footer,
-                        fontFamily = FontFamily.Serif,
-                        fontSize = (fontSize * 0.7f).sp,
-                        lineHeight = (fontSize * 0.7f * 1.5f).sp,
-                        color = Color(0xFF333333),
+                        text = item.duaText ?: "",
+                        fontFamily = fontFamily,
+                        fontSize = fontSize.sp,
+                        lineHeight = (fontSize * 1.5f).sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.Black,
                         textAlign = TextAlign.Center,
                     )
+                    if (!item.footer.isNullOrBlank()) {
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            text = item.footer,
+                            fontFamily = FontFamily.Serif,
+                            fontSize = (fontSize * 0.7f).sp,
+                            lineHeight = (fontSize * 0.7f * 1.5f).sp,
+                            color = Color(0xFF333333),
+                            textAlign = TextAlign.Center,
+                        )
+                    }
                 }
             }
         }
+        // — Page slider / progress —
+        val totalPages = viewModel.dataList.size
+        if (totalPages > 1) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    text = "${pageIndex + 1}",
+                    color = AppColor.darkGold,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Spacer(Modifier.width(8.dp))
+                Slider(
+                    value = pageIndex.toFloat(),
+                    onValueChange = { viewModel.goToPage(it.toInt()) },
+                    valueRange = 0f..(totalPages - 1).toFloat(),
+                    steps = totalPages - 2,
+                    modifier = Modifier.weight(1f),
+                    colors = SliderDefaults.colors(
+                        thumbColor = AppColor.primaryGold,
+                        activeTrackColor = AppColor.darkGold,
+                        inactiveTrackColor = Color(0xFF555555),
+                    ),
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = "${totalPages}",
+                    color = AppColor.darkGold,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        }
+    }
     }
 }

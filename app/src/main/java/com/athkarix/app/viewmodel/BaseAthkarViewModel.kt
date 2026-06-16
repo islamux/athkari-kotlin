@@ -35,7 +35,7 @@ abstract class BaseAthkarViewModel : ViewModel() {
     private val _currentPageCounter = MutableStateFlow(0)
     val currentPageCounter: StateFlow<Int> = _currentPageCounter.asStateFlow()
 
-    private val _eventFlow = MutableSharedFlow<ViewEvent>()
+    private val _eventFlow = MutableSharedFlow<ViewEvent>(extraBufferCapacity = 1)
     val eventFlow: SharedFlow<ViewEvent> = _eventFlow.asSharedFlow()
 
     // — Haptic feedback so the user feels page turns —
@@ -43,6 +43,7 @@ abstract class BaseAthkarViewModel : ViewModel() {
     val hapticTrigger: SharedFlow<Unit> = _hapticTrigger.asSharedFlow()
 
     private var cumulativeTaps: Int = 0
+    private var isCompleted: Boolean = false
 
     fun resetCounter() {
         _currentPageCounter.value = 0
@@ -52,6 +53,7 @@ abstract class BaseAthkarViewModel : ViewModel() {
         _currentPageIndex.value = 0
         _currentPageCounter.value = 0
         cumulativeTaps = 0
+        isCompleted = false
     }
 
     fun onPageChanged(index: Int) {
@@ -63,6 +65,11 @@ abstract class BaseAthkarViewModel : ViewModel() {
 
     // — Core counter logic (advance page when count reaches max, or show completion) —
     fun incrementPageController() {
+        if (isCompleted) {
+            viewModelScope.launch { _hapticTrigger.emit(Unit) }
+            return
+        }
+
         cumulativeTaps++
 
         if (counterMode == CounterMode.INFINITE_COUNT) {
@@ -82,6 +89,7 @@ abstract class BaseAthkarViewModel : ViewModel() {
                 _currentPageIndex.value = nextIndex
                 viewModelScope.launch { _hapticTrigger.emit(Unit) }
             } else {
+                isCompleted = true
                 viewModelScope.launch {
                     _eventFlow.emit(ViewEvent.ShowCompletion(completionMessage))
                 }

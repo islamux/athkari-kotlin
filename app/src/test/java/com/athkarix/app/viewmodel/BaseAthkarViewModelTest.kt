@@ -3,7 +3,9 @@ package com.athkarix.app.viewmodel
 import app.cash.turbine.test
 import com.athkarix.app.data.model.AthkarItem
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -142,6 +144,40 @@ class BaseAthkarViewModelTest {
             repeat(2) { received.add(awaitItem()) }
             expectNoEvents()
         }
+    }
+
+    @Test
+    fun `tapping after completion emits haptic on every tap`() = runTest {
+        val vm = TestAthkarViewModel()
+        repeat(3) { vm.incrementPageController() }
+        val receivedHaptics = mutableListOf<Unit>()
+        val collector = launch { vm.hapticTrigger.collect { receivedHaptics.add(it) } }
+        advanceUntilIdle()
+        repeat(3) { vm.incrementPageController() }
+        advanceUntilIdle()
+        collector.cancel()
+        assertEquals(3, receivedHaptics.size)
+    }
+
+    @Test
+    fun `tapping after completion does not change page index or counter`() = runTest {
+        val vm = TestAthkarViewModel()
+        repeat(3) { vm.incrementPageController() }
+        assertEquals(2, vm.currentPageIndex.value)
+        val prevCounter = vm.currentPageCounter.value
+        repeat(4) { vm.incrementPageController() }
+        assertEquals(2, vm.currentPageIndex.value)
+        assertEquals(prevCounter, vm.currentPageCounter.value)
+    }
+
+    @Test
+    fun `resetPageController clears completed flag so navigation works again`() = runTest {
+        val vm = TestAthkarViewModel()
+        repeat(3) { vm.incrementPageController() }
+        vm.resetPageController()
+        assertEquals(0, vm.currentPageIndex.value)
+        vm.incrementPageController()
+        assertEquals(1, vm.currentPageIndex.value)
     }
 
     @Test
