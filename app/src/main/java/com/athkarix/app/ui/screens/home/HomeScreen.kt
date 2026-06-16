@@ -7,8 +7,17 @@ import com.athkarix.app.ui.components.common.ExitGuard
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
@@ -34,7 +43,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.athkarix.app.R
 import com.athkarix.app.ui.components.common.BackgroundImage
 import com.athkarix.app.ui.components.common.CustomButton
@@ -131,12 +142,23 @@ fun HomeScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(stringResource(R.string.app_name)) },
+                    title = {
+                        Text(
+                            text = stringResource(R.string.app_name),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                        )
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
                         titleContentColor = AppColor.primaryGold,
-                        actionIconContentColor = AppColor.amber,
+                        actionIconContentColor = AppColor.primaryGold,
                     ),
+                    navigationIcon = {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(Icons.Default.Menu, contentDescription = "القائمة")
+                        }
+                    },
                     actions = {
                       // viewModel:: goToSearch = {viewModel.goToSearch()}
                         IconButton(onClick = { viewModel.goToSearch() }) {
@@ -156,17 +178,32 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth(0.95f)
+                            .heightIn(max = 450.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xCC1A1A1A),
+                        ),
                     ) {
-                        buttons.forEach { button ->
-                            CustomButton(
-                                icon = Icons.Default.Menu,
-                                text = button.label,
-                                onClick = button.onClick,
-                                fillMaxWidth = false,
-                            )
+                        Column(
+                            modifier = Modifier
+                                .verticalScroll(rememberScrollState())
+                                .padding(horizontal = 8.dp, vertical = 12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            buttons.forEachIndexed { index, button ->
+                                CustomButton(
+                                    icon = Icons.Default.Menu,
+                                    text = button.label,
+                                    onClick = button.onClick,
+                                    fillMaxWidth = true,
+                                )
+                                if (index < buttons.lastIndex) {
+                                    Spacer(Modifier.height(8.dp))
+                                }
+                            }
                         }
                     }
                 }

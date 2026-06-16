@@ -9,7 +9,9 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.athkarix.app.R
+import com.athkarix.app.data.repository.AthkarRepository
 import java.util.Calendar
+
 
 /** BroadcastReceiver that displays athkar reminder notifications when AlarmManager fires. */
 class AthkarReminderReceiver : BroadcastReceiver() {
@@ -19,11 +21,26 @@ class AthkarReminderReceiver : BroadcastReceiver() {
             "SHOW_EVENING_REMINDER" -> "أذكار المساء"
             else -> "تذكير بالأذكار"
         }
+        val bodyText = when (intent.action) {
+            "SHOW_MORNING_REMINDER" -> {
+                AthkarRepository.athkarSabahList.random().duaText
+                    ?.take(200)
+                    ?: "حان وقت قراءة أذكار الصباح"
+            }
+            "SHOW_EVENING_REMINDER" -> {
+                AthkarRepository.athkarMassaList.random().duaText
+                    ?.take(200)
+                    ?: "حان وقت قراءة أذكار المساء"
+            }
+            else -> "حان وقت قراءة الأذكار"
+        }
         val notification = NotificationCompat.Builder(context, NotificationService.CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(title)
-            .setContentText("حان وقت قراءة الأذكار")
+            .setContentText(bodyText.take(120))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(bodyText))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
             .setAutoCancel(true)
             .build()
 

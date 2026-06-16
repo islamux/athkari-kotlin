@@ -2,7 +2,7 @@ package com.athkarix.app.ui.components.common
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,18 +34,18 @@ fun CustomButton(
         onClick = onClick,
         modifier = modifier
             .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)
-            .height(56.dp)
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+            .heightIn(min = 56.dp)
+            .padding(horizontal = 8.dp, vertical = 4.dp),
         colors = ButtonDefaults.buttonColors(containerColor = AppColor.darkGold),
         shape = RoundedCornerShape(28.dp)
     ) {
         Icon(icon, contentDescription = null, tint = Color.White)
-        Spacer(Modifier.width(12.dp))
+        Spacer(Modifier.width(8.dp))
         Text(
             text = text,
             color = Color.White,
             fontFamily = FontFamily.SansSerif,
-            fontSize = 18.sp,
+            fontSize = 16.sp,
         )
     }
 }
