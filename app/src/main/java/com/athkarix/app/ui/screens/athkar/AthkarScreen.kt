@@ -126,7 +126,7 @@ fun AthkarScreen(
                     )
                 },
             ) { padding ->
-                Box(Modifier.fillMaxSize().padding(padding)) {
+                Box(Modifier.fillMaxSize().padding(padding).padding(bottom = if (showFloatingCounter) 80.dp else 0.dp)) {
                     AthkarTextSlider(viewModel = viewModel, fontViewModel = fontViewModel)
                 }
             }
