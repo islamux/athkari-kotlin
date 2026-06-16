@@ -28,6 +28,10 @@ local.properties
 .DS_Store
 Thumbs.db
 
+# Keystore
+athkarix-release.jks
+keystore.properties
+
 # Native
 *.apk
 *.aab

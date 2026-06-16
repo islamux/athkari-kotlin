@@ -28,7 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -87,17 +87,17 @@ fun HomeScreen(
     val buttons = remember {
         listOf(
           // viewModel::goToAssmaHussna = {viewModel.goToAssmaHussna()} *** viewModel.goToAssmaHussna WRONG becues  it exute before click btn the code 
-            HomeButtonItem("أسماء الله الحسنى", "assma_hussna", viewModel::goToAssmaHussna),
-            HomeButtonItem("الإستغفار", "estigfar", viewModel::goToEstigfar),
-            HomeButtonItem("التسبيح", "tasbih", viewModel::goToTasbih),
-            HomeButtonItem("الحمد", "hamd", viewModel::goToHamd),
-            HomeButtonItem("الصلاة على النبي", "salat_ala_rasoul", viewModel::goToSalatAlaRasoul),
-            HomeButtonItem("أذكار الصبـــاح", "athkar_sabah", viewModel::goToAthkarSabah),
-            HomeButtonItem("أذكار المساء", "athkar_massa", viewModel::goToAthkarMassa),
-            HomeButtonItem("الأذكار بعد الصلاة المفروضة", "athkar_after_salat", viewModel::goToAthkarAfterSalat),
-            HomeButtonItem("الدعاء من السنــة", "duaa_sunnah", viewModel::goToDuaMenSunnah),
-            HomeButtonItem("الدعاء من القراءن الكريم", "duaa_quran", viewModel::goToDuaMenQuran),
-            HomeButtonItem("أذكار النوم", "athkar_before_bed", viewModel::goToAthkarBeforeBed),
+            HomeButtonItem(context.getString(R.string.btn_assma_hussna), "assma_hussna", viewModel::goToAssmaHussna),
+            HomeButtonItem(context.getString(R.string.btn_estigfar), "estigfar", viewModel::goToEstigfar),
+            HomeButtonItem(context.getString(R.string.btn_tasbih), "tasbih", viewModel::goToTasbih),
+            HomeButtonItem(context.getString(R.string.btn_hamd), "hamd", viewModel::goToHamd),
+            HomeButtonItem(context.getString(R.string.btn_salat_ala_rasoul), "salat_ala_rasoul", viewModel::goToSalatAlaRasoul),
+            HomeButtonItem(context.getString(R.string.btn_athkar_sabah), "athkar_sabah", viewModel::goToAthkarSabah),
+            HomeButtonItem(context.getString(R.string.btn_athkar_massa), "athkar_massa", viewModel::goToAthkarMassa),
+            HomeButtonItem(context.getString(R.string.btn_athkar_after_salat), "athkar_after_salat", viewModel::goToAthkarAfterSalat),
+            HomeButtonItem(context.getString(R.string.btn_dua_sunnah), "duaa_sunnah", viewModel::goToDuaMenSunnah),
+            HomeButtonItem(context.getString(R.string.btn_dua_quran), "duaa_quran", viewModel::goToDuaMenQuran),
+            HomeButtonItem(context.getString(R.string.btn_athkar_before_bed), "athkar_before_bed", viewModel::goToAthkarBeforeBed),
         )
     }
 
@@ -141,7 +141,7 @@ fun HomeScreen(
     ) {
         Scaffold(
             topBar = {
-                TopAppBar(
+                CenterAlignedTopAppBar(
                     title = {
                         Text(
                             text = stringResource(R.string.app_name),
@@ -156,13 +156,13 @@ fun HomeScreen(
                     ),
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.Default.Menu, contentDescription = "القائمة")
+                            Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.cd_menu))
                         }
                     },
                     actions = {
                       // viewModel:: goToSearch = {viewModel.goToSearch()}
                         IconButton(onClick = { viewModel.goToSearch() }) {
-                            Icon(Icons.Default.Search, contentDescription = "بحث")
+                            Icon(Icons.Default.Search, contentDescription = stringResource(R.string.cd_search))
                         }
                     },
                 )

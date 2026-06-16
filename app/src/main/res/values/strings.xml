@@ -1,4 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">أذكاري</string>
+
+    <!-- Navigation screen titles -->
+    <string name="title_athkar_sabah">أذكار الصباح</string>
+    <string name="title_athkar_massa">أذكار المساء</string>
+    <string name="title_athkar_after_salat">الأذكار بعد الصلاة</string>
+    <string name="title_athkar_before_bed">أذكار النوم</string>
+    <string name="title_tasbih">التسبيح</string>
+    <string name="title_estigfar">الإستغفار</string>
+    <string name="title_hamd">الحمد</string>
+    <string name="title_salat_ala_rasoul">الصلاة على النبي</string>
+    <string name="title_dua_quran">الدعاء من القرآن</string>
+    <string name="title_dua_sunnah">الدعاء من السنة</string>
+    <string name="title_assma_hussna">أسماء الله الحسنى</string>
+    <string name="title_notification_settings">إعدادات التذكير</string>
+
+    <!-- Home screen button labels -->
+    <string name="btn_assma_hussna">أسماء الله الحسنى</string>
+    <string name="btn_estigfar">الإستغفار</string>
+    <string name="btn_tasbih">التسبيح</string>
+    <string name="btn_hamd">الحمد</string>
+    <string name="btn_salat_ala_rasoul">الصلاة على النبي</string>
+    <string name="btn_athkar_sabah">أذكار الصبـــاح</string>
+    <string name="btn_athkar_massa">أذكار المساء</string>
+    <string name="btn_athkar_after_salat">الأذكار بعد الصلاة المفروضة</string>
+    <string name="btn_dua_sunnah">الدعاء من السنــة</string>
+    <string name="btn_dua_quran">الدعاء من القراءن الكريم</string>
+    <string name="btn_athkar_before_bed">أذكار النوم</string>
+
+    <!-- Drawer -->
+    <string name="drawer_title">أذكاري</string>
+    <string name="drawer_notification_settings">إعدادات التنبيهات</string>
+    <string name="drawer_contact_us">اتصل بنا</string>
+    <string name="drawer_email_us">راسلنا</string>
+    <string name="drawer_share">مشاركة التطبيق</string>
+
+    <!-- Search -->
+    <string name="search_placeholder">بحث في الأذكار…</string>
+    <string name="search_no_results">لا توجد نتائج</string>
+    <string name="search_category_sabah">أذكار الصباح</string>
+    <string name="search_category_massa">أذكار المساء</string>
+    <string name="search_category_after_salat">أذكار بعد الصلاة</string>
+    <string name="search_category_before_bed">أذكار النوم</string>
+    <string name="search_category_tasbih">التسبيح</string>
+    <string name="search_category_hamd">الحمد</string>
+    <string name="search_category_salat_rasoul">الصلاة على الرسول</string>
+
+    <!-- Notification -->
+    <string name="notification_channel_name">أذكار</string>
+    <string name="notification_channel_desc">تذكير بأذكار الصباح والمساء</string>
+    <string name="notification_morning_title">أذكار الصباح</string>
+    <string name="notification_evening_title">أذكار المساء</string>
+    <string name="notification_default_title">تذكير بالأذكار</string>
+    <string name="notification_morning_body_default">حان وقت قراءة أذكار الصباح</string>
+    <string name="notification_evening_body_default">حان وقت قراءة أذكار المساء</string>
+    <string name="notification_settings_morning">تذكير الصباح</string>
+    <string name="notification_settings_evening">تذكير المساء</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_back">رجوع</string>
+    <string name="cd_menu">القائمة</string>
+    <string name="cd_search">بحث</string>
+    <string name="cd_share">مشاركة</string>
+    <string name="cd_index">الفهرس</string>
+
+    <!-- Share -->
+    <string name="share_title">مشاركة</string>
+    <string name="share_app_title">مشاركة التطبيق</string>
+
+    <!-- General -->
+    <string name="exit_dialog_title">تأكيد الخروج</string>
+    <string name="exit_dialog_message">هل تريد الخروج من التطبيق؟</string>
+    <string name="confirm">نعم</string>
+    <string name="cancel">إلغاء</string>
 </resources>
