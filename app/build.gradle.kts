@@ -16,8 +16,18 @@ android {
         versionName = "1.0.0"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("athkarix-release.jks")
+            storePassword = System.getenv("ATHKARIX_STORE_PASSWORD") ?: project.findProperty("storePassword") as? String ?: ""
+            keyAlias = System.getenv("ATHKARIX_KEY_ALIAS") ?: project.findProperty("keyAlias") as? String ?: ""
+            keyPassword = System.getenv("ATHKARIX_KEY_PASSWORD") ?: project.findProperty("keyPassword") as? String ?: ""
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

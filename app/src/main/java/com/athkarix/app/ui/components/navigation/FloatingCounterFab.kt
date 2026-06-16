@@ -20,8 +20,8 @@ fun FloatingCounterFab(
     FloatingActionButton(
         onClick = onClick,
         modifier = modifier,
-        containerColor = AppColor.darkGold,
-        contentColor = Color.White,
+        containerColor = Color.Black,
+        contentColor = AppColor.primaryGold,
         shape = CircleShape,
     ) {
         Text(text = "$counter", fontSize = 18.sp, fontWeight = FontWeight.Bold)
