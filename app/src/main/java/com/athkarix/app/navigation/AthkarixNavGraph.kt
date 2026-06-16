@@ -22,6 +22,9 @@ import com.athkarix.app.di.AppModule
 import com.athkarix.app.ui.screens.athkar.AthkarScreen
 
 import com.athkarix.app.ui.screens.home.HomeScreen
+import com.athkarix.app.data.model.AthkarItem
+import com.athkarix.app.data.repository.AthkarRepository
+import com.athkarix.app.ui.screens.search.SearchResultScreen
 import com.athkarix.app.ui.screens.search.SearchScreen
 import com.athkarix.app.ui.screens.search.SearchViewModel
 import com.athkarix.app.ui.screens.settings.NotificationSettingsScreen
@@ -79,10 +82,12 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 fontViewModel = fontVM,
                 floatingCounterVM = floatingCounterVM,
                 showFloatingCounter = true,
+                showIndex = true,
                 screenKey = Routes.ATHKAR_SABAH,
+                screenTitle = "أذكار الصباح",
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
-                onSearch = { navController.navigate(Routes.SEARCH) },
+
             )
         }
 
@@ -94,10 +99,12 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 fontViewModel = fontVM,
                 floatingCounterVM = floatingCounterVM,
                 showFloatingCounter = true,
+                showIndex = true,
                 screenKey = Routes.ATHKAR_MASSA,
+                screenTitle = "أذكار المساء",
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
-                onSearch = { navController.navigate(Routes.SEARCH) },
+
             )
         }
 
@@ -107,9 +114,13 @@ fun AthkarixNavGraph(navController: NavHostController) {
             AthkarScreen(
                 viewModel = vm,
                 fontViewModel = fontVM,
+                floatingCounterVM = floatingCounterVM,
+                showFloatingCounter = true,
+                screenKey = Routes.ATHKAR_AFTER_SALAT,
+                screenTitle = "الأذكار بعد الصلاة",
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
-                onSearch = { navController.navigate(Routes.SEARCH) },
+
             )
         }
 
@@ -119,9 +130,13 @@ fun AthkarixNavGraph(navController: NavHostController) {
             AthkarScreen(
                 viewModel = vm,
                 fontViewModel = fontVM,
+                floatingCounterVM = floatingCounterVM,
+                showFloatingCounter = true,
+                screenKey = Routes.ATHKAR_BEFORE_BED,
+                screenTitle = "أذكار النوم",
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
-                onSearch = { navController.navigate(Routes.SEARCH) },
+
             )
         }
 
@@ -134,9 +149,10 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 floatingCounterVM = floatingCounterVM,
                 showFloatingCounter = true,
                 screenKey = Routes.TASBIH,
+                screenTitle = "التسبيح",
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
-                onSearch = { navController.navigate(Routes.SEARCH) },
+
             )
         }
 
@@ -149,9 +165,10 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 floatingCounterVM = floatingCounterVM,
                 showFloatingCounter = true,
                 screenKey = Routes.ESTIGFAR,
+                screenTitle = "الإستغفار",
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
-                onSearch = { navController.navigate(Routes.SEARCH) },
+
             )
         }
 
@@ -164,9 +181,10 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 floatingCounterVM = floatingCounterVM,
                 showFloatingCounter = true,
                 screenKey = Routes.HAMD,
+                screenTitle = "الحمد",
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
-                onSearch = { navController.navigate(Routes.SEARCH) },
+
             )
         }
 
@@ -180,9 +198,10 @@ fun AthkarixNavGraph(navController: NavHostController) {
                 floatingCounterVM = floatingCounterVM,
                 showFloatingCounter = true,
                 screenKey = Routes.SALAT_ALA_RASOUL,
+                screenTitle = "الصلاة على النبي",
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
-                onSearch = { navController.navigate(Routes.SEARCH) },
+
             )
         }
 
@@ -192,9 +211,10 @@ fun AthkarixNavGraph(navController: NavHostController) {
             AthkarScreen(
                 viewModel = vm,
                 fontViewModel = fontVM,
+                screenTitle = "الدعاء من القرآن",
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
-                onSearch = { navController.navigate(Routes.SEARCH) },
+
             )
         }
 
@@ -204,9 +224,10 @@ fun AthkarixNavGraph(navController: NavHostController) {
             AthkarScreen(
                 viewModel = vm,
                 fontViewModel = fontVM,
+                screenTitle = "الدعاء من السنة",
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
-                onSearch = { navController.navigate(Routes.SEARCH) },
+
             )
         }
 
@@ -216,9 +237,10 @@ fun AthkarixNavGraph(navController: NavHostController) {
             AthkarScreen(
                 viewModel = vm,
                 fontViewModel = fontVM,
+                screenTitle = "أسماء الله الحسنى",
                 onBack = { back() },
                 onShare = { text -> ShareUtil.shareText(context, text) },
-                onSearch = { navController.navigate(Routes.SEARCH) },
+
             )
         }
 
@@ -253,34 +275,16 @@ fun AthkarixNavGraph(navController: NavHostController) {
         ) { entry ->
             val categoryIndex = entry.arguments?.getString("categoryIndex") ?: ""
             val itemIndex = entry.arguments?.getInt("itemIndex") ?: 0
-            PlaceholderScreenWithVM(
-                name = "نتيجة البحث",
-                vmInfo = "category: $categoryIndex, index: $itemIndex",
-                onNavigate = { back() }
-            )
-        }
-    }
-}
-
-/** Fallback screen for routes whose real UI is not yet implemented (e.g., search result display). */
-@Composable
-fun PlaceholderScreenWithVM(
-    name: String,
-    vmInfo: String,
-    onNavigate: () -> Unit
-) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = name, fontSize = 24.sp)
-            Text(text = vmInfo, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
-            Button(
-                onClick = onNavigate,
-                modifier = Modifier.padding(top = 16.dp)
-            ) {
-                Text("Back")
+            val item = remember(categoryIndex, itemIndex) {
+                AthkarRepository.getItemByKey(categoryIndex, itemIndex)
+            }
+            if (item != null) {
+                SearchResultScreen(
+                    item = item,
+                    fontViewModel = fontVM,
+                    onBack = { back() },
+                    onShare = { text -> ShareUtil.shareText(context, text) },
+                )
             }
         }
     }
