@@ -13,6 +13,8 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.athkarix.app.R
 import com.athkarix.app.ui.theme.AppColor
 
 @Composable
@@ -24,7 +26,7 @@ fun SearchTextField(
     TextField(
         value = query,
         onValueChange = onQueryChange,
-        placeholder = { Text("بحث في الأذكار...", color = AppColor.textSecondary) },
+        placeholder = { Text(stringResource(R.string.search_placeholder), color = AppColor.textSecondary) },
         colors = TextFieldDefaults.colors(
             focusedTextColor = AppColor.primaryGold,
             unfocusedTextColor = AppColor.primaryGold,
@@ -36,7 +38,7 @@ fun SearchTextField(
         trailingIcon = {
             if (query.isNotEmpty()) {
                 IconButton(onClick = { onQueryChange("") }) {
-                    Icon(Icons.Default.Clear, "مسح", tint = AppColor.primaryGold)
+                    Icon(Icons.Default.Clear, null, tint = AppColor.primaryGold)
                 }
             }
         },

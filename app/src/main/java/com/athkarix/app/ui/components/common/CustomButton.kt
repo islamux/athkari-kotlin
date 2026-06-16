@@ -16,7 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.athkarix.app.ui.theme.AppColor
@@ -39,12 +39,12 @@ fun CustomButton(
         colors = ButtonDefaults.buttonColors(containerColor = AppColor.darkGold),
         shape = RoundedCornerShape(28.dp)
     ) {
-        Icon(icon, contentDescription = null, tint = Color.White)
+        Icon(icon, contentDescription = null, tint = Color(0xFF0A0A0A))
         Spacer(Modifier.width(8.dp))
         Text(
             text = text,
-            color = Color.White,
-            fontFamily = FontFamily.SansSerif,
+            color = Color(0xFF0A0A0A),
+            fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
         )
     }

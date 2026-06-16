@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
@@ -113,13 +114,13 @@ fun AthkarScreen(
                         actions = {
                             if (showIndex) {
                                 IconButton(onClick = { scope.launch { indexDrawerState.open() } }) {
-                                    Icon(Icons.AutoMirrored.Filled.FormatListBulleted, "الفهرس", tint = AppColor.primaryGold)
+                                    Icon(Icons.AutoMirrored.Filled.FormatListBulleted, stringResource(R.string.cd_index), tint = AppColor.primaryGold)
                                 }
                             }
                             IconButton(onClick = {
                                 onShare(viewModel.getShareText(viewModel.currentPageIndex.value))
                             }) {
-                                Icon(Icons.Default.Share, "مشاركة", tint = AppColor.primaryGold)
+                                Icon(Icons.Default.Share, stringResource(R.string.cd_share), tint = AppColor.primaryGold)
                             }
                             FontControls(fontViewModel)
                         },
@@ -138,8 +139,8 @@ fun AthkarScreen(
                         .align(Alignment.BottomEnd)
                         .padding(16.dp)
                         .size(40.dp),
-                    containerColor = AppColor.darkGold,
-                    contentColor = Color.White,
+                    containerColor = Color.Black,
+                    contentColor = AppColor.primaryGold,
                     shape = CircleShape,
                 ) {
                     Icon(Icons.Default.Refresh, contentDescription = "إعادة تعيين")
