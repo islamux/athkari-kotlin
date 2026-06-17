@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import com.athkarix.app.R
 import com.athkarix.app.ui.theme.AppColor
@@ -34,6 +35,8 @@ fun AthkarixTopAppBar(
             color = AppColor.primaryGold,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
         )
     }
     val navigationIconContent: @Composable () -> Unit = {

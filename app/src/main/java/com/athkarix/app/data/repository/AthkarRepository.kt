@@ -536,4 +536,22 @@ object AthkarRepository {
         AthkarItem(duaText = AssmaHussnaText.TEXT_215, footer = AssmaHussnaText.FOOTER_215),
         AthkarItem(duaText = AssmaHussnaText.TEXT_216),
     )
+
+    fun getItemByKey(key: String, index: Int): AthkarItem? {
+        val list = when (key) {
+            "athkar_sabah" -> athkarSabahList
+            "athkar_massa" -> athkarMassaList
+            "athkar_after_salat" -> athkarAfterSalatList
+            "athkar_before_bed" -> athkarBeforeGoToBedList
+            "tasbih" -> tasbihList
+            "estigfar" -> estigfarList
+            "hamd" -> hamdList
+            "salat_ala_rasoul" -> salatAlaRasoulList
+            "duaa_quran" -> duaMenQuranList
+            "duaa_sunnah" -> duaMenSunnahList
+            "assma_hussna" -> assmaHussnaList
+            else -> return null
+        }
+        return list.getOrNull(index)
+    }
 }

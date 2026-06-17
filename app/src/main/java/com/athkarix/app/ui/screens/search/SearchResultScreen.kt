@@ -34,6 +34,7 @@ import com.athkarix.app.R
 import com.athkarix.app.data.model.AthkarItem
 import com.athkarix.app.ui.components.common.AthkarixTopAppBar
 import com.athkarix.app.ui.components.common.BackgroundImage
+import com.athkarix.app.ui.components.dua.FontControls
 import com.athkarix.app.ui.theme.AppColor
 import com.athkarix.app.util.ShareUtil
 import com.athkarix.app.viewmodel.FontViewModel
@@ -71,6 +72,7 @@ fun SearchResultScreen(
                         IconButton(onClick = { onShare(item.duaText ?: "") }) {
                             Icon(Icons.Default.Share, stringResource(R.string.cd_share), tint = AppColor.primaryGold)
                         }
+                        FontControls(fontViewModel)
                     },
                 )
             },
@@ -83,29 +85,29 @@ fun SearchResultScreen(
                     .padding(24.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = item.duaText ?: "",
-                        fontFamily = fontFamily,
-                        fontSize = fontSize.sp,
-                        lineHeight = (fontSize * 1.5f).sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color(0xFF333333),
-                        textAlign = TextAlign.Center,
-                    )
-                    if (!item.footer.isNullOrBlank()) {
-                        Spacer(Modifier.height(16.dp))
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = item.footer,
-                            fontFamily = FontFamily.Serif,
-                            fontSize = (fontSize * 0.7f).sp,
+                            text = item.duaText ?: "",
+                            fontFamily = fontFamily,
+                            fontSize = fontSize.sp,
+                            lineHeight = (fontSize * 1.5f).sp,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF555555),
+                            color = Color(0xFF333333),
                             textAlign = TextAlign.Center,
                         )
+                        if (!item.footer.isNullOrBlank()) {
+                            Spacer(Modifier.height(16.dp))
+                            Text(
+                                text = item.footer,
+                                fontFamily = FontFamily.Serif,
+                                fontSize = (fontSize * 0.7f).sp,
+                                fontWeight = FontWeight.Normal,
+                                color = Color(0xFF555555),
+                                textAlign = TextAlign.Center,
+                            )
+                        }
                     }
                 }
             }
         }
-    }
 }

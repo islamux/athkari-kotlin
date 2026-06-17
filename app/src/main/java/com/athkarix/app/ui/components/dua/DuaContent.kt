@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.athkarix.app.ui.theme.AppColor
@@ -33,6 +34,7 @@ fun DuaContent(
         Column(verticalArrangement = Arrangement.Center) {
             Text(
                 text = duaText ?: "",
+                fontWeight = FontWeight.Normal,
                 color = AppColor.primaryGold,
                 textAlign = TextAlign.Center,
             )
@@ -40,6 +42,7 @@ fun DuaContent(
                 Spacer(Modifier.height(16.dp))
                 Text(
                     text = footer,
+                    fontWeight = FontWeight.Normal,
                     color = AppColor.footer,
                     textAlign = TextAlign.Center,
                 )

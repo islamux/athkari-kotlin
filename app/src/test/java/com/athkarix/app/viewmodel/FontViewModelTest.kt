@@ -8,33 +8,33 @@ class FontViewModelTest {
     private val viewModel = FontViewModel()
 
     @Test
-    fun `default font size is 28 point 6`() {
-        assertEquals(28.6f, viewModel.fontSize.value)
+    fun `default font size is 32`() {
+        assertEquals(32.0f, viewModel.fontSize.value)
     }
 
     @Test
     fun `increaseFontSize adds 2`() {
         viewModel.increaseFontSize()
-        assertEquals(30.6f, viewModel.fontSize.value)
+        assertEquals(34.0f, viewModel.fontSize.value)
     }
 
     @Test
     fun `decreaseFontSize subtracts 2`() {
         viewModel.increaseFontSize()
         viewModel.decreaseFontSize()
-        assertEquals(28.6f, viewModel.fontSize.value)
+        assertEquals(32.0f, viewModel.fontSize.value)
     }
 
     @Test
-    fun `font size cannot go below 21`() {
+    fun `font size cannot go below 24`() {
         repeat(10) { viewModel.decreaseFontSize() }
-        assertEquals(21.0f, viewModel.fontSize.value)
+        assertEquals(24.0f, viewModel.fontSize.value)
     }
 
     @Test
-    fun `font size cannot go above 37`() {
+    fun `font size cannot go above 42`() {
         repeat(10) { viewModel.increaseFontSize() }
-        assertEquals(37.0f, viewModel.fontSize.value)
+        assertEquals(42.0f, viewModel.fontSize.value)
     }
 
     @Test

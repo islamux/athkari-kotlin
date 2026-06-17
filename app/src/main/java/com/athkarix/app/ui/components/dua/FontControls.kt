@@ -62,14 +62,14 @@ fun FontControls(
                     Text(
                         text = fontDisplayNames[currentFont] ?: currentFont,
                         color = AppColor.primaryGold,
-                        fontSize = 12.sp,
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                     )
                     Icon(
                         Icons.Default.ArrowDropDown,
                         contentDescription = null,
                         tint = AppColor.primaryGold,
-                        modifier = Modifier.size(12.dp),
+                        modifier = Modifier.size(18.dp),
                     )
                 }
             }
@@ -83,6 +83,7 @@ fun FontControls(
                             Text(
                                 text = display,
                                 color = if (currentFont == internal) AppColor.primaryGold else AppColor.textSecondary,
+                                fontSize = 16.sp,
                                 fontWeight = if (currentFont == internal) FontWeight.Bold else FontWeight.Normal,
                             )
                         },

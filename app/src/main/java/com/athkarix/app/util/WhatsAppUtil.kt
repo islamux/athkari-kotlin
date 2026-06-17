@@ -7,7 +7,7 @@ import android.net.Uri
 /** Opens a WhatsApp chat via wa.me URI, falling back to the Play Store if WhatsApp is not installed. */
 object WhatsAppUtil {
 
-    private const val COUNTRY_CODE = "YE"
+    private const val COUNTRY_CODE = "967"
     private const val PHONE_NUMBER = "772699924"
 
     fun openWhatsApp(context: Context) {

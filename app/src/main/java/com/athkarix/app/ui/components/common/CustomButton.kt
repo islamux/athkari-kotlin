@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,6 +30,7 @@ fun CustomButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     fillMaxWidth: Boolean = true,
+    fontFamily: FontFamily? = null,
 ) {
     Button(
         onClick = onClick,
@@ -44,6 +46,7 @@ fun CustomButton(
         Text(
             text = text,
             color = Color(0xFF0A0A0A),
+            fontFamily = fontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
         )
