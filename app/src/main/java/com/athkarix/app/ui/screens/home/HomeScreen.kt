@@ -43,6 +43,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -84,6 +86,7 @@ fun HomeScreen(
     }
 
     // — 11 athkar category buttons —
+    val amiriBoldFont = remember { FontFamily(Font(R.font.amiri_bold, weight = FontWeight.Bold)) }
     val buttons = remember {
         listOf(
           // viewModel::goToAssmaHussna = {viewModel.goToAssmaHussna()} *** viewModel.goToAssmaHussna WRONG becues  it exute before click btn the code 
@@ -199,6 +202,7 @@ fun HomeScreen(
                                     text = button.label,
                                     onClick = button.onClick,
                                     fillMaxWidth = true,
+                                    fontFamily = amiriBoldFont,
                                 )
                                 if (index < buttons.lastIndex) {
                                     Spacer(Modifier.height(8.dp))

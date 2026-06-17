@@ -134,7 +134,7 @@ fun AthkarTextSlider(
                     Text(
                         text = "${pageIndex + 1}",
                         modifier = Modifier
-                            .background(AppColor.darkGold, RoundedCornerShape(4.dp))
+                            .background(Color(0xFF333333), RoundedCornerShape(4.dp))
                             .padding(horizontal = 10.dp, vertical = 4.dp),
                         color = Color.White,
                         fontSize = 12.sp,
@@ -148,7 +148,7 @@ fun AthkarTextSlider(
                 ) {
                     Text(
                         text = "${pageIndex + 1}",
-                        color = AppColor.darkGold,
+                        color = Color(0xFF888888),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Normal,
                     )
@@ -164,15 +164,15 @@ fun AthkarTextSlider(
                         steps = totalPages - 2,
                         modifier = Modifier.weight(1f),
                         colors = SliderDefaults.colors(
-                            thumbColor = AppColor.primaryGold,
-                            activeTrackColor = AppColor.darkGold,
+                            thumbColor = Color(0xFF1A1A1A),
+                            activeTrackColor = Color(0xFF333333),
                             inactiveTrackColor = Color(0xFF555555),
                         ),
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
                         text = "${totalPages}",
-                        color = AppColor.darkGold,
+                        color = Color(0xFF888888),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Normal,
                     )

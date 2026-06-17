@@ -7,14 +7,14 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class FontViewModel : ViewModel() {
 
-    private val _fontSize = MutableStateFlow(28.6f)
+    private val _fontSize = MutableStateFlow(32.0f)
     val fontSize: StateFlow<Float> = _fontSize.asStateFlow()
 
     private val _selectedFont = MutableStateFlow("Amiri")
     val selectedFont: StateFlow<String> = _selectedFont.asStateFlow()
 
-    private val maxFontSize = 37.0f
-    private val minFontSize = 21.0f
+    private val maxFontSize = 42.0f
+    private val minFontSize = 24.0f
 
     fun setFont(font: String) {
         _selectedFont.value = font

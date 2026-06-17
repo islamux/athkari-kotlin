@@ -279,12 +279,29 @@ fun AthkarixNavGraph(navController: NavHostController) {
             val item = remember(categoryIndex, itemIndex) {
                 AthkarRepository.getItemByKey(categoryIndex, itemIndex)
             }
+            val screenTitle = remember(categoryIndex) {
+                when (categoryIndex) {
+                    "athkar_sabah" -> context.getString(R.string.title_athkar_sabah)
+                    "athkar_massa" -> context.getString(R.string.title_athkar_massa)
+                    "athkar_after_salat" -> context.getString(R.string.title_athkar_after_salat)
+                    "athkar_before_bed" -> context.getString(R.string.title_athkar_before_bed)
+                    "tasbih" -> context.getString(R.string.title_tasbih)
+                    "estigfar" -> context.getString(R.string.title_estigfar)
+                    "hamd" -> context.getString(R.string.title_hamd)
+                    "salat_ala_rasoul" -> context.getString(R.string.title_salat_ala_rasoul)
+                    "duaa_quran" -> context.getString(R.string.title_dua_quran)
+                    "duaa_sunnah" -> context.getString(R.string.title_dua_sunnah)
+                    "assma_hussna" -> context.getString(R.string.title_assma_hussna)
+                    else -> ""
+                }
+            }
             if (item != null) {
                 SearchResultScreen(
                     item = item,
                     fontViewModel = fontVM,
                     onBack = { back() },
                     onShare = { text -> ShareUtil.shareText(context, text) },
+                    screenTitle = screenTitle,
                 )
             }
         }
