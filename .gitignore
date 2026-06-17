@@ -37,6 +37,10 @@ keystore.properties
 *.aab
 *.ap_
 
+# AI agent tooling
+.opencode/
+.superpowers/
+
 # Flutter project reference (symlink)
 command-center
 gitflow
