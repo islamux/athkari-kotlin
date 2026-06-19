@@ -78,6 +78,12 @@ fun AthkarTextSlider(
         }
     }
 
+    LaunchedEffect(pagerState.currentPage) {
+        if (pagerState.currentPage != pageIndex) {
+            viewModel.onPageChanged(pagerState.currentPage)
+        }
+    }
+
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
     Column(modifier = modifier.fillMaxSize()) {
         // — HorizontalPager (RTL via CompositionLocal) —

@@ -112,11 +112,6 @@ fun AthkarScreen(
                         title = screenTitle,
                         onBack = onBack,
                         actions = {
-                            if (showIndex) {
-                                IconButton(onClick = { scope.launch { indexDrawerState.open() } }) {
-                                    Icon(Icons.AutoMirrored.Filled.FormatListBulleted, stringResource(R.string.cd_index), tint = AppColor.primaryGold)
-                                }
-                            }
                             IconButton(onClick = {
                                 onShare(viewModel.getShareText(viewModel.currentPageIndex.value))
                             }) {
@@ -129,6 +124,21 @@ fun AthkarScreen(
             ) { padding ->
                 Box(Modifier.fillMaxSize().padding(padding).padding(bottom = if (showFloatingCounter) 80.dp else 0.dp)) {
                     AthkarTextSlider(viewModel = viewModel, fontViewModel = fontViewModel)
+                }
+            }
+
+            if (showIndex) {
+                FloatingActionButton(
+                    onClick = { scope.launch { indexDrawerState.open() } },
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(16.dp)
+                        .size(40.dp),
+                    containerColor = Color.Black,
+                    contentColor = AppColor.primaryGold,
+                    shape = CircleShape,
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.FormatListBulleted, stringResource(R.string.cd_index))
                 }
             }
 
