@@ -131,7 +131,7 @@ fun AthkarScreen(
                 FloatingActionButton(
                     onClick = { scope.launch { indexDrawerState.open() } },
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
+                        .align(Alignment.TopStart)
                         .padding(16.dp)
                         .size(40.dp),
                     containerColor = Color.Black,
