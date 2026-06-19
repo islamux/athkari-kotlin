@@ -181,6 +181,42 @@ class BaseAthkarViewModelTest {
     }
 
     @Test
+    fun `onPageChanged updates page index and resets counter`() {
+        val vm = TestAthkarViewModel()
+        vm.incrementPageController() // now on page 1
+        assertEquals(1, vm.currentPageIndex.value)
+
+        vm.onPageChanged(2)
+        assertEquals(2, vm.currentPageIndex.value)
+        assertEquals(0, vm.currentPageCounter.value)
+    }
+
+    @Test
+    fun `onPageChanged resets counter even when counter was non-zero`() {
+        val vm = TestAthkarViewModel()
+        vm.incrementPageController() // page 0 → 1, counter = 0
+        // simulate a multi-count item scenario by manually setting counter
+        vm.goToPage(0)
+        vm.incrementPageController() // page 0 → 1 again
+
+        vm.onPageChanged(2) // swipe to page 2
+        assertEquals(2, vm.currentPageIndex.value)
+        assertEquals(0, vm.currentPageCounter.value)
+    }
+
+    @Test
+    fun `onPageChanged back to page 0 from page 2 resets to 0`() {
+        val vm = TestAthkarViewModel()
+        vm.incrementPageController()
+        vm.incrementPageController() // now on page 2
+        assertEquals(2, vm.currentPageIndex.value)
+
+        vm.onPageChanged(0)
+        assertEquals(0, vm.currentPageIndex.value)
+        assertEquals(0, vm.currentPageCounter.value)
+    }
+
+    @Test
     fun `getShareText returns dua text for valid index`() {
         val vm = TestAthkarViewModel()
         assertEquals("Dua 0", vm.getShareText(0))

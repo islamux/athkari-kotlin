@@ -360,6 +360,26 @@ class BaseAthkarViewModelTest {
     }
 
     @Test
+    fun `onPageChanged updates page index and resets counter`() {
+        val vm = TestAthkarViewModel()
+        vm.onPageChanged(2)
+        assertEquals(2, vm.currentPageIndex.value)
+        assertEquals(0, vm.currentPageCounter.value)
+    }
+
+    @Test
+    fun `onPageChanged back to page 0 from page 2 resets to 0`() {
+        val vm = TestAthkarViewModel()
+        vm.incrementPageController()
+        vm.incrementPageController() // now on page 2
+        assertEquals(2, vm.currentPageIndex.value)
+
+        vm.onPageChanged(0)
+        assertEquals(0, vm.currentPageIndex.value)
+        assertEquals(0, vm.currentPageCounter.value)
+    }
+
+    @Test
     fun `getShareText returns dua text for valid index`() {
         val vm = TestAthkarViewModel()
         assertEquals("Dua 0", vm.getShareText(0))
