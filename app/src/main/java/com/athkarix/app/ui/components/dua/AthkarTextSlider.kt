@@ -60,7 +60,7 @@ fun AthkarTextSlider(
     val fontFamily by remember {
         derivedStateOf {
             when (selectedFontName) {
-                "Cairo" -> FontFamily(Font(R.font.cairo_regular, weight = FontWeight.Normal))
+                "NotoNaskh" -> FontFamily(Font(R.font.noto_naskh_arabic_regular, weight = FontWeight.Normal))
                 else -> FontFamily(Font(R.font.amiri_regular, weight = FontWeight.Normal))
             }
         }

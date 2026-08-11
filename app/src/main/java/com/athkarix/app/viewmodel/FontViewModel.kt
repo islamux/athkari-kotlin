@@ -21,7 +21,7 @@ class FontViewModel : ViewModel() {
     }
 
     fun toggleFont() {
-        _selectedFont.value = if (_selectedFont.value == "Amiri") "Cairo" else "Amiri"
+        _selectedFont.value = if (_selectedFont.value == "Amiri") "NotoNaskh" else "Amiri"
     }
 
         fun increaseFontSize() {
