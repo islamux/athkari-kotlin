@@ -14,7 +14,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -22,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.athkarix.app.ui.theme.AppColor
 
-/** Reusable styled button with icon, rounded corners, and the app's dark-gold colour. */
+/** Reusable styled button with icon, rounded corners, and the app's Flutter-gold colour. */
 @Composable
 fun CustomButton(
     icon: ImageVector = Icons.Default.ArrowBack,
@@ -38,14 +37,14 @@ fun CustomButton(
             .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)
             .heightIn(min = 56.dp)
             .padding(horizontal = 8.dp, vertical = 4.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = AppColor.darkGold),
+        colors = ButtonDefaults.buttonColors(containerColor = AppColor.primaryGold),
         shape = RoundedCornerShape(28.dp)
     ) {
-        Icon(icon, contentDescription = null, tint = Color(0xFF0A0A0A))
+        Icon(icon, contentDescription = null, tint = AppColor.background)
         Spacer(Modifier.width(8.dp))
         Text(
             text = text,
-            color = Color(0xFF0A0A0A),
+            color = AppColor.background,
             fontFamily = fontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
