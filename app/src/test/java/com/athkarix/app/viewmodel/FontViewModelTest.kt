@@ -38,10 +38,10 @@ class FontViewModelTest {
     }
 
     @Test
-    fun `toggleFont switches between Amiri and Cairo`() {
+    fun `toggleFont switches between Amiri and NotoNaskh`() {
         assertEquals("Amiri", viewModel.selectedFont.value)
         viewModel.toggleFont()
-        assertEquals("Cairo", viewModel.selectedFont.value)
+        assertEquals("NotoNaskh", viewModel.selectedFont.value)
         viewModel.toggleFont()
         assertEquals("Amiri", viewModel.selectedFont.value)
     }
