@@ -49,7 +49,7 @@ fun AlertExitApp(
                     fontSize = 16.sp,
                 )
                 Spacer(Modifier.height(16.dp))
-                Box(Modifier.fillMaxWidth().height(0.5.dp).background(AppColor.darkGold))
+                Box(Modifier.fillMaxWidth().height(0.5.dp).background(AppColor.primaryGold.copy(alpha = 0.4f)))
             }
         },
         confirmButton = {
