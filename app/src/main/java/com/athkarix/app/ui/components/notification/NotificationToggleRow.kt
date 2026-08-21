@@ -63,7 +63,7 @@ fun NotificationToggleRow(
                     onCheckedChange = onEnabledChange,
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = AppColor.primaryGold,
-                        checkedTrackColor = AppColor.darkGold,
+                        checkedTrackColor = AppColor.primaryGold,
                         uncheckedThumbColor = Color(0xFF888888),
                         uncheckedTrackColor = Color(0xFF444444),
                     ),
@@ -76,7 +76,7 @@ fun NotificationToggleRow(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
-                            color = Color(0x33FFD700),
+                            color = AppColor.primaryGold.copy(alpha = 0.2f),
                             shape = RoundedCornerShape(12.dp),
                         )
                         .clickable(onClick = onTimeClick)
