@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Athkarix Android — عرض تقني</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== Color Tokens ===== */
+    :root {
+      --color-primary-gold: #FFE082;
+      --color-amber: #FFBF00;
+      --color-bg: #000000;
+      --color-surface: #1A1A1A;
+      --color-text-primary: #FFE082;
+      --color-text-secondary: #CCCCCC;
+      --color-text-footer: #B0B0B0;
+      --color-accent-purple: #9C27B0;
+      --color-slide-border: rgba(255, 224, 130, 0.12);
+      --font-display: 'Amiri', serif;
+      --font-body: 'Noto Naskh Arabic', serif;
+      --font-code: 'Courier New', Courier, monospace;
+      --transition-speed: 0.35s;
+    }
+
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--color-bg);
+      color: var(--color-text-secondary);
+      font-family: var(--font-body);
+      font-size: 18px;
+      line-height: 1.7;
+      direction: rtl;
+    }
+
+    /* ===== Reduced Motion ===== */
+    @media (prefers-reduced-motion: reduce) {
+      :root { --transition-speed: 0s; }
+      .slide { transition: none !important; }
+      .nav-btn, .overview-thumb { transition: none !important; }
+    }
+
+    /* ===== Slides Container ===== */
+    #slides-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ===== Individual Slide ===== */
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6vh 8vw;
+      background: var(--color-surface);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      z-index: 10;
+    }
+
+    /* Diagonal gold line — signature visual element */
+    .slide::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -10%;
+      width: 160%;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 224, 130, 0.06) 20%,
+        rgba(255, 224, 130, 0.12) 50%,
+        rgba(255, 224, 130, 0.06) 80%,
+        transparent 100%
+      );
+      transform: rotate(-18deg);
+      pointer-events: none;
+    }
+
+    .slide::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -10%;
+      width: 160%;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 224, 130, 0.04) 30%,
+        rgba(156, 39, 176, 0.06) 60%,
+        transparent 100%
+      );
+      transform: rotate(-18deg);
+      pointer-events: none;
+    }
+
+    /* ===== Slide Content ===== */
+    .slide-content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 960px;
+      text-align: center;
+    }
+
+    .slide-number {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      color: var(--color-text-footer);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .slide-section {
+      display: inline-block;
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      color: var(--color-accent-purple);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      border: 1px solid rgba(156, 39, 176, 0.3);
+      padding: 0.15em 0.6em;
+      border-radius: 3px;
+      margin-bottom: 1.5rem;
+    }
+
+    .slide-title {
+      font-family: var(--font-display);
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      line-height: 1.3;
+      margin-bottom: 0.8rem;
+    }
+
+    .slide-subtitle {
+      font-family: var(--font-body);
+      font-size: 1.15rem;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ===== Title Slide Special ===== */
+    .slide--title .slide-title {
+      font-size: 3.8rem;
+      color: var(--color-primary-gold);
+      margin-bottom: 1rem;
+    }
+
+    .slide--title .slide-subtitle {
+      font-size: 1.4rem;
+      color: var(--color-text-secondary);
+    }
+
+    .slide--title .app-badge {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.4em 1.2em;
+      border: 1px solid var(--color-amber);
+      border-radius: 6px;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      color: var(--color-amber);
+    }
+
+    /* ===== Navigation Controls ===== */
+    .nav-controls {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 0.5rem;
+      z-index: 100;
+      opacity: 0.4;
+      transition: opacity 0.25s ease;
+    }
+
+    .nav-controls:hover {
+      opacity: 1;
+    }
+
+    .nav-btn {
+      background: rgba(26, 26, 26, 0.85);
+      border: 1px solid var(--color-slide-border);
+      color: var(--color-text-primary);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      width: 2.4rem;
+      height: 2.4rem;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+      backdrop-filter: blur(4px);
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 191, 0, 0.15);
+      border-color: var(--color-amber);
+    }
+
+    .nav-btn:focus-visible {
+      outline: 2px solid var(--color-amber);
+      outline-offset: 2px;
+    }
+
+    /* ===== Slide Counter ===== */
+    .slide-counter {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      color: var(--color-text-footer);
+      z-index: 100;
+      direction: ltr;
+    }
+
+    /* ===== Keyboard Hints ===== */
+    .kbd-hints {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      font-family: var(--font-body);
+      font-size: 0.65rem;
+      color: var(--color-text-footer);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      z-index: 100;
+      text-align: right;
+      line-height: 1.8;
+    }
+
+    .kbd-hints.visible {
+      opacity: 0.7;
+    }
+
+    kbd {
+      display: inline-block;
+      padding: 0.1em 0.4em;
+      border: 1px solid rgba(255, 224, 130, 0.2);
+      border-radius: 3px;
+      font-family: var(--font-code);
+      font-size: 0.8em;
+      color: var(--color-text-primary);
+      background: rgba(26, 26, 26, 0.6);
+    }
+
+    /* ===== Overview / Index Panel ===== */
+    .overview-panel {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      padding: 2rem;
+      overflow-y: auto;
+      backdrop-filter: blur(8px);
+    }
+
+    .overview-panel.open {
+      display: flex;
+    }
+
+    .overview-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .overview-header h2 {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      color: var(--color-text-primary);
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .overview-thumb {
+      aspect-ratio: 16 / 9;
+      background: var(--color-surface);
+      border: 1px solid var(--color-slide-border);
+      border-radius: 6px;
+      padding: 1rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.2s;
+      position: relative;
+    }
+
+    .overview-thumb:hover {
+      border-color: var(--color-amber);
+      transform: translateY(-2px);
+    }
+
+    .overview-thumb:focus-visible {
+      outline: 2px solid var(--color-amber);
+      outline-offset: 2px;
+    }
+
+    .overview-thumb.current {
+      border-color: var(--color-amber);
+      box-shadow: 0 0 12px rgba(255, 191, 0, 0.2);
+    }
+
+    .overview-thumb .thumb-number {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      color: var(--color-text-footer);
+      margin-bottom: 0.3rem;
+    }
+
+    .overview-thumb .thumb-section {
+      font-size: 0.55rem;
+      color: var(--color-accent-purple);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.1em;
+    }
+
+    .overview-thumb .thumb-title {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      color: var(--color-text-primary);
+      line-height: 1.3;
+    }
+
+    /* ===== Speaker Notes Panel ===== */
+    .notes-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 30vh;
+      background: rgba(10, 10, 10, 0.95);
+      border-top: 1px solid var(--color-slide-border);
+      z-index: 150;
+      display: none;
+      flex-direction: column;
+      padding: 1rem 3rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .notes-panel.open {
+      display: flex;
+    }
+
+    .notes-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .notes-header h3 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      color: var(--color-amber);
+    }
+
+    .notes-close {
+      background: none;
+      border: none;
+      color: var(--color-text-footer);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.2rem;
+    }
+
+    .notes-close:hover {
+      color: var(--color-text-primary);
+    }
+
+    .notes-body {
+      flex: 1;
+      overflow-y: auto;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--color-text-secondary);
+      line-height: 1.8;
+      direction: rtl;
+    }
+
+    .notes-empty {
+      color: var(--color-text-footer);
+      font-style: italic;
+    }
+
+    /* ===== Focus Visible Global ===== */
+    *:focus-visible {
+      outline: 2px solid var(--color-amber);
+      outline-offset: 2px;
+    }
+
+    /* ===== Print Styles ===== */
+    @media print {
+      body {
+        overflow: visible;
+        background: #fff;
+        color: #000;
+      }
+
+      #slides-container {
+        position: static;
+        overflow: visible;
+        height: auto;
+      }
+
+      .slide {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        page-break-after: always;
+        background: #fff;
+        min-height: 100vh;
+      }
+
+      .slide::before, .slide::after {
+        display: none;
+      }
+
+      .slide-title {
+        color: #000;
+      }
+
+      .slide-section {
+        color: #555;
+        border-color: #ccc;
+      }
+
+      .nav-controls, .slide-counter, .kbd-hints,
+      .overview-panel, .notes-panel {
+        display: none !important;
+      }
+    }
+
+    /* ===== Code Block (slide snippets) ===== */
+    .code-block {
+      display: block;
+      max-width: 100%;
+      margin: 0.6rem auto 0;
+      padding: 0.8rem 1rem;
+      background: rgba(26, 26, 26, 0.7);
+      border: 1px solid var(--color-slide-border);
+      border-radius: 6px;
+      text-align: left;
+      direction: ltr;
+      font-family: var(--font-code);
+      font-size: 0.78rem;
+      line-height: 1.55;
+      color: var(--color-text-primary);
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .code-block .cmt {
+      color: var(--color-text-footer);
+      font-style: italic;
+    }
+
+    .snippet-label {
+      display: inline-block;
+      margin-top: 1rem;
+      font-size: 0.75rem;
+      color: var(--color-accent-purple);
+      border: 1px solid rgba(156, 39, 176, 0.3);
+      border-radius: 3px;
+      padding: 0.15em 0.6em;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      .slide {
+        padding: 4vh 5vw;
+      }
+
+      .slide-title {
+        font-size: 1.8rem;
+      }
+
+      .slide--title .slide-title {
+        font-size: 2.4rem;
+      }
+
+      .slide-subtitle {
+        font-size: 1rem;
+      }
+
+      .overview-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+
+      .nav-controls {
+        bottom: 0.8rem;
+        gap: 0.3rem;
+      }
+
+      .nav-btn {
+        width: 2rem;
+        height: 2rem;
+        font-size: 0.85rem;
+      }
+
+      .kbd-hints {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Slide Index / Overview Panel ===== -->
+  <div class="overview-panel" id="overviewPanel" role="dialog" aria-label="فهرس الشرائح">
+    <div class="overview-header">
+      <h2>خريطة العرض</h2>
+    </div>
+    <div class="overview-grid" id="overviewGrid"></div>
+  </div>
+
+  <!-- ===== Speaker Notes Panel ===== -->
+  <div class="notes-panel" id="notesPanel" role="complementary" aria-label="ملاحظات المتحدث">
+    <div class="notes-header">
+      <h3>ملاحظات المتحدث</h3>
+      <button class="notes-close" id="notesClose" aria-label="إغلاق الملاحظات">&times;</button>
+    </div>
+    <div class="notes-body" id="notesBody">
+      <p class="notes-empty">لا توجد ملاحظات لهذه الشريحة.</p>
+    </div>
+  </div>
+
+  <!-- ===== Navigation Controls ===== -->
+  <nav class="nav-controls" aria-label="التنقل بين الشرائح">
+    <button class="nav-btn" id="btnPrev" aria-label="الشريحة السابقة (P / ←)">←</button>
+    <button class="nav-btn" id="btnOverview" aria-label="فهرس الشرائح (O)">☰</button>
+    <button class="nav-btn" id="btnNotes" aria-label="ملاحظات المتحدث (S)">📝</button>
+    <button class="nav-btn" id="btnFullscreen" aria-label="ملء الشاشة (F)">⛶</button>
+    <button class="nav-btn" id="btnNext" aria-label="الشريحة التالية (N / →)">→</button>
+  </nav>
+
+  <!-- ===== Slide Counter ===== -->
+  <div class="slide-counter" id="slideCounter" aria-live="polite">1 / 29</div>
+
+  <!-- ===== Keyboard Hints ===== -->
+  <div class="kbd-hints" id="kbdHints">
+    <kbd>→</kbd> <kbd>N</kbd> التالي &nbsp;
+    <kbd>←</kbd> <kbd>P</kbd> السابق &nbsp;
+    <kbd>O</kbd> الفهرس &nbsp;
+    <kbd>F</kbd> ملء الشاشة &nbsp;
+    <kbd>S</kbd> ملاحظات &nbsp;
+    <kbd>Esc</kbd> إغلاق
+  </div>
+
+  <!-- ===== Slides Container ===== -->
+  <div id="slides-container">
+
+    <!-- Slide 1: Title -->
+    <section class="slide slide--title active" data-slide-index="1" data-section="العنوان">
+      <div class="slide-content">
+        <span class="slide-section">العنوان</span>
+        <h1 class="slide-title">Athkarix Android</h1>
+        <p class="slide-subtitle">عرض تقني — بناء تطبيق أذكار أصيل من الفكرة إلى الإصدار</p>
+        <span class="app-badge">Android · Kotlin · Jetpack Compose</span>
+      </div>
+    </section>
+
+    <!-- Slide 2: Agenda -->
+    <section class="slide" data-slide-index="2" data-section="خريطة العرض">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">خريطة العرض</span>
+        <h2 class="slide-title">خريطة العرض</h2>
+        <div class="slide-subtitle">
+          <ul style="list-style:none; padding:0; text-align:right; direction:rtl;">
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">01</strong> &mdash; الافتتاحية <span style="color:var(--color-text-footer);font-size:0.85em;">(٥ دقائق)</span> &mdash; الوصف والمشكلة</li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">02</strong> &mdash; الفكرة الحاكمة <span style="color:var(--color-text-footer);font-size:0.85em;">(٤ دقائق)</span></li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">03</strong> &mdash; رحلة القرارات <span style="color:var(--color-text-footer);font-size:0.85em;">(٧ دقائق)</span></li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">04</strong> &mdash; المخطط الذهني <span style="color:var(--color-text-footer);font-size:0.85em;">(٤ دقائق)</span></li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">05</strong> &mdash; تجربة المستخدم <span style="color:var(--color-text-footer);font-size:0.85em;">(٥ دقائق)</span></li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">06</strong> &mdash; الغوص التقني العميق <span style="color:var(--color-text-footer);font-size:0.85em;">(١٣ دقيقة)</span></li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">07</strong> &mdash; العرض الحي <span style="color:var(--color-text-footer);font-size:0.85em;">(١٠ دقائق)</span></li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">08</strong> &mdash; المفاضلات <span style="color:var(--color-text-footer);font-size:0.85em;">(٤ دقائق)</span></li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">09</strong> &mdash; خارطة الطريق <span style="color:var(--color-text-footer);font-size:0.85em;">(٣ دقائق)</span></li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">10</strong> &mdash; الخاتمة <span style="color:var(--color-text-footer);font-size:0.85em;">(٥ دقائق)</span></li>
+          </ul>
+          <p style="margin-top:0.8rem;font-size:0.95rem;color:var(--color-amber);">المجموع: <strong>٦٠ دقيقة</strong></p>
+        </div>
+        <div class="notes">
+          <p>هذا الشريحة تُقدّم خريطة العرض كاملاً. المجموع ٦٠ دقيقة موزّعة على ١٠ محاور. الغوص التقني العميق هو الجزء الأطول (١٣ دقيقة) لأنه يتضمن تفاصيل بنية MVVM و StateFlow و Repository.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 3: Opening -->
+    <section class="slide" data-slide-index="3" data-section="الافتتاحية">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">الافتتاحية</span>
+        <h2 class="slide-title">الافتتاحية — الأثر</h2>
+        <p class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <strong style="color:var(--color-primary-gold);">Athkarix</strong> تطبيق أندرويد أصلي (Kotlin + Jetpack Compose) لقراءة الأذكار والأدعية الإسلامية. إنه نقل من تطبيق Flutter الأصلي إلى Kotlin + Jetpack Compose.
+        </p>
+        <div style="margin-top:1.2rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+          <span style="padding:0.3em 0.9em;border:1px solid var(--color-amber);border-radius:4px;font-size:0.85rem;color:var(--color-amber);">Kotlin 2.2.10</span>
+          <span style="padding:0.3em 0.9em;border:1px solid var(--color-amber);border-radius:4px;font-size:0.85rem;color:var(--color-amber);">Jetpack Compose</span>
+          <span style="padding:0.3em 0.9em;border:1px solid var(--color-amber);border-radius:4px;font-size:0.85rem;color:var(--color-amber);">MVVM + StateFlow</span>
+          <span style="padding:0.3em 0.9em;border:1px solid var(--color-accent-purple);border-radius:4px;font-size:0.85rem;color:var(--color-accent-purple);">Offline-only</span>
+          <span style="padding:0.3em 0.9em;border:1px solid var(--color-accent-purple);border-radius:4px;font-size:0.85rem;color:var(--color-accent-purple);">RTL عربي أولاً</span>
+        </div>
+        <div class="notes">
+          <p>الأثر: تطبيق أصلي للأندرويد بالـ Kotlin + Jetpack Compose. منقول من تطبيق Flutter. يعمل بالكامل بدون إنترنت. الثيم ذهبي مظلم. جميع المحتويات محلية. المرجع: README.md:120 — "It is a Kotlin + Jetpack Compose port of the original Flutter Athkarix app."</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 4: Opening -->
+    <section class="slide" data-slide-index="4" data-section="الافتتاحية">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">الافتتاحية</span>
+        <h2 class="slide-title">الافتتاحية — السياق</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <p style="margin-bottom:0.8rem;"><strong style="color:var(--color-primary-gold);">١١ فئة</strong> من الأذكار والأدعية: الصباح، المساء، بعد الصلاة، قبل النوم، التسبيح، الاستغفار، الحمد، الصلاة على الرسول، دعاء من القرآن، دعاء من السنة، أسماء الله الحسنى</p>
+          <p style="margin-bottom:0.8rem;">بحث كامل النص عبر جميع الأذكار، إشعارات تذكير، عداد تسبيح</p>
+          <p style="margin-bottom:0.8rem;">المحتوى كله محلّي: <span style="color:var(--color-accent-purple);">"Auto-generated from Flutter Dart source"</span> — لا ملفات أصول، البيانات مُدمجة مباشرة في الكود</p>
+          <p>الحد الأدنى: SDK 24، الهدف: SDK 34</p>
+        </div>
+        <div class="notes">
+          <p>السياق: ١١ فئة في data/text/ (AthkarRepository.kt:6 يبني ١١ قائمة). لا يوجد مجلد assets — جميع البيانات hardcoded في كائنات Kotlin. المرجع: README.md:124-131، data/text/AthkarSabahText.kt:3، app/build.gradle.kts:13-14.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 5: Thesis -->
+    <section class="slide" data-slide-index="5" data-section="الفكرة الحاكمة">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">الفكرة الحاكمة</span>
+        <h2 class="slide-title">الفكرة الحاكمة</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <p style="margin-bottom:0.6rem;color:var(--color-primary-gold);font-weight:700;font-size:1.2rem;">Offline-first بنية MVVM</p>
+          <ul style="list-style:none;padding:0;text-align:right;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Offline-first:</strong> لا شبكة إطلاقاً — لا توجد مكتبات شبكة (README.md:157)</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>MVVM:</strong> UI ← ViewModel ← Repository ← Assets/Preferences (README.md:151)</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Activity واحد</strong> يستضيف جميع الشاشات عبر Navigation Compose (README.md:154)</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>ViewModel مخصص</strong> لكل شاشة يكشف StateFlow &lt;UiState&gt; (README.md:155)</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Repository</strong> هو المصدر الوحيد للحقيقة للأذكار (README.md:156)</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>الفكرة الحاكمة هي offline-first مع انضباط MVVM صارم. الجوهر: UI لا يقرأ البيانات مباشرة، بل يراقب StateFlow. Repository هو مصدر الحقيقة الوحيد. لا توجد مكتبات شبكة إطلاقاً (app/build.gradle.kts لا يحتوي أي network deps).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 6: Decisions Journey -->
+    <section class="slide" data-slide-index="6" data-section="رحلة القرارات">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">رحلة القرارات</span>
+        <h2 class="slide-title">رحلة القرارات — من Flutter إلى Compose</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <p style="margin-bottom:0.6rem;">النصوص تعلن صراحةً أنها <span style="color:var(--color-accent-purple);">"Auto-generated from Flutter Dart source"</span> — تراث مباشر من التطبيق الأصلي</p>
+          <ul style="list-style:none;padding:0;text-align:right;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>أداء أصلي:</strong> Kotlin + Compose دون وسيط</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>بنية offline-first</strong> بلا شبكة</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Activity واحد</strong> و Navigation Compose</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>أمان الأنواع:</strong> Kotlin type safety</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>RTL</strong> مفروض تطبيقياً عبر CompositionLocal (MainActivity.kt:19)</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>خطان مدمجان:</strong> Amiri و Noto Naskh Arabic (AthkarTextSlider.kt:63-64)</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>قرار نقل من Flutter إلى Kotlin/Compose. النصوص auto-generated من Dart (data/text/AthkarSabahText.kt:3). التوجيه RTL مفروض في MainActivity.kt:19 عبر CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl). الخطوط: res/font/amiri_regular.ttf و noto_naskh_arabic_regular.ttf كما في AthkarTextSlider.kt:63-64.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 7: Decisions Journey -->
+    <section class="slide" data-slide-index="7" data-section="رحلة القرارات">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">رحلة القرارات</span>
+        <h2 class="slide-title">رحلة القرارات — حقن التبعية اليدوي</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <ul style="list-style:none;padding:0;text-align:right;">
+            <li style="margin-bottom:0.5rem;">&bull; <code style="background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;direction:ltr;display:inline-block;">object AppModule</code> — AppModule.kt:25</li>
+            <li style="margin-bottom:0.5rem;">&bull; KDoc يوضّح الاختيار: مصنع منفرد لجميع ViewModels والخدمات المشتركة (AppModule.kt:22-24)</li>
+            <li style="margin-bottom:0.5rem;">&bull; <strong>لا Hilt ولا Dagger</strong> — README.md:142</li>
+            <li style="margin-bottom:0.5rem;">&bull; المقايضة: لا تحقّق من مخطط الرسم في وقت الترجمة، لكن لا عبء معالجة تعليقات annotation ويسهل تتبّع الرسم</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>إعلان AppModule.kt:22-24: "Manual dependency injection — singleton factory for all ViewModels and shared services. A real DI framework (Hilt/Koin) could replace this, but a plain object keeps the dependency graph visible and easy to trace for a junior dev." README.md:142: "DI: Manual (no Hilt / Dagger)".</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 8: Decisions Journey -->
+    <section class="slide" data-slide-index="8" data-section="رحلة القرارات">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">رحلة القرارات</span>
+        <h2 class="slide-title">رحلة القرارات — إشعارات WorkManager</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <ul style="list-style:none;padding:0;text-align:right;">
+            <li style="margin-bottom:0.5rem;">&bull; <strong>WorkManager 2.9.0</strong> — app/build.gradle.kts:66</li>
+            <li style="margin-bottom:0.5rem;">&bull; <code style="background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;direction:ltr;display:inline-block;">PeriodicWorkRequestBuilder</code> بيوم واحد وسياسة <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">UPDATE</code> — NotificationService.kt:40-49</li>
+            <li style="margin-bottom:0.5rem;">&bull; تأخير أولي يُحسب حتى الوقت المطلوب (ساعة:دقيقة) — NotificationService.kt:59-71</li>
+            <li style="margin-bottom:0.5rem;">&bull; <strong>ReminderWorker</strong> يختار ذكراً عشوائياً ويرسل إشعاراً — ReminderWorker.kt:12-51</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>قرار WorkManager للإشعارات. PeriodicWorkRequestBuilder مع فاصل يوم واحد. التأخير الأولي للوصول إلى الوقت المحدد (NotificationService.kt:59-71). ReminderWorker يختار نصاً عشوائياً من القائمة ويأخذ أول ٢٠٠ حرف (ReminderWorker.kt:21). app/build.gradle.kts:66: androidx.work:work-runtime-ktx:2.9.0.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 9: Decisions Journey -->
+    <section class="slide" data-slide-index="9" data-section="رحلة القرارات">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">رحلة القرارات</span>
+        <h2 class="slide-title">رحلة القرارات — البيانات: hardcoded أم أصول؟</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <ul style="list-style:none;padding:0;text-align:right;">
+            <li style="margin-bottom:0.5rem;">&bull; <strong>لا مجلد assets</strong> — لا يوجد <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">app/src/main/assets/</code></li>
+            <li style="margin-bottom:0.5rem;">&bull; <strong>١١ ملف نصي</strong> في <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">data/text/</code> تبني قوائم Kotlin hardcoded</li>
+            <li style="margin-bottom:0.5rem;">&bull; <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">object AthkarRepository</code> يحمل القوائم الـ ١١ — AthkarRepository.kt:6</li>
+            <li style="margin-bottom:0.5rem;">&bull; استخدام <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">.trimIndent()</code> في السلاسل الخام — AthkarAfterSalatText.kt:5-8</li>
+            <li style="margin-bottom:0.5rem;">&bull; المقايضة: لا I/O، تحميل فوري، offline للأبد؛ التكلفة: تعديل المحتوى يتطلب إعادة ترجمة</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>قرار البيانات: لا مجلد assets — كل البيانات hardcoded في ١١ كائن Kotlin في data/text/، والـ Repository (AthkarRepository.kt:6) يبني ١١ قائمة من هذه الكائنات. .trimIndent() يزيل المسافات البادئة من السلاسل الخام (AthkarAfterSalatText.kt:5-8). المقايضة: تحميل فوري وبدون I/O، لكن أي تعديل نصي يتطلب إعادة ترجمة.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 10: Mental Model -->
+    <section class="slide" data-slide-index="10" data-section="المخطط الذهني">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">المخطط الذهني</span>
+        <h2 class="slide-title">المخطط الذهني — بنية MVVM</h2>
+        <svg viewBox="0 0 760 420" role="img" aria-label="مخطط تدفق البيانات في بنية MVVM" style="width:100%;max-width:760px;height:auto;display:block;margin:1rem auto 0;" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrowGold" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#FFE082"/>
+            </marker>
+          </defs>
+          <!-- Arrows pointing left (RTL flow: UI ← VM ← Repo ← sources) -->
+          <line x1="640" y1="70" x2="300" y2="70" stroke="#FFE082" stroke-width="2" marker-end="url(#arrowGold)" stroke-dasharray="6,4"/>
+          <line x1="660" y1="180" x2="320" y2="180" stroke="#FFE082" stroke-width="2" marker-end="url(#arrowGold)" stroke-dasharray="6,4"/>
+          <line x1="620" y1="290" x2="420" y2="290" stroke="#9C27B0" stroke-width="2" marker-end="url(#arrowGold)" stroke-dasharray="6,4"/>
+          <!-- UI Box -->
+          <rect x="640" y="32" width="110" height="76" rx="8" fill="#1A1A1A" stroke="#FFBF00" stroke-width="1.5"/>
+          <text x="695" y="62" text-anchor="middle" fill="#FFE082" font-size="14" font-family="Amiri, serif" font-weight="700">UI</text>
+          <text x="695" y="82" text-anchor="middle" fill="#CCCCCC" font-size="10" font-family="Noto Naskh Arabic, serif">Composables</text>
+          <text x="695" y="98" text-anchor="middle" fill="#B0B0B0" font-size="9" font-family="Noto Naskh Arabic, serif">يراقب StateFlow</text>
+          <!-- ViewModel Box -->
+          <rect x="300" y="32" width="240" height="76" rx="8" fill="#1A1A1A" stroke="#FFBF00" stroke-width="1.5"/>
+          <text x="420" y="62" text-anchor="middle" fill="#FFE082" font-size="14" font-family="Amiri, serif" font-weight="700">ViewModel</text>
+          <text x="420" y="82" text-anchor="middle" fill="#CCCCCC" font-size="10" font-family="Noto Naskh Arabic, serif">١٧ شاشة × ViewModel مخصص</text>
+          <text x="420" y="98" text-anchor="middle" fill="#B0B0B0" font-size="9" font-family="Noto Naskh Arabic, serif">يكشف StateFlow&lt;UiState&gt;</text>
+          <!-- Repository Box -->
+          <rect x="320" y="142" width="300" height="76" rx="8" fill="#1A1A1A" stroke="#FFBF00" stroke-width="1.5"/>
+          <text x="470" y="172" text-anchor="middle" fill="#FFE082" font-size="14" font-family="Amiri, serif" font-weight="700">Repository</text>
+          <text x="470" y="192" text-anchor="middle" fill="#CCCCCC" font-size="10" font-family="Noto Naskh Arabic, serif">AthkarRepository — المصدر الوحيد للحقيقة</text>
+          <text x="470" y="208" text-anchor="middle" fill="#B0B0B0" font-size="9" font-family="Noto Naskh Arabic, serif">يفوّض قراءة البيانات</text>
+          <!-- Sources Box (split into two) -->
+          <rect x="420" y="252" width="180" height="76" rx="8" fill="#1A1A1A" stroke="#9C27B0" stroke-width="1.5"/>
+          <text x="510" y="282" text-anchor="middle" fill="#CE93D8" font-size="13" font-family="Amiri, serif" font-weight="700">data/text</text>
+          <text x="510" y="302" text-anchor="middle" fill="#CCCCCC" font-size="10" font-family="Noto Naskh Arabic, serif">١١ كائن Kotlin (فئات)</text>
+          <text x="510" y="318" text-anchor="middle" fill="#B0B0B0" font-size="9" font-family="Noto Naskh Arabic, serif">مولّد من Flutter Dart</text>
+          <!-- Assets label under sources -->
+          <rect x="200" y="252" width="200" height="76" rx="8" fill="#1A1A1A" stroke="#9C27B0" stroke-width="1.5"/>
+          <text x="300" y="282" text-anchor="middle" fill="#CE93D8" font-size="13" font-family="Amiri, serif" font-weight="700">SharedPreferences</text>
+          <text x="300" y="302" text-anchor="middle" fill="#CCCCCC" font-size="10" font-family="Noto Naskh Arabic, serif">مفاتيح notify_*</text>
+          <text x="300" y="318" text-anchor="middle" fill="#B0B0B0" font-size="9" font-family="Noto Naskh Arabic, serif">حالة التفضيلات والإشعارات</text>
+          <!-- Labels on arrows -->
+          <text x="580" y="66" text-anchor="middle" fill="#FFE082" font-size="9" font-family="Noto Naskh Arabic, serif">مراقبة</text>
+          <text x="600" y="176" text-anchor="middle" fill="#FFE082" font-size="9" font-family="Noto Naskh Arabic, serif">قراءة</text>
+        </svg>
+        <div class="notes">
+          <p>المخطط الذهني لتدفق البيانات: UI (Composables) ← يراقب StateFlow ← ViewModel (١٧ ViewModels) ← يفوض قراءة البيانات ← Repository (AthkarRepository — المصدر الوحيد للحقيقة) ← يقرأ من data/text (١١ كائن Kotlin) + SharedPreferences (مفاتيح notify_*). المرجع: README.md:151-157، AthkarRepository.kt:6.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 11: Product Experience -->
+    <section class="slide" data-slide-index="11" data-section="تجربة المستخدم">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">تجربة المستخدم</span>
+        <h2 class="slide-title">الشاشات الرئيسية — شبكة الفئات</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <p style="margin-bottom:0.6rem;color:var(--color-primary-gold);font-weight:700;font-size:1.15rem;">HomeScreen — البوابة</p>
+          <ul style="list-style:none;padding:0;text-align:right;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>١١ بطاقة فئة</strong> في قائمة قابلة للتمرير — كل بطاقة تفتح شاشة أذكار — HomeScreen.kt:90-105</li>
+            <li style="margin-bottom:0.3rem;">&bull; شريط بحث + درج جانبي (إشعارات، تواصل، مشاركة) — HomeScreen.kt:117-171</li>
+            <li style="margin-bottom:0.3rem;">&bull; التنقل عبر <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">HomeViewModel.navigationEvent</code> (SharedFlow) — HomeViewModel.kt:18-19</li>
+            <li style="margin-bottom:0.3rem;">&bull; حدث واحد لكل بطاقة، ثم يعيد التوجيه إلى الـ NavHost — HomeViewModel.kt:22-41</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>HomeScreen تُعرَض ١١ بطاقة فئة (HomeScreen.kt:90-105) تبني قائمة HomeButtonItem، كل بطاقة تستدعي دالة navigate في HomeViewModel. ولا يتحرك الـ UI مباشرة بل يستمع إلى SharedFlow navigationEvent (HomeViewModel.kt:18-19) عبر LaunchedEffect ثم يعيد التوجيه (HomeScreen.kt:80-86 إلى onNavigate). الدرج الجانبي يحتوي إعدادات الإشعارات والتواصل والمشاركة (HomeScreen.kt:117-171). البحث عبر زر في الـ top bar (HomeScreen.kt:170). المرجع كامل: ui/screens/home/HomeScreen.kt، ui/screens/home/HomeViewModel.kt:16-42.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 12: Product Experience -->
+    <section class="slide" data-slide-index="12" data-section="تجربة المستخدم">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">تجربة المستخدم</span>
+        <h2 class="slide-title">التمرير والتفاعل — AthkarTextSlider</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <p style="margin-bottom:0.5rem;color:var(--color-primary-gold);font-weight:700;font-size:1.1rem;">الشريحة الأساسية: نص ← عدّ ← تقدّم</p>
+          <ul style="list-style:none;padding:0;text-align:right;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>اضغط للتقدّم:</strong> نقرة على النص تزيد العداد — AthkarTextSlider.kt:95</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>AUTO_ADVANCE:</strong> يصفّر عند الوصول إلى <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">maxCount</code> ثم ينتقل للصفحة التالية — BaseAthkarViewModel.kt:83-96</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>INFINITE_COUNT:</strong> عدّ تراكمي بدون انتقال؛ اهتزاز كل ١٠٠ نقرة — BaseAthkarViewModel.kt:75-81</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>AthkarIndexDrawer:</strong> درج جانبي للقفز لأي صفحة — AthkarIndexDrawer.kt:22-71</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>الانتهاء:</strong> عند آخر صفحة يُصدَر <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">ShowCompletion</code> — BaseAthkarViewModel.kt:91-96</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>المنطق الكامل للعداد في incrementPageController (BaseAthkarViewModel.kt:67-100). في AUTO_ADVANCE: newCount يَصِل إلى maxCount فيُصفَّر، وإذا وُجدت صفحة تالية انتقل إليها مع اهتزاز (كذلك حال – :83-91)، وإلا علّم isCompleted وأرسل ShowCompletion (كذلك :91-96). في INFINITE_COUNT: يعيّن العداد = cumulativeTaps ويهتز كل 100. AthkarScreen يستمع إلى hapticTrigger ويستدعي performHapticFeedback (AthkarScreen.kt:83-87) ويعرض Snackbar للانتهاء (:71-80). AthkarIndexDrawer يدرج كل عنصر بالكلمات الافتتاحية والنقر عليه يدعو goToPage (AthkarIndexDrawer.kt:48-62، AthkarScreen.kt:97-100).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 13: Product Experience -->
+    <section class="slide" data-slide-index="13" data-section="تجربة المستخدم">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">تجربة المستخدم</span>
+        <h2 class="slide-title">عداد التسبيح — العداد العائم</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <p style="margin-bottom:0.5rem;color:var(--color-primary-gold);font-weight:700;font-size:1.1rem;">FloatingCounterFab + FloatingCounterViewModel</p>
+          <ul style="list-style:none;padding:0;text-align:right;">
+            <li style="margin-bottom:0.3rem;">&bull; زر ذهبي دائري عائم يعرض الرقم، نقر واحد يزيد العداد — FloatingCounterFab.kt:13-28</li>
+            <li style="margin-bottom:0.3rem;">&bull; يظهر في <strong>٨ من ١١ شاشة أذكار</strong> عبر <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">showFloatingCounter = true</code> (الصباح، المساء، بعد الصلاة، قبل النوم، التسبيح، الاستغفار، الحمد، الصلاة على الرسول) — AthkarixNavGraph.kt:85-200</li>
+            <li style="margin-bottom:0.3rem;">&bull; <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">counters: Map&lt;screenKey, Int&gt;</code> في StateFlow — FloatingCounterViewModel.kt:10-11</li>
+            <li style="margin-bottom:0.3rem;">&bull; زر إعادة تعيين يعيد الضبط عبر <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">resetPageController</code> — AthkarScreen.kt:145-157</li>
+            <li style="margin-bottom:0.3rem;color:var(--color-text-footer);">&bull; <strong>ملاحظة صادقة:</strong> العدّادات غير محفوظة — تفقد عند إغلاق التطبيق</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>FloatingCounterFab (FloatingCounterFab.kt:13-28) زر عائم دائري ذهبي. يُفعَّل عبر showFloatingCounter=true في ٨ شاشات أذكار (AthkarixNavGraph.kt:85، :102، :119، :135، :151، :167، :183، :200)، فيُضاف الزر مع زر إعادة تعيين (AthkarScreen.kt:145-165). الـ FloatingCounterViewModel يحفظ Map&lt;String, Int&gt; في StateFlow (FloatingCounterViewModel.kt:10-23) بمفاتيح screenKey. هذا العداد مستقل عن عداد الصفحة في AthkarTextSlider. ملاحظة الشفافية: الحالة داخل ViewModel في الذاكرة فقط — غير مُخزَّنة في SharedPreferences، لذا لا تنجو من إعادة تشغيل النظام (موضوع في الشريحة ٢٠).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 14: Product Experience -->
+    <section class="slide" data-slide-index="14" data-section="تجربة المستخدم">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">تجربة المستخدم</span>
+        <h2 class="slide-title">البحث — تجاهل التشكيل</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <p style="margin-bottom:0.5rem;color:var(--color-primary-gold);font-weight:700;font-size:1.1rem;">SearchViewModel + DiacriticUtil</p>
+          <ul style="list-style:none;padding:0;text-align:right;">
+            <li style="margin-bottom:0.3rem;">&bull; يبحث في <strong>١٠ فئات</strong> (يستثني أسماء الله الحسنى) — SearchViewModel.kt:34-45</li>
+            <li style="margin-bottom:0.3rem;">&bull; مطابقة بحرف <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">contains</code> مع إزالة التشكيل — SearchViewModel.kt:54,58</li>
+            <li style="margin-bottom:0.3rem;">&bull; <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">DiacriticUtil.remove</code> يستخدم <span style="direction:ltr;display:inline-block;">[\u064B-\u065F\u0670]</span> لإزالة الترقيم — DiacriticUtil.kt:4-8</li>
+            <li style="margin-bottom:0.3rem;">&bull; تنقّل عميق من النتيجة إلى شاشة <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">SEARCH_RESULT</code> بأرجمنت categoryIndex + itemIndex — AthkarixNavGraph.kt:50,270-278</li>
+          </ul>
+          <p style="margin-top:0.6rem;font-size:0.95rem;color:var(--color-amber);">مثال: البحث عن «الله» يطابق «اللّٰه» المشكَّل أيضاً بفضل إزالة التشكيل.</p>
+        </div>
+        <div class="notes">
+          <p>SearchViewModel يبني قائمة allCategories من ١٠ فئات ويستثني assma_hussna صراحة (SearchViewModel.kt:34-45). في search: يطبّع q عبر DiacriticUtil.remove ثم lowercase (كذلك :54) ويحسب لكل عنصر نصاً منزوع التشكيل (كذلك :58) قبل contains. DiacriticUtil.remove هو regex [\u064B-\u065F\u0670] (DiacriticUtil.kt:5-7). النتيجة SearchResult تحمل category/categoryKey/item/index (كذلك :21-26). من SearchScreen يُطلق onResultClick لبناء "&lt;SEARCH_RESULT&gt;" (AthkarixNavGraph.kt:263-266)، وفي composable SEARCH_RESULT تُقرأ الأرجمنت Category StringType و itemIndex IntType ثم يجلب item عبر AthkarRepository.getItemByKey (كذلك :270-281).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 15: Product Experience -->
+    <section class="slide" data-slide-index="15" data-section="تجربة المستخدم">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">تجربة المستخدم</span>
+        <h2 class="slide-title">الإشعارات والإعدادات</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <p style="margin-bottom:0.5rem;color:var(--color-primary-gold);font-weight:700;font-size:1.1rem;">NotificationSettingsViewModel</p>
+          <ul style="list-style:none;padding:0;text-align:right;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>٦ StateFlows</strong>: تفعيل/إيقاف + الساعة والدقيقة (صباحاً ومساءً) — NotificationSettingsViewModel.kt:16-32</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>تبديل:</strong> يحفظ ثم يجدول أو يلغي — NotificationSettingsViewModel.kt:35-53</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>تغيير الوقت:</strong> يجدول من جديد إذا كان مفعّلاً — NotificationSettingsViewModel.kt:56-76</li>
+            <li style="margin-bottom:0.3rem;">&bull; يُقرأ الضبط مرة واحدة في <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">init</code> عبر SharedPrefsManager ثم يُكشَف كـ StateFlow — NotificationSettingsViewModel.kt:11-32</li>
+          </ul>
+          <p style="margin-top:0.6rem;font-size:0.95rem;color:var(--color-amber);">دليل موجب: ٥ اختبارات تغطي هذا السلوك — NotificationSettingsViewModelTest.kt:20-102</p>
+        </div>
+        <div class="notes">
+          <p>الـ ViewModel يقرأ قيم SharedPrefsManager في خصائص MutableStateFlow الخاصة به (NotificationSettingsViewModel.kt:16-32) فتظهر الحالة فوراً بدون وميض. setMorningEnabled يعيّن القيمة ثم يحفظ في prefs ثم يجدول أو يلغي عبر NotificationService (كذلك :35-43). setMorningTime يحدّث الوقت ويحفظه ثم يعيد الجدولة إذا كان مفعلاً (كذلك :56-65). NotificationSettingsViewModelTest يستخدم MockK لوهم SharedPrefsManager و NotificationService، مع اختبارات على الحالة الابتدائية والتبديل وإعادة الجدولة (NotificationSettingsViewModelTest.kt:20-102).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 16: Technical Deep Dive -->
+    <section class="slide" data-slide-index="16" data-section="الغوص التقني العميق">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">الغوص التقني العميق</span>
+        <h2 class="slide-title">التنقل — Activity واحد و ١٥ مساراً</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <p style="margin-bottom:0.4rem;color:var(--color-primary-gold);font-weight:700;font-size:1.05rem;">كائن Routes — المصدر الوحيد لكل المسارات (AthkarixNavGraph.kt:35-51)</p>
+          <p style="margin-bottom:0.5rem;font-size:0.95rem;line-height:1.9;">
+            <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">home · athkar_sabah · athkar_massa · athkar_after_salat · athkar_before_bed · tasbih · estigfar · hamd · salat_ala_rasoul · duaa_quran · duaa_sunnah · assma_hussna · notification_settings · search · search_result/... ·</code>
+          </p>
+          <ul style="list-style:none;padding:0;text-align:right;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Activity واحد</strong> (MainActivity) + Navigation Compose 2.7.6 — app/build.gradle.kts:61</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>معاملات مكتوبة الأنواع</strong> في SEARCH_RESULT: <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">categoryIndex</code> (String) + <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">itemIndex</code> (Int) — AthkarixNavGraph.kt:270-275</li>
+            <li style="margin-bottom:0.3rem;">&bull; قراءة الأرجمنت وحل الـ item عبر <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">AthkarRepository.getItemByKey</code> — AthkarixNavGraph.kt:277-281</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>كل الشاشات داخل Activity واحد يستضيفه NavHost (AthkarixNavGraph.kt:64-67). كائن Routes (كذلك :35-51) يضم ١٥ ثابتاً يشكّل مصدر الحقيقة للمسارات: ١١ فئة أذكار + الإعدادات + البحث + نتيجة البحث. مسار SEARCH_RESULT (كذلك :50) يحتوي placeholders. composable SEARCH_RESULT يقبل معاملين مكتوبين (StringType و IntType تقع :270-275) ويجد item عبر AthkarRepository.getItemByKey (:279-281) ثم يعرض SearchResultScreen (:298-306). المرجع: app/build.gradle.kts:61 لـ navigation-compose:2.7.6.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 17: Technical Deep Dive -->
+    <section class="slide" data-slide-index="17" data-section="الغوص التقني العميق">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">الغوص التقني العميق</span>
+        <h2 class="slide-title">إدارة الحالة — StateFlow و SharedFlow</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <p style="margin-bottom:0.4rem;color:var(--color-primary-gold);font-weight:700;font-size:1.05rem;">١٧ ViewModel — كل شاشة لها ViewModel مخصص</p>
+          <ul style="list-style:none;padding:0;text-align:right;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>BaseAthkarViewModel</strong> يجسّد المنطق المشترك: <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">currentPageIndex</code> + <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">currentPageCounter</code> كـ StateFlow — BaseAthkarViewModel.kt:32-36</li>
+            <li style="margin-bottom:0.3rem;">&bull; أحداث لمرة واحدة عبر <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">SharedFlow</code> (eventFlow بمساحة مخزن مؤقت 1) — BaseAthkarViewModel.kt:38-39</li>
+            <li style="margin-bottom:0.3rem;">&bull; اهتزاز عبر <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">hapticTrigger</code> SharedFlow — BaseAthkarViewModel.kt:42-43</li>
+            <li style="margin-bottom:0.3rem;">&bull; نمطان للعداد: <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">AUTO_ADVANCE</code> (أذكار الصباح والمساء وغيرها) و <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">INFINITE_COUNT</code> (التسبيح والاستغفار وغيرها) — BaseAthkarViewModel.kt:75-96</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>فئة BaseAthkarViewModel (BaseAthkarViewModel.kt:24) بها currentPageIndex و currentPageCounter كـ StateFlow (كذلك :32-36)، eventFlow SharedFlow بمساحة 1 لأحداث ViewEvent (كذلك :14-19، :38-39)، و hapticTrigger (كذلك :42-43). incrementPageController (كذلك :67-100) يقرر العدّ: INFINITE_COUNT يعد تراكمياً ويهتز كل 100 (:75-81)؛ AUTO_ADVANCE يصفّر عند maxCount ويمضي للصفحة التالية والشروع في ShowCompletion عند النهاية (:83-96). عدادو الفئات: Sabah/Massa/AfterSalat/BeforeBed/DuaQuran/DuaSunnah = AUTO_ADVANCE الافتراضي؛ Tasbih/Estigfar/Hamd/SalatAlaRasoul = INFINITE_COUNT (مثال: TasbihViewModel.kt:11). الخلفية viewmodel/ تضم ١٥ ملفاً + SearchViewModel + HomeViewModel = ١٧.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 18: Technical Deep Dive -->
+    <section class="slide" data-slide-index="18" data-section="الغوص التقني العميق">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">الغوص التقني العميق</span>
+        <h2 class="slide-title">Compose — التركيب الأول مقابل إعادة التركيب</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">١. التركيب الأول (composition):</strong> يُبنى شجر الواجهة مرة واحدة ويُنفَّذ جسم الـ composable لأول مرة.</p>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">٢. ماذا يحسب؟</strong> يقرأ القيم المرصودة (قيم StateFlow) ليقرر ما يرسمه.</p>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">٣. ما يجب تجنّبه؟</strong> قراءات غير حتمية أثناء التركيب (كقراءة SharedPreferences وسط البناء) تجعل الإطار الأول غير قابل للتنبؤ.</p>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">٤. إعادة التركيب (recomposition):</strong> تمريرٌ لاحق بإعادة تشغيل الأجسام عند تغيّر الحالة المرصودة — يجب أن تحافظ على نفس شكل الشجرة لئلا تُفقد الحالة (البقاء عبر remember/saveable).</p>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">٥. النمط الخاطئ:</strong> القراءة من التخزين أثناء التركيب → وميض من الافتراضي إلى المحفوظ، أو تلف الحالة.</p>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">٦. النمط الصحيح في المشروع:</strong> الـ ViewModel يقرأ الـ prefs مرة واحدة في init ويكشف StateFlow؛ UI يراقب StateFlow فقط؛ والآثار (LaunchedEffect) تعمل بعد اكتمال التركيب.</p>
+        </div>
+        <div class="notes">
+          <p>هذه الشريحة تعيد تأطير مفهوم "hydration/الترطيب" من الويب إلى أندرويد أصلي. جوهرها: إبقاء قراءة الحالة حتمية. التطبيق الفعلي: NotificationSettingsViewModel يقرأ SharedPrefsManager داخل خصائص MutableStateFlow ليست في الـ composable بل في init (NotificationSettingsViewModel.kt:16-32) — أصبحت الحالة حتمية عند أول إطار. الـ UI يجمعها بـ collectAsState، والأثر الوحيد (الجدولة عبر NotificationService) يحدث في دوال المسمّى (setMorningEnabled...) لا في التركيب (:35-53). الآثار مثل LaunchedEffect تعمل بعد الالتزام في Compose.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 19: Technical Deep Dive -->
+    <section class="slide" data-slide-index="19" data-section="الغوص التقني العميق">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">الغوص التقني العميق</span>
+        <h2 class="slide-title">Compose — النمط الخاطئ مقابل الصحيح</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:1.9;font-size:0.95rem;">
+          <span class="snippet-label">مقتطف ١ — نمط خاطئ (مبسّط للتوضيح)</span>
+<code class="code-block"><span class="cmt">// ❌ anti-pattern — لا تقرأ الـ preferences داخل التركيب</span>
+<span class="cmt">// الإطار الأول = قيمة محفوظة أم افتراضية؟ يعتمد على التوقيت</span>
+@Composable
+fun BadToggle() {
+    val prefs = context.getSharedPreferences("athkarix_prefs", MODE_PRIVATE)
+    var enabled by remember {
+        mutableStateOf(prefs.getBoolean("notify_morning_enabled", false))
+    }
+    // → وميض/عدم تطابق بين الإطار المخطط والفعلي
+}</code>
+          <span class="snippet-label">مقتطف ٢ — النمط الصحيح في المشروع (مبسّط للتوضيح)</span>
+<code class="code-block"><span class="cmt">// ✅ ViewModel يقرأ الـ prefs مرة واحدة في init و يكشف StateFlow</span>
+class NotificationSettingsViewModel(prefs, service) : ViewModel() {
+    private val _morningEnabled = MutableStateFlow(prefs.morningEnabled)
+    val morningEnabled: StateFlow&lt;Boolean&gt; = _morningEnabled.asStateFlow()
+    <span class="cmt">// ... init { /* يقرأ الـ prefs مرة واحدة */ }</span>
+}
+
+<span class="cmt">// ✅ UI يراقب StateFlow فقط (لا يقرأ التخزين)</span>
+val enabled by vm.morningEnabled.collectAsState()</code>
+        </div>
+        <div class="notes">
+          <p>مقتطف ١ يوضّح anti-pattern: قراءة حقل موحّد داخل جسم الـ composable عبر remember يعتمد على توقيت أول تركيب فلا يمكن التنبؤ بالإطار الأول ويسبب وميضاً. مقتطف ٢ يوضّح نمط المشروع كما في NotificationSettingsViewModel.kt:16-32: يُقرأ prefs في خصائص MutableStateFlow (ثم asStateFlow) فتظهر القيمة الفعلية فوراً، والـ UI يجمعها بـ collectAsState بدون أي قراءة مباشرة للتخزين. دالتي التبديل setMorningEnabled/setEveningEnabled وتحويلات الوقت (كذلك :35-76) تعمل بعد الالتزام وليس أثناء التركيب.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 20: Technical Deep Dive -->
+    <section class="slide" data-slide-index="20" data-section="الغوص التقني العميق">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">الغوص التقني العميق</span>
+        <h2 class="slide-title">الموت المعالجي واستعادة الحالة</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">ما الذي ينجو من الموت المعالجي؟</strong></p>
+          <ul style="list-style:none;padding:0;text-align:right;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>SharedPreferences</strong> محفوظة ذرياً — ٦ مفاتيح إشعارات — SharedPrefsManager.kt:38-44</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>WorkManager queue</strong> محفوظة في قاعدة بيانات خاصة، فتنجو من إعادة التشغيل — لا حاجة لمستقبِل BOOT نظراً لاستمرار العمل الدوري — NotificationService.kt:40-49</li>
+          </ul>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">ما الذي لا ينجو؟</strong></p>
+          <ul style="list-style:none;padding:0;text-align:right;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>StateFlow في الذاكرة:</strong> عدّادات الأذكار/العداد العائم غير محفوظة — BaseAthkarViewModel.kt:32-36، FloatingCounterViewModel.kt:8-24</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>حجم الخط ونوعه</strong> غير محفوظين (في الذاكرة فقط) — FontViewModel.kt:8-40</li>
+          </ul>
+          <p style="margin-bottom:0.4rem;color:var(--color-amber);">نقطة نزاهة: عند الموت المعالجي يعود المستخدم للقيم الافتراضية في العدّادات والخط.</p>
+        </div>
+        <div class="notes">
+          <p>التفاصيل: المفاتيح الستة المحفوظة عبر SharedPrefsManager هي notify_morning_enabled و notify_evening_enabled و notify_morning_hour (الافتراضي 8) و notify_morning_minute (0) و notify_evening_hour (17) و notify_evening_minute (0) — SharedPrefsManager.kt:37-45. الجدولة الدورية via PeriodicWorkRequestBuilder(1 day) مع ExistingPeriodicWorkPolicy.UPDATE (NotificationService.kt:40-48) تُدار من WorkManager الذي يضيف أعماله، فينجو من إعادة التشغيل بدون مستقبِل boot. بينما العدّادات (BaseAthkarViewModel.kt:32-36)، العداد العائم (FloatingCounterViewModel.kt:10-11) وحجم الخط واختياره (FontViewModel.kt:10-14) تخزّن في StateFlow داخل الذاكرة فقط فتُفقد. هذه فجوة معروفة تصريحاً.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 21: Technical Deep Dive -->
+    <section class="slide" data-slide-index="21" data-section="الغوص التقني العميق">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">الغوص التقني العميق</span>
+        <h2 class="slide-title">نموذج البيانات والمستودع</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <p style="margin-bottom:0.4rem;"><code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">AthkarItem(duaText: String?, footer: String? = null, maxCount: Int = 1)</code> — AthkarItem.kt:4-8</p>
+          <p style="margin-bottom:0.4rem;"><code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">object AthkarRepository</code> يحمل <strong>١١ قائمة</strong>، و <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">getItemByKey</code> يربط ١١ مفتاحاً بالقوائم — AthkarRepository.kt:6,540-556</p>
+          <p style="margin-bottom:0.2rem;font-weight:700;color:var(--color-primary-gold);">حالات خادعة في البيانات (مفاضلات صادقة):</p>
+          <ul style="list-style:none;padding:0;text-align:right;font-size:0.95rem;">
+            <li style="margin-bottom:0.25rem;">&bull; أذكار المساء تخطّي TEXT_20 — AthkarRepository.kt:55</li>
+            <li style="margin-bottom:0.25rem;">&bull; قائمة التسبيح تكرّر TEXT_26 مرتين — AthkarRepository.kt:111 و :121</li>
+            <li style="margin-bottom:0.25rem;">&bull; قائمة الصلاة على الرسول تستخدم TEXT_44 مرتين — AthkarRepository.kt:217 و :256</li>
+            <li style="margin-bottom:0.25rem;">&bull; ترتيب غير منتظم في قائمة أسماء الله الحسنى — AthkarRepository.kt:505-508</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>AthkarItem هو الوحدة الأساسية (data class) تمر عبر Repository→ViewModel→UI (AthkarItem.kt:4-8). AthkarRepository كائن يحمل القوائم الـ ١١ (AthkarRepository.kt:6) ويحوّل مفتاح المسار إلى القائمة عبر getItemByKey (كذلك :540-556). الحالات الخادعة الملتقطة من تراث Flutter المولّد: massaList قفز TEXT_20 (القائمة تنتقل من TEXT_19 إلى TEXT_21 في :54-55)؛ tasbihList تدرج TEXT_26 في السطرين :111 و:121؛ salatAlaRasoulList تستخدم TEXT_44 في :217 و:256؛ وفي assmaHussnaList ترتيب المنعطفات مثل :505-508 (TEXT_184-187). هذه عيوب محتوى مقبولة تُشار صراحةً.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 22: Technical Deep Dive -->
+    <section class="slide" data-slide-index="22" data-section="الغوص التقني العميق">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">الغوص التقني العميق</span>
+        <h2 class="slide-title">معالجة النص والبحث</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">DiacriticUtil — إزالة التشكيل:</strong> تعبير <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">Regex("[\u064B-\u065F\u0670]")</code> يُزيل علامات الترقيم العربية — DiacriticUtil.kt:4-8</p>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">تطبيع البحث في ٤ خطوات:</strong> إزالة التشكيل ← lowercase ← contains — SearchViewModel.kt:54,58</p>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">استثناء أسماء الله:</strong> البحث يغطي ١٠ فئات ويستثني <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">assma_hussna</code> — SearchViewModel.kt:34-45</p>
+          <p style="margin-bottom:0.4rem;"><code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">data class SearchResult(category, categoryKey, item, index)</code> يحمل المفتاح والفهرس للتنقل العميق — SearchViewModel.kt:21-26</p>
+        </div>
+        <div class="notes">
+          <p>DiacriticUtil.remove يستبدل regex [\u064B-\u065F\u0670] بأحرف فارغة (DiacriticUtil.kt:5-7). يدمجه SearchViewModel مع lowercase: يطبّع استعلام القيمة (normalized) وكل نص عنصر (text) ثم يطابقهما بـ contains (كذلك :54 و :58). الدليل: DiacriticUtilTest «remove strips all tashkeel» يُحوّل «بِسْمِ...» إلى «بسم...» (DiacriticUtilTest.kt:8-19) وSearchViewModelTest «matching query returns results» يبحث «الله» فيعود غير فارغ (SearchViewModelTest.kt:37-40). مجموعة SearchResult (كذلك :21-26) تحمل المفاتيح المطلوبة لبناء مسار SEARCH_RESULT ثم AthkarRepository.getItemByKey.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 23: Technical Deep Dive -->
+    <section class="slide" data-slide-index="23" data-section="الغوص التقني العميق">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">الغوص التقني العميق</span>
+        <h2 class="slide-title">الإشعارات في الخلفية — WorkManager</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <ul style="list-style:none;padding:0;text-align:right;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>القناة:</strong> <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">"athkar_reminders"</code> بدرجة IMPORTANCE_DEFAULT — NotificationService.kt:15,20-30</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>عمل دوري:</strong> <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">PeriodicWorkRequestBuilder(1 day)</code> بإدخال «type» صباح/مساء وسياسة UPDATE — NotificationService.kt:40-49</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>تأخير أولي</strong> إلى الساعة:الدقيقة المطلوبين — NotificationService.kt:59-71</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>ReminderWorker:</strong> CoroutineWorker يختار ذكراً عشوائياً ويقتطع ٢٠٠ حرف — ReminderWorker.kt:12-27</li>
+            <li style="margin-bottom:0.3rem;">&bull; إشعار BigTextStyle + معرّف AtomicInteger — ReminderWorker.kt:33-49</li>
+            <li style="margin-bottom:0.3rem;color:var(--color-text-footer);">&bull; <strong>مسار انهيار صادق على API 24/25:</strong> إنشاء القناة غير محرّس لـ API 26 (minSdk 24) — NewApi lint عند :21,26,29</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>NotificationService.initialize ينشئ القناة بدرجة IMPORTANCE_DEFAULT (NotificationService.kt:20-30). أخطر من ذلك: الشفرة تنشئ NotificationChannel مباشرة — وهو متاح فقط منذ API 26 — بينما minSdk 24، لذا على أجهزة API 24/25 قد تتعطل (مصدر أخطاء lint NewApi عند NotificationService.kt:21 و:26 و:29). الجدولة الدورية عبر PeriodicWorkRequestBuilder(1 day) مع setInitialDelay حتى الساعة المطلوبة (كذلك :40-49، :59-71) وسياسة ExistingPeriodicWorkPolicy.UPDATE؛ الإلغاء عبر cancelUniqueWork (كذلك :51-57). ReminderWorker (CoroutineWorker) يختار من athkarSabahList أو athkarMassaList النص العشوائي ويأخذ أول 200 حرف (ReminderWorker.kt:21، :26) ويبني إشعار BigTextStyle بمعرّف AtomicInteger (كذلك :33-44). العمل الدوري ينجو من إعادة التشغيل بدون مستقبِل boot.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 24: Technical Deep Dive -->
+    <section class="slide" data-slide-index="24" data-section="الغوص التقني العميق">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">الغوص التقني العميق</span>
+        <h2 class="slide-title">الثيم والألوان والخطوط</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">اللوحة الذهبية المظلمة:</strong></p>
+          <p style="margin-bottom:0.4rem;font-size:0.95rem;"><code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">primaryGold 0xFFFFE082 · amber 0xFFFFBF00 · background 0xFF000000 · surface 0xFF1A1A1A · textPrimary 0xFFFFE082 · textSecondary 0xFFCCCCCC · footer 0xFFB0B0B0 · ayahHadith 0xFF9C27B0</code> — AppColor.kt:6-15</p>
+          <ul style="list-style:none;padding:0;text-align:right;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>مظلم دائماً:</strong> darkColorScheme تُستخدَم بلا اعتبار لـ isSystemInDarkTheme — AppTheme.kt:14-23</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>RTL مفروض:</strong> CompositionLocalProvider يُجبر LayoutDirection.Rtl — MainActivity.kt:19</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>خطان:</strong> تبديل Amiri ↔ Noto Naskh عبر FontViewModel — FontViewModel.kt:23-25</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>حجم خط:</strong> افتراضي 32.0 مع <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">±2.0</code> ضمن [24,42] — FontViewModel.kt:16-17,27-39</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>تكبير الأجهزة اللوحية:</strong> ×1.5 عندما screenWidthDp ≥ 600 — FontScaleUtil.kt:7-19</li>
+            <li style="margin-bottom:0.3rem;color:var(--color-text-footer);">&bull; الخط غير محفوظ (ذاكرة فقط) — FontViewModel.kt:8-40</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>AppColor يضم كل الألوان (AppColor.kt:6-15). AthkarixTheme يستخدم darkColorScheme فقط فيتجاهل isSystemInDarkTheme (مستورد في AppTheme.kt:3 بلا استخدام داخل الشفرة، والمخطط في :14-23) — تصميم مظلم ذهبي دائم. التوجيه RTL مفروض عبر CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) في MainActivity.kt:19. FontViewModel يحمل fontSize افتراضي 32.0 وقيم قصوى {24,42} مع خطوات ±2.0 (FontViewModel.kt:16-17، :27-39) و toggleFont يبدّل بين "Amiri" و "NotoNaskh" (:23-25). يُستهلك في AthkarTextSlider.kt:63-64 عبر res/font للخطين. FontScaleUtil (FontScaleUtil.kt:7-19) يضاعف الحجم ×1.5 على الأجهزة اللوحية (isTablet = screenWidthDp ≥ 600، :10). ملاحظة: الحجم والنوع في الذاكرة فقط، فلا ينجوان من الموت المعالجي.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 25: Technical Deep Dive -->
+    <section class="slide" data-slide-index="25" data-section="الغوص التقني العميق">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">الغوص التقني العميق</span>
+        <h2 class="slide-title">الاختبارات — ٥٢ اختباراً وحدة</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;">
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">ما هو مغطّى (٨ ملفات):</strong></p>
+          <ul style="list-style:none;padding:0;text-align:right;font-size:0.95rem;">
+            <li style="margin-bottom:0.25rem;">&bull; BaseAthkarViewModelTest — <strong>١٨</strong> (Turbine + coroutines-test) :41-226</li>
+            <li style="margin-bottom:0.25rem;">&bull; SearchViewModelTest — <strong>٧</strong> :12-61</li>
+            <li style="margin-bottom:0.25rem;">&bull; NotificationSettingsViewModelTest — <strong>٥</strong> (MockK) :20-102</li>
+            <li style="margin-bottom:0.25rem;">&bull; FontViewModelTest — <strong>٦</strong> · HomeViewModelTest — <strong>٤</strong> · FloatingCounterViewModelTest — <strong>٤</strong> · DiacriticUtilTest — <strong>٤</strong> · AthkarRepositoryTest — <strong>٤</strong></li>
+            <li style="margin-bottom:0.25rem;color:var(--color-primary-gold);">✓ ٦ من ١٧ ViewModel + DiacriticUtil + فحص AthkarRepository</li>
+          </ul>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">ما غير مغطّى (بصراحة):</strong></p>
+          <ul style="list-style:none;padding:0;text-align:right;font-size:0.95rem;">
+            <li style="margin-bottom:0.25rem;">&bull; ١٠ ViewModels رقيقة للفئات بلا اختبار مباشر</li>
+            <li style="margin-bottom:0.25rem;">&bull; NotificationService/ReminderWorker (إطار أندرويد) بلا اختبار</li>
+            <li style="margin-bottom:0.25rem;">&bull; SharedPreferences (تُوهم فقط) و لا androidTest ولا اختبار UI لـ Compose</li>
+            <li style="margin-bottom:0.25rem;">&bull; ShareUtil / WhatsAppUtil / FontScaleUtil بلا اختبار</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>الإجمالي ٥٢ طريقة @Test موزّعة على ٨ ملفات في app/src/test/java/com/athkarix/app/. التفاصيل: BaseAthkarViewModelTest (18، Turbine+StandardTestDispatcher، :41-226)، SearchViewModelTest (7، JUnit عادي، :12-61)، NotificationSettingsViewModelTest (5، MockK، :20-102)، FontViewModelTest (6)، HomeViewModelTest (4، Turbine)، FloatingCounterViewModelTest (4)، DiacriticUtilTest (4، :8-44)، AthkarRepositoryTest (4، فحص قوائم sabah/massa، :8-30). الغطاء: ٦ ViewModels (Base، Search، Notification، Font، Home، FloatingCounter) + DiacriticUtil + فحص Repository. الفجوات: ١٠ ViewModels رقيقة غير مختبرة مباشرة، الخدمات (NotificationService/ReminderWorker) تتطلب إطار أندرويد فلم تُختبر، SharedPreferences تُوهم فقط، ولا توجد androidTest أو اختبارات UI لـ Compose، ولا اختبارات لوحدات ShareUtil/WhatsAppUtil/FontScaleUtil.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 26: Live Demo -->
+    <section class="slide" data-slide-index="26" data-section="العرض الحي">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">العرض الحي</span>
+        <h2 class="slide-title">العرض الحي</h2>
+        <div class="slide-subtitle" style="text-align:center;direction:rtl;line-height:2;">
+          <p style="margin-bottom:0.8rem;font-size:1.25rem;color:var(--color-primary-gold);font-weight:700;">الآن ننتقل إلى العرض المباشر للتطبيق</p>
+          <p style="margin-bottom:0.6rem;">التمارين والسيناريوهات المُعدّة موجودة في ملف العرض المُخطّط:</p>
+          <p><code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.15em 0.5em;border-radius:4px;font-size:1rem;">presentation/demo-script.md</code></p>
+        </div>
+        <div class="notes">
+          <p>شريحة تقسيم تُحوّل العرض إلى التمرين الحي. الملف demo-script.md يحتوي السيناريوهات المُخطّطة: تنقل الفئات، عداد التسبيح، البحث، إعدادات الإشعارات، تبديل الخط. يُنصح بفتح العرض على جهاز أندرويد أو مُحاكٍ.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 27: Trade-offs -->
+    <section class="slide" data-slide-index="27" data-section="المفاضلات">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">المفاضلات</span>
+        <h2 class="slide-title">المفاضلات التقنية</h2>
+        <div style="display:flex;gap:1.5rem;text-align:right;direction:rtl;margin-top:0.5rem;">
+          <!-- Gained Column -->
+          <div style="flex:1;padding:1rem;border:1px solid rgba(34,197,94,0.3);border-radius:8px;background:rgba(34,197,94,0.04);">
+            <p style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:#22c55e;margin-bottom:0.6rem;">ما اكتسبناه</p>
+            <ul style="list-style:none;padding:0;font-size:0.88rem;line-height:1.7;">
+              <li style="margin-bottom:0.3rem;">&bull; لا حاجة لشبكة — يعمل بالكامل بدون إنترنت (README.md:129-131)</li>
+              <li style="margin-bottom:0.3rem;">&bull; وصول فوري للمحتوى: ثوابت Kotlin في الذاكرة، لا I/O في وقت التشغيل (AthkarRepository.kt:6)</li>
+              <li style="margin-bottom:0.3rem;">&bull; تدفق حالة حتمي: UI ← ViewModel ← Repository — مصدر الحقيقة الوحيد (README.md:151-157)</li>
+              <li style="margin-bottom:0.3rem;">&bull; حقن تبعيات يدوي — الرسم مُتتبَّع وواضح (AppModule.kt:22-24)</li>
+              <li style="margin-bottom:0.3rem;">&bull; ٥٢ اختباراً وحدة: عدّاد، بحث، إعدادات، خط، أدوات (ملفات الاختبارات الثمانية)</li>
+            </ul>
+          </div>
+          <!-- Paid Column -->
+          <div style="flex:1;padding:1rem;border:1px solid rgba(239,68,68,0.3);border-radius:8px;background:rgba(239,68,68,0.04);">
+            <p style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:#ef4444;margin-bottom:0.6rem;">الثمن الذي دفعناه</p>
+            <ul style="list-style:none;padding:0;font-size:0.88rem;line-height:1.7;">
+              <li style="margin-bottom:0.3rem;">&bull; تعديل المحتوى يتطلب إعادة ترجمة — البيانات في مصدر Kotlin (data/text/*.kt)</li>
+              <li style="margin-bottom:0.3rem;">&bull; القوائم المكتوبة يدوياً فيها أخطاء: المساء يتخطّي TEXT_20 (AthkarRepository.kt:55)، التسبيح يُكرّر TEXT_26 مرتين (:111، :121)، والصلاة على الرسول تُكرّر TEXT_44 (:217، :256)</li>
+              <li style="margin-bottom:0.3rem;">&bull; العدّادات <strong>غير محفوظة</strong> — تُفقد عند إغلاق التطبيق (BaseAthkarViewModel.kt:32-36، FloatingCounterViewModel.kt:8-24)</li>
+              <li style="margin-bottom:0.3rem;">&bull; الخط وحجمه غير محفوظين (FontViewModel.kt:8-40)</li>
+              <li style="margin-bottom:0.3rem;">&bull; البحث يستثني أسماء الله الحسنى (SearchViewModel.kt:34-45)</li>
+              <li style="margin-bottom:0.3rem;">&bull; إنشاء قناة الإشعارات غير محرّس لـ API 26 على minSdk 24 (NotificationService.kt:20-29)</li>
+              <li style="margin-bottom:0.3rem;">&bull; لا اختبارات UI ولا مجلد androidTest</li>
+              <li style="margin-bottom:0.3rem;">&bull; إشعار POST_NOTIFICATIONS لا يُطلَب تشغيلياً — صمت على API 33+ (AndroidManifest.xml:4)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="notes">
+          <p>المفاضلات التقنية: الهدف هو الصراحة الكاملة — لا نُخبّي ما لم يُحلّ. ما اكتسبناه: عدم الاعتماد على الشبكة (README.md:129-131، لا network deps في build.gradle.kts)، الوصول الفوري عبر Kotlin constants (AthkarRepository.kt:6)، وانضباط MVVM (README.md:151-157)، والحقن اليدوي الواضح (AppModule.kt:22-24)، و٥٢ اختباراً وحدة. ما دفعناه: تعديل المحتوى يتطلب إعادة ترجمة (data/text/*.kt)، أخطاء القوائم المكتوبة يدوياً (TEXT_20 يتخطّاه المساء AthkarRepository.kt:55، TEXT_26 مكرر في التسبيح :111 و:121)، العدّادات والخط غير محفوظين، البحث يستثني assma_hussna، قناة الإشعارات غير محرّس على API 24/25، ولا اختبارات UI. هذه ليست هشاشة — بل نزاهة معمارية.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 28: Roadmap -->
+    <section class="slide" data-slide-index="28" data-section="خارطة الطريق">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">خارطة الطريق</span>
+        <h2 class="slide-title">خارطة الطريق — أولويات مبنية على الخطر</h2>
+        <div class="slide-subtitle" style="text-align:right;direction:rtl;line-height:2;font-size:0.95rem;">
+          <ul style="list-style:none;padding:0;text-align:right;">
+            <li style="margin-bottom:0.5rem;">
+              &bull; <strong style="color:var(--color-primary-gold);">١. تحصين قناة الإشعارات</strong> — فحص <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">Build.VERSION</code> قبل إنشاء القناة
+              <span style="display:block;color:var(--color-text-footer);font-size:0.85em;">الخطر: انهيار محتمل على API 24/25 · الثمرة: إشعارات مستقرة وتصفير أخطاء NewApi الأربعة <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;font-size:0.85em;">NotificationService.kt:20-30</code></span>
+            </li>
+            <li style="margin-bottom:0.5rem;">
+              &bull; <strong style="color:var(--color-primary-gold);">٢. طلب إذن الإشعارات تشغيلياً</strong> — على API 33+ (الإعلان موجود، الطلب مفقود)
+              <span style="display:block;color:var(--color-text-footer);font-size:0.85em;">الخطر: إشعارات مكتومة بلا إذن · الثمرة: تذكيرات مرئية فعلياً <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;font-size:0.85em;">AndroidManifest.xml:4</code> · لا طلب في <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;font-size:0.85em;">MainActivity.kt</code></span>
+            </li>
+            <li style="margin-bottom:0.5rem;">
+              &bull; <strong style="color:var(--color-primary-gold);">٣. إبقاء العدّادات</strong> — SharedPreferences أو DataStore
+              <span style="display:block;color:var(--color-text-footer);font-size:0.85em;">الخطر: فقدان تقدّم الذِّكر بعد موت العملية · الثمرة: تجربة مستمرة <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;font-size:0.85em;">BaseAthkarViewModel.kt:32-36</code> · <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;font-size:0.85em;">FloatingCounterViewModel.kt</code></span>
+            </li>
+            <li style="margin-bottom:0.5rem;">
+              &bull; <strong style="color:var(--color-primary-gold);">٤. ترحيل المحتوى إلى أصول JSON</strong>
+              <span style="display:block;color:var(--color-text-footer);font-size:0.85em;">الخطر: صحة نقل ١١ قائمة حاملةً شواذَّها (TEXT_20/26/44) · الثمرة: تعديل بلا إعادة ترجمة وإتاحة مراجعة محتوى <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;font-size:0.85em;">AthkarRepository.kt</code></span>
+            </li>
+            <li style="margin-bottom:0.5rem;">
+              &bull; <strong style="color:var(--color-primary-gold);">٥. ضم أسماء الله الحسنى إلى البحث</strong>
+              <span style="display:block;color:var(--color-text-footer);font-size:0.85em;">الخطر: أسماء الله غير قابلة للبحث اليوم · الثمرة: تغطية كاملة للمحتوى <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;font-size:0.85em;">SearchViewModel.kt:34-45</code></span>
+            </li>
+            <li style="margin-bottom:0.5rem;">
+              &bull; <strong style="color:var(--color-primary-gold);">٦. اختبارات Compose UI</strong> — androidTest لأخطر المسارات (عداد AthkarScreen والبحث)
+              <span style="display:block;color:var(--color-text-footer);font-size:0.85em;">الخطر: مسارات حرجة بلا شبكة أمان · الثمرة: حماية عند إعادة البناء — لا يوجد مجلد androidTest اليوم</span>
+            </li>
+            <li style="margin-bottom:0.5rem;">
+              &bull; <strong style="color:var(--color-primary-gold);">٧. بوابة CI</strong> — يجب أن يجتاز <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">./gradlew lint</code>
+              <span style="display:block;color:var(--color-text-footer);font-size:0.85em;">الخطر: تسلّل أخطاء جديدة · الثمرة: جودة تلقائية عند كل تغيير — حالياً ٤ أخطاء NewApi قديمة</span>
+            </li>
+            <li style="margin-bottom:0.2rem;">
+              &bull; <strong style="color:var(--color-accent-purple);">إضافي — توحيد بناء القوائم</strong> من مصدر قابل للفهرسة يمنع أخطاء النسخ اليدوية من نوع TEXT_20/26/44
+              <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;font-size:0.85em;">AthkarRepository.kt:6</code>
+            </li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>ترتيب البنود يعكس حجم الخطر: احتمال انهيار (١) يسبق فقدان البيانات (٣) يسبق راحة التطوير (٤) يسبق التغطية والجودة (٥-٧). البند ٤ يحمل أعلى خطر تنفيذ: ترحيل ١١ قائمة مع شواذ TEXT_20 وTEXT_26 وTEXT_44 المكتشفة. البند ٧ هو بوابة الجودة الشاملة بعد إصلاح أخطاء NewApi الأربعة الحالية. كل بند قابل للقياس وله ثمرة واضحة — ليست قائمة أمنيات.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 29: Closing -->
+    <section class="slide" data-slide-index="29" data-section="الخاتمة">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">الخاتمة</span>
+        <h2 class="slide-title">الخاتمة</h2>
+        <div class="slide-subtitle" style="text-align:center;direction:rtl;line-height:2;">
+          <p style="margin-bottom:1.2rem;font-size:1.2rem;color:var(--color-primary-gold);font-weight:700;line-height:1.9;">
+            القرارات الصادقة أثمن من القرارات المثالية: كل ما بنيناه قابل للتتبّع، وكل ثمنٍ دفعناه مُعلن — وهذا هو أثمن ما نُسلّمه مع الشيفرة.
+          </p>
+          <p style="margin-bottom:0.6rem;font-weight:700;color:var(--color-primary-gold);">أسئلة مفتوحة للنقاش:</p>
+          <ul style="list-style:none;padding:0;text-align:right;direction:rtl;">
+            <li style="margin-bottom:0.35rem;text-align:right;">&bull; لماذا اخترنا المحتوى hardcoded في الكود بدل ملفات الأصول؟ — مفاضلة أعلنّاها بوضوح في الشريحة ٩</li>
+            <li style="margin-bottom:0.35rem;text-align:right;">&bull; هل فقدان العدّادات بعد موت العملية مقبول، أم أن الإبقاء ضرورة لا نقاش فيها؟</li>
+            <li style="margin-bottom:0.35rem;text-align:right;">&bull; هل ننتقل من SharedPreferences إلى DataStore؟ وما الطريق الآمن للهجرة؟</li>
+            <li style="margin-bottom:0.35rem;text-align:right;">&bull; هل يستحق الانتقال إلى Hilt ثمنه مع نمو التطبيق؟ — المفاضلة موثّقة في AppModule.kt:22-24</li>
+          </ul>
+          <p style="margin-top:1.2rem;font-size:0.95rem;color:var(--color-amber);">نسأل الله أن يجعل هذا العمل خالصاً لوجهه</p>
+        </div>
+        <div class="notes">
+          <p>الخاتمة مكوّنة من ثلاثة أجزاء: جملة موقفٍ هندسي واحدة (offline-first مع مفاضلات معلنة)، ثم أربعة أسئلة تفتح النقاش مع الجمهور، ثم دعاء ختامي خفيف. الجدول الزمني (الشريحة ٢) يخصص ٥ دقائق لهذا الحوار. اقتراح: اطرح الأسئلة الأربعة كأنها خريطة مغادرة — ليقترح الجمهور أولوية البند الأول في الشريحة ٢٨.</p>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /slides-container -->
+
+  <script>
+    (function () {
+      'use strict';
+
+      // ===== State =====
+      var slides = document.querySelectorAll('.slide');
+      var totalSlides = slides.length;
+      var currentSlide = 0;
+      var overviewOpen = false;
+      var notesOpen = false;
+
+      // ===== DOM refs =====
+      var counter = document.getElementById('slideCounter');
+      var overviewPanel = document.getElementById('overviewPanel');
+      var overviewGrid = document.getElementById('overviewGrid');
+      var notesPanel = document.getElementById('notesPanel');
+      var notesBody = document.getElementById('notesBody');
+      var kbdHints = document.getElementById('kbdHints');
+
+      // ===== Reduced motion =====
+      var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // ===== Slide navigation =====
+      function goToSlide(index) {
+        if (index < 0 || index >= totalSlides) return;
+        slides[currentSlide].classList.remove('active');
+        currentSlide = index;
+        slides[currentSlide].classList.add('active');
+        counter.textContent = (currentSlide + 1) + ' / ' + totalSlides;
+        updateNotes();
+        updateOverviewHighlight();
+      }
+
+      function nextSlide() {
+        if (currentSlide < totalSlides - 1) goToSlide(currentSlide + 1);
+      }
+
+      function prevSlide() {
+        if (currentSlide > 0) goToSlide(currentSlide - 1);
+      }
+
+      // ===== Overview panel =====
+      function buildOverview() {
+        overviewGrid.innerHTML = '';
+        for (var i = 0; i < totalSlides; i++) {
+          var slide = slides[i];
+          var thumb = document.createElement('button');
+          thumb.className = 'overview-thumb';
+          if (i === currentSlide) thumb.classList.add('current');
+          thumb.setAttribute('aria-label', 'الانتقال إلى الشريحة ' + (i + 1));
+
+          var num = document.createElement('span');
+          num.className = 'thumb-number';
+          num.textContent = (i + 1);
+
+          var sec = document.createElement('span');
+          sec.className = 'thumb-section';
+          sec.textContent = slide.getAttribute('data-section') || '';
+
+          var title = document.createElement('span');
+          title.className = 'thumb-title';
+          var titleEl = slide.querySelector('.slide-title');
+          title.textContent = titleEl ? titleEl.textContent : '';
+
+          thumb.appendChild(num);
+          thumb.appendChild(sec);
+          thumb.appendChild(title);
+
+          (function (idx) {
+            thumb.addEventListener('click', function () {
+              goToSlide(idx);
+              toggleOverview(false);
+            });
+          })(i);
+
+          overviewGrid.appendChild(thumb);
+        }
+      }
+
+      function updateOverviewHighlight() {
+        var thumbs = overviewGrid.querySelectorAll('.overview-thumb');
+        for (var i = 0; i < thumbs.length; i++) {
+          thumbs[i].classList.toggle('current', i === currentSlide);
+        }
+      }
+
+      function toggleOverview(forceState) {
+        overviewOpen = typeof forceState === 'boolean' ? forceState : !overviewOpen;
+        overviewPanel.classList.toggle('open', overviewOpen);
+        if (overviewOpen) {
+          updateOverviewHighlight();
+          var currentThumb = overviewGrid.querySelector('.overview-thumb.current');
+          if (currentThumb) currentThumb.focus();
+        }
+      }
+
+      // ===== Speaker notes =====
+      function updateNotes() {
+        var slide = slides[currentSlide];
+        var notesDiv = slide.querySelector('.notes');
+        var notesText = slide.getAttribute('data-notes') || '';
+        if (notesDiv) {
+          notesBody.innerHTML = notesDiv.innerHTML;
+        } else if (notesText) {
+          notesBody.innerHTML = '<p>' + notesText + '</p>';
+        } else {
+          notesBody.innerHTML = '<p class="notes-empty">لا توجد ملاحظات لهذه الشريحة.</p>';
+        }
+      }
+
+      function toggleNotes(forceState) {
+        notesOpen = typeof forceState === 'boolean' ? forceState : !notesOpen;
+        notesPanel.classList.toggle('open', notesOpen);
+      }
+
+      // ===== Fullscreen =====
+      function toggleFullscreen() {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+          var el = document.documentElement;
+          if (el.requestFullscreen) {
+            el.requestFullscreen();
+          } else if (el.webkitRequestFullscreen) {
+            el.webkitRequestFullscreen();
+          }
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
+        }
+      }
+
+      // ===== Keyboard navigation =====
+      document.addEventListener('keydown', function (e) {
+        // Don't capture if user is typing in an input
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        var key = e.key;
+
+        switch (key) {
+          case 'ArrowRight':
+          case 'n':
+          case 'N':
+          case ' ':
+            e.preventDefault();
+            if (overviewOpen) return;
+            nextSlide();
+            break;
+          case 'ArrowLeft':
+          case 'p':
+          case 'P':
+            e.preventDefault();
+            if (overviewOpen) return;
+            prevSlide();
+            break;
+          case 'o':
+          case 'O':
+            e.preventDefault();
+            toggleOverview();
+            break;
+          case 'f':
+          case 'F':
+            e.preventDefault();
+            toggleFullscreen();
+            break;
+          case 's':
+          case 'S':
+            e.preventDefault();
+            toggleNotes();
+            break;
+          case 'Escape':
+            e.preventDefault();
+            if (overviewOpen) toggleOverview(false);
+            else if (notesOpen) toggleNotes(false);
+            break;
+        }
+      });
+
+      // ===== Touch swipe =====
+      var touchStartX = 0;
+      var touchStartY = 0;
+      var touchThreshold = 50;
+
+      document.addEventListener('touchstart', function (e) {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+      }, { passive: true });
+
+      document.addEventListener('touchend', function (e) {
+        var diffX = e.changedTouches[0].screenX - touchStartX;
+        var diffY = e.changedTouches[0].screenY - touchStartY;
+
+        // Only handle horizontal swipes (ignore vertical)
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > touchThreshold) {
+          if (diffX < 0) {
+            // Swiped left — in RTL, left = next
+            nextSlide();
+          } else {
+            // Swiped right — in RTL, right = prev
+            prevSlide();
+          }
+        }
+      }, { passive: true });
+
+      // ===== Button bindings =====
+      document.getElementById('btnNext').addEventListener('click', nextSlide);
+      document.getElementById('btnPrev').addEventListener('click', prevSlide);
+      document.getElementById('btnOverview').addEventListener('click', function () { toggleOverview(); });
+      document.getElementById('btnNotes').addEventListener('click', function () { toggleNotes(); });
+      document.getElementById('btnFullscreen').addEventListener('click', toggleFullscreen);
+      document.getElementById('notesClose').addEventListener('click', function () { toggleNotes(false); });
+
+      // ===== Keyboard hints on hover =====
+      var navControls = document.querySelector('.nav-controls');
+      navControls.addEventListener('mouseenter', function () { kbdHints.classList.add('visible'); });
+      navControls.addEventListener('mouseleave', function () { kbdHints.classList.remove('visible'); });
+
+      // ===== Initialize =====
+      counter.textContent = '1 / ' + totalSlides;
+      updateNotes();
+      buildOverview();
+
+    })();
+  </script>
+</body>
+</html>
