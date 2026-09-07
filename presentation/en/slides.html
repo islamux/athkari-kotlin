@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Athkarix Android — Technical Walkthrough</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== Color Tokens ===== */
+    :root {
+      --color-primary-gold: #FFE082;
+      --color-amber: #FFBF00;
+      --color-bg: #000000;
+      --color-surface: #1A1A1A;
+      --color-text-primary: #FFE082;
+      --color-text-secondary: #CCCCCC;
+      --color-text-footer: #B0B0B0;
+      --color-accent-purple: #9C27B0;
+      --color-slide-border: rgba(255, 224, 130, 0.12);
+      --font-display: 'Amiri', serif;
+      --font-body: 'Noto Naskh Arabic', serif;
+      --font-code: 'Courier New', Courier, monospace;
+      --transition-speed: 0.35s;
+    }
+
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--color-bg);
+      color: var(--color-text-secondary);
+      font-family: var(--font-body);
+      font-size: 18px;
+      line-height: 1.7;
+      direction: ltr;
+    }
+
+    /* ===== Reduced Motion ===== */
+    @media (prefers-reduced-motion: reduce) {
+      :root { --transition-speed: 0s; }
+      .slide { transition: none !important; }
+      .nav-btn, .overview-thumb { transition: none !important; }
+    }
+
+    /* ===== Slides Container ===== */
+    #slides-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ===== Individual Slide ===== */
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6vh 8vw;
+      background: var(--color-surface);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      z-index: 10;
+    }
+
+    /* Diagonal gold line — signature visual element */
+    .slide::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -10%;
+      width: 160%;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 224, 130, 0.06) 20%,
+        rgba(255, 224, 130, 0.12) 50%,
+        rgba(255, 224, 130, 0.06) 80%,
+        transparent 100%
+      );
+      transform: rotate(-18deg);
+      pointer-events: none;
+    }
+
+    .slide::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -10%;
+      width: 160%;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 224, 130, 0.04) 30%,
+        rgba(156, 39, 176, 0.06) 60%,
+        transparent 100%
+      );
+      transform: rotate(-18deg);
+      pointer-events: none;
+    }
+
+    /* ===== Slide Content ===== */
+    .slide-content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 960px;
+      text-align: center;
+    }
+
+    .slide-number {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      color: var(--color-text-footer);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .slide-section {
+      display: inline-block;
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      color: var(--color-accent-purple);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      border: 1px solid rgba(156, 39, 176, 0.3);
+      padding: 0.15em 0.6em;
+      border-radius: 3px;
+      margin-bottom: 1.5rem;
+    }
+
+    .slide-title {
+      font-family: var(--font-display);
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      line-height: 1.3;
+      margin-bottom: 0.8rem;
+    }
+
+    .slide-subtitle {
+      font-family: var(--font-body);
+      font-size: 1.15rem;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ===== Title Slide Special ===== */
+    .slide--title .slide-title {
+      font-size: 3.8rem;
+      color: var(--color-primary-gold);
+      margin-bottom: 1rem;
+    }
+
+    .slide--title .slide-subtitle {
+      font-size: 1.4rem;
+      color: var(--color-text-secondary);
+    }
+
+    .slide--title .app-badge {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.4em 1.2em;
+      border: 1px solid var(--color-amber);
+      border-radius: 6px;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      color: var(--color-amber);
+    }
+
+    /* ===== Navigation Controls ===== */
+    .nav-controls {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 0.5rem;
+      z-index: 100;
+      opacity: 0.4;
+      transition: opacity 0.25s ease;
+    }
+
+    .nav-controls:hover {
+      opacity: 1;
+    }
+
+    .nav-btn {
+      background: rgba(26, 26, 26, 0.85);
+      border: 1px solid var(--color-slide-border);
+      color: var(--color-text-primary);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      width: 2.4rem;
+      height: 2.4rem;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+      backdrop-filter: blur(4px);
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 191, 0, 0.15);
+      border-color: var(--color-amber);
+    }
+
+    .nav-btn:focus-visible {
+      outline: 2px solid var(--color-amber);
+      outline-offset: 2px;
+    }
+
+    /* ===== Slide Counter ===== */
+    .slide-counter {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      color: var(--color-text-footer);
+      z-index: 100;
+      direction: ltr;
+    }
+
+    /* ===== Keyboard Hints ===== */
+    .kbd-hints {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      font-family: var(--font-body);
+      font-size: 0.65rem;
+      color: var(--color-text-footer);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      z-index: 100;
+      text-align: left;
+      line-height: 1.8;
+    }
+
+    .kbd-hints.visible {
+      opacity: 0.7;
+    }
+
+    kbd {
+      display: inline-block;
+      padding: 0.1em 0.4em;
+      border: 1px solid rgba(255, 224, 130, 0.2);
+      border-radius: 3px;
+      font-family: var(--font-code);
+      font-size: 0.8em;
+      color: var(--color-text-primary);
+      background: rgba(26, 26, 26, 0.6);
+    }
+
+    /* ===== Overview / Index Panel ===== */
+    .overview-panel {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      padding: 2rem;
+      overflow-y: auto;
+      backdrop-filter: blur(8px);
+    }
+
+    .overview-panel.open {
+      display: flex;
+    }
+
+    .overview-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .overview-header h2 {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      color: var(--color-text-primary);
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .overview-thumb {
+      aspect-ratio: 16 / 9;
+      background: var(--color-surface);
+      border: 1px solid var(--color-slide-border);
+      border-radius: 6px;
+      padding: 1rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.2s;
+      position: relative;
+    }
+
+    .overview-thumb:hover {
+      border-color: var(--color-amber);
+      transform: translateY(-2px);
+    }
+
+    .overview-thumb:focus-visible {
+      outline: 2px solid var(--color-amber);
+      outline-offset: 2px;
+    }
+
+    .overview-thumb.current {
+      border-color: var(--color-amber);
+      box-shadow: 0 0 12px rgba(255, 191, 0, 0.2);
+    }
+
+    .overview-thumb .thumb-number {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      color: var(--color-text-footer);
+      margin-bottom: 0.3rem;
+    }
+
+    .overview-thumb .thumb-section {
+      font-size: 0.55rem;
+      color: var(--color-accent-purple);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.1em;
+    }
+
+    .overview-thumb .thumb-title {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      color: var(--color-text-primary);
+      line-height: 1.3;
+    }
+
+    /* ===== Speaker Notes Panel ===== */
+    .notes-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 30vh;
+      background: rgba(10, 10, 10, 0.95);
+      border-top: 1px solid var(--color-slide-border);
+      z-index: 150;
+      display: none;
+      flex-direction: column;
+      padding: 1rem 3rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .notes-panel.open {
+      display: flex;
+    }
+
+    .notes-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .notes-header h3 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      color: var(--color-amber);
+    }
+
+    .notes-close {
+      background: none;
+      border: none;
+      color: var(--color-text-footer);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.2rem;
+    }
+
+    .notes-close:hover {
+      color: var(--color-text-primary);
+    }
+
+    .notes-body {
+      flex: 1;
+      overflow-y: auto;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--color-text-secondary);
+      line-height: 1.8;
+      direction: ltr;
+    }
+
+    .notes-empty {
+      color: var(--color-text-footer);
+      font-style: italic;
+    }
+
+    /* ===== Focus Visible Global ===== */
+    *:focus-visible {
+      outline: 2px solid var(--color-amber);
+      outline-offset: 2px;
+    }
+
+    /* ===== Print Styles ===== */
+    @media print {
+      body {
+        overflow: visible;
+        background: #fff;
+        color: #000;
+      }
+
+      #slides-container {
+        position: static;
+        overflow: visible;
+        height: auto;
+      }
+
+      .slide {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        page-break-after: always;
+        background: #fff;
+        min-height: 100vh;
+      }
+
+      .slide::before, .slide::after {
+        display: none;
+      }
+
+      .slide-title {
+        color: #000;
+      }
+
+      .slide-section {
+        color: #555;
+        border-color: #ccc;
+      }
+
+      .nav-controls, .slide-counter, .kbd-hints,
+      .overview-panel, .notes-panel {
+        display: none !important;
+      }
+    }
+
+    /* ===== Code Block (slide snippets) ===== */
+    .code-block {
+      display: block;
+      max-width: 100%;
+      margin: 0.6rem auto 0;
+      padding: 0.8rem 1rem;
+      background: rgba(26, 26, 26, 0.7);
+      border: 1px solid var(--color-slide-border);
+      border-radius: 6px;
+      text-align: left;
+      direction: ltr;
+      font-family: var(--font-code);
+      font-size: 0.78rem;
+      line-height: 1.55;
+      color: var(--color-text-primary);
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .code-block .cmt {
+      color: var(--color-text-footer);
+      font-style: italic;
+    }
+
+    .snippet-label {
+      display: inline-block;
+      margin-top: 1rem;
+      font-size: 0.75rem;
+      color: var(--color-accent-purple);
+      border: 1px solid rgba(156, 39, 176, 0.3);
+      border-radius: 3px;
+      padding: 0.15em 0.6em;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      .slide {
+        padding: 4vh 5vw;
+      }
+
+      .slide-title {
+        font-size: 1.8rem;
+      }
+
+      .slide--title .slide-title {
+        font-size: 2.4rem;
+      }
+
+      .slide-subtitle {
+        font-size: 1rem;
+      }
+
+      .overview-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+
+      .nav-controls {
+        bottom: 0.8rem;
+        gap: 0.3rem;
+      }
+
+      .nav-btn {
+        width: 2rem;
+        height: 2rem;
+        font-size: 0.85rem;
+      }
+
+      .kbd-hints {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Slide Index / Overview Panel ===== -->
+  <div class="overview-panel" id="overviewPanel" role="dialog" aria-label="Slide Index">
+    <div class="overview-header">
+      <h2>Slide Map</h2>
+    </div>
+    <div class="overview-grid" id="overviewGrid"></div>
+  </div>
+
+  <!-- ===== Speaker Notes Panel ===== -->
+  <div class="notes-panel" id="notesPanel" role="complementary" aria-label="Speaker Notes">
+    <div class="notes-header">
+      <h3>Speaker Notes</h3>
+      <button class="notes-close" id="notesClose" aria-label="Close Notes">&times;</button>
+    </div>
+    <div class="notes-body" id="notesBody">
+      <p class="notes-empty">No notes for this slide.</p>
+    </div>
+  </div>
+
+  <!-- ===== Navigation Controls ===== -->
+  <nav class="nav-controls" aria-label="Slide Navigation">
+    <button class="nav-btn" id="btnPrev" aria-label="Previous slide (P / ←)">←</button>
+    <button class="nav-btn" id="btnOverview" aria-label="Slide Index (O)">☰</button>
+    <button class="nav-btn" id="btnNotes" aria-label="Speaker Notes (S)">📝</button>
+    <button class="nav-btn" id="btnFullscreen" aria-label="Fullscreen (F)">⛶</button>
+    <button class="nav-btn" id="btnNext" aria-label="Next slide (N / →)">→</button>
+  </nav>
+
+  <!-- ===== Slide Counter ===== -->
+  <div class="slide-counter" id="slideCounter" aria-live="polite">1 / 29</div>
+
+  <!-- ===== Keyboard Hints ===== -->
+  <div class="kbd-hints" id="kbdHints">
+    <kbd>→</kbd> <kbd>N</kbd> Next &nbsp;
+    <kbd>←</kbd> <kbd>P</kbd> Previous &nbsp;
+    <kbd>O</kbd> Index &nbsp;
+    <kbd>F</kbd> Fullscreen &nbsp;
+    <kbd>S</kbd> Notes &nbsp;
+    <kbd>Esc</kbd> Close
+  </div>
+
+  <!-- ===== Slides Container ===== -->
+  <div id="slides-container">
+
+    <!-- Slide 1: Title -->
+    <section class="slide slide--title active" data-slide-index="1" data-section="Title">
+      <div class="slide-content">
+        <span class="slide-section">Title</span>
+        <h1 class="slide-title">Athkarix Android</h1>
+        <p class="slide-subtitle">Technical Walkthrough — Building a native Athkar app from concept to release</p>
+        <span class="app-badge">Android · Kotlin · Jetpack Compose</span>
+      </div>
+    </section>
+
+    <!-- Slide 2: Agenda -->
+    <section class="slide" data-slide-index="2" data-section="Slide Map">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Slide Map</span>
+        <h2 class="slide-title">Slide Map</h2>
+        <div class="slide-subtitle">
+          <ul style="list-style:none; padding:0; text-align:left; direction:ltr;">
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">01</strong> &mdash; Opening <span style="color:var(--color-text-footer);font-size:0.85em;">(5 min)</span> &mdash; Overview &amp; Problem</li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">02</strong> &mdash; Guiding Thesis <span style="color:var(--color-text-footer);font-size:0.85em;">(4 min)</span></li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">03</strong> &mdash; Decisions Journey <span style="color:var(--color-text-footer);font-size:0.85em;">(7 min)</span></li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">04</strong> &mdash; Mental Model <span style="color:var(--color-text-footer);font-size:0.85em;">(4 min)</span></li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">05</strong> &mdash; User Experience <span style="color:var(--color-text-footer);font-size:0.85em;">(5 min)</span></li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">06</strong> &mdash; Technical Deep Dive <span style="color:var(--color-text-footer);font-size:0.85em;">(13 min)</span></li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">07</strong> &mdash; Live Demo <span style="color:var(--color-text-footer);font-size:0.85em;">(10 min)</span></li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">08</strong> &mdash; Trade-offs <span style="color:var(--color-text-footer);font-size:0.85em;">(4 min)</span></li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">09</strong> &mdash; Roadmap <span style="color:var(--color-text-footer);font-size:0.85em;">(3 min)</span></li>
+            <li style="margin-bottom:0.35em;"><strong style="color:var(--color-primary-gold);">10</strong> &mdash; Closing <span style="color:var(--color-text-footer);font-size:0.85em;">(5 min)</span></li>
+          </ul>
+          <p style="margin-top:0.8rem;font-size:0.95rem;color:var(--color-amber);">Total: <strong>60 minutes</strong></p>
+        </div>
+        <div class="notes">
+          <p>This slide presents the full agenda map. Total is 60 minutes across 10 tracks. The Technical Deep Dive is the longest section (13 min) because it covers MVVM architecture, StateFlow, and Repository details.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 3: Opening -->
+    <section class="slide" data-slide-index="3" data-section="Opening">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Opening</span>
+        <h2 class="slide-title">Opening — The Impact</h2>
+        <p class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <strong style="color:var(--color-primary-gold);">Athkarix</strong> is a native Android app (Kotlin + Jetpack Compose) for reading Islamic Athkar (remembrances) and supplications. It is a port from the original Flutter app to Kotlin + Jetpack Compose.
+        </p>
+        <div style="margin-top:1.2rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+          <span style="padding:0.3em 0.9em;border:1px solid var(--color-amber);border-radius:4px;font-size:0.85rem;color:var(--color-amber);">Kotlin 2.2.10</span>
+          <span style="padding:0.3em 0.9em;border:1px solid var(--color-amber);border-radius:4px;font-size:0.85rem;color:var(--color-amber);">Jetpack Compose</span>
+          <span style="padding:0.3em 0.9em;border:1px solid var(--color-amber);border-radius:4px;font-size:0.85rem;color:var(--color-amber);">MVVM + StateFlow</span>
+          <span style="padding:0.3em 0.9em;border:1px solid var(--color-accent-purple);border-radius:4px;font-size:0.85rem;color:var(--color-accent-purple);">Offline-only</span>
+          <span style="padding:0.3em 0.9em;border:1px solid var(--color-accent-purple);border-radius:4px;font-size:0.85rem;color:var(--color-accent-purple);">Arabic-first RTL</span>
+        </div>
+        <div class="notes">
+          <p>The Impact: a native Android app built with Kotlin + Jetpack Compose. Ported from a Flutter app. Works entirely offline. Golden dark theme. All content is local. Reference: README.md:120 — "It is a Kotlin + Jetpack Compose port of the original Flutter Athkarix app."</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 4: Opening -->
+    <section class="slide" data-slide-index="4" data-section="Opening">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Opening</span>
+        <h2 class="slide-title">Opening — Context</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <p style="margin-bottom:0.8rem;"><strong style="color:var(--color-primary-gold);">11 categories</strong> of Athkar and supplications: Morning (أذكار الصباح), Evening (أذكار المساء), After Prayer (أذكار بعد الصلاة), Before Sleep (أذكار قبل النوم), Tasbih (التسبيح), Istighfar (الاستغفار), Hamd (الحمد), Salat on the Prophet (الصلاة على الرسول), Quranic Dua (دعاء من القرآن), Sunnah Dua (دعاء من السنة), Names of Allah (أسماء الله الحسنى)</p>
+          <p style="margin-bottom:0.8rem;">Full-text search across all Athkar, reminder notifications, Tasbih counter</p>
+          <p style="margin-bottom:0.8rem;">All content is local: <span style="color:var(--color-accent-purple);">"Auto-generated from Flutter Dart source"</span> — no asset files, data is hardcoded directly in code</p>
+          <p>Minimum: SDK 24, Target: SDK 34</p>
+        </div>
+        <div class="notes">
+          <p>Context: 11 categories in data/text/ (AthkarRepository.kt:6 builds 11 lists). No assets folder — all data is hardcoded in Kotlin objects. Reference: README.md:124-131, data/text/AthkarSabahText.kt:3, app/build.gradle.kts:13-14.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 5: Thesis -->
+    <section class="slide" data-slide-index="5" data-section="Guiding Thesis">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Guiding Thesis</span>
+        <h2 class="slide-title">Guiding Thesis</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <p style="margin-bottom:0.6rem;color:var(--color-primary-gold);font-weight:700;font-size:1.2rem;">Offline-first with MVVM architecture</p>
+          <ul style="list-style:none;padding:0;text-align:left;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Offline-first:</strong> No network at all — no network libraries (README.md:157)</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>MVVM:</strong> UI ← ViewModel ← Repository ← Assets/Preferences (README.md:151)</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Single Activity</strong> hosting all screens via Navigation Compose (README.md:154)</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Dedicated ViewModel</strong> per screen exposing StateFlow&lt;UiState&gt; (README.md:155)</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Repository</strong> is the single source of truth for Athkar (README.md:156)</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>The guiding thesis is offline-first with strict MVVM discipline. The core idea: UI never reads data directly — it observes StateFlow. Repository is the single source of truth. There are zero network libraries (app/build.gradle.kts has no network deps).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 6: Decisions Journey -->
+    <section class="slide" data-slide-index="6" data-section="Decisions Journey">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Decisions Journey</span>
+        <h2 class="slide-title">Decisions Journey — From Flutter to Compose</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <p style="margin-bottom:0.6rem;">The text files explicitly declare they are <span style="color:var(--color-accent-purple);">"Auto-generated from Flutter Dart source"</span> — a direct legacy from the original app</p>
+          <ul style="list-style:none;padding:0;text-align:left;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Native performance:</strong> Kotlin + Compose without intermediary</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Offline-first architecture</strong> with no network</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Single Activity</strong> with Navigation Compose</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Type safety:</strong> Kotlin type safety</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>RTL</strong> enforced at the app level via CompositionLocal (MainActivity.kt:19)</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Two embedded fonts:</strong> Amiri and Noto Naskh Arabic (AthkarTextSlider.kt:63-64)</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>The decision to port from Flutter to Kotlin/Compose. Text files are auto-generated from Dart (data/text/AthkarSabahText.kt:3). RTL is enforced in MainActivity.kt:19 via CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl). Fonts: res/font/amiri_regular.ttf and noto_naskh_arabic_regular.ttf as shown in AthkarTextSlider.kt:63-64.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 7: Decisions Journey -->
+    <section class="slide" data-slide-index="7" data-section="Decisions Journey">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Decisions Journey</span>
+        <h2 class="slide-title">Decisions Journey — Manual Dependency Injection</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <ul style="list-style:none;padding:0;text-align:left;">
+            <li style="margin-bottom:0.5rem;">&bull; <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">object AppModule</code> — AppModule.kt:25</li>
+            <li style="margin-bottom:0.5rem;">&bull; KDoc explains the choice: singleton factory for all ViewModels and shared services (AppModule.kt:22-24)</li>
+            <li style="margin-bottom:0.5rem;">&bull; <strong>No Hilt and no Dagger</strong> — README.md:142</li>
+            <li style="margin-bottom:0.5rem;">&bull; Trade-off: no compile-time schema verification, but no annotation processing overhead and easy dependency graph tracing</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>AppModule.kt:22-24 declaration: "Manual dependency injection — singleton factory for all ViewModels and shared services. A real DI framework (Hilt/Koin) could replace this, but a plain object keeps the dependency graph visible and easy to trace for a junior dev." README.md:142: "DI: Manual (no Hilt / Dagger)".</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 8: Decisions Journey -->
+    <section class="slide" data-slide-index="8" data-section="Decisions Journey">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Decisions Journey</span>
+        <h2 class="slide-title">Decisions Journey — WorkManager Notifications</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <ul style="list-style:none;padding:0;text-align:left;">
+            <li style="margin-bottom:0.5rem;">&bull; <strong>WorkManager 2.9.0</strong> — app/build.gradle.kts:66</li>
+            <li style="margin-bottom:0.5rem;">&bull; <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">PeriodicWorkRequestBuilder</code> with a 1-day interval and <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">UPDATE</code> policy — NotificationService.kt:40-49</li>
+            <li style="margin-bottom:0.5rem;">&bull; Initial delay computed until the requested time (hour:minute) — NotificationService.kt:59-71</li>
+            <li style="margin-bottom:0.5rem;">&bull; <strong>ReminderWorker</strong> picks a random dhikr and sends a notification — ReminderWorker.kt:12-51</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>Decision to use WorkManager for notifications. PeriodicWorkRequestBuilder with a 1-day interval. Initial delay computed to reach the target time (NotificationService.kt:59-71). ReminderWorker selects a random text from the list and takes the first 200 characters (ReminderWorker.kt:21). app/build.gradle.kts:66: androidx.work:work-runtime-ktx:2.9.0.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 9: Decisions Journey -->
+    <section class="slide" data-slide-index="9" data-section="Decisions Journey">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Decisions Journey</span>
+        <h2 class="slide-title">Decisions Journey — Data: Hardcoded or Assets?</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <ul style="list-style:none;padding:0;text-align:left;">
+            <li style="margin-bottom:0.5rem;">&bull; <strong>No assets folder</strong> — there is no <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">app/src/main/assets/</code></li>
+            <li style="margin-bottom:0.5rem;">&bull; <strong>11 text files</strong> in <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">data/text/</code> building hardcoded Kotlin lists</li>
+            <li style="margin-bottom:0.5rem;">&bull; <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">object AthkarRepository</code> holds the 11 lists — AthkarRepository.kt:6</li>
+            <li style="margin-bottom:0.5rem;">&bull; <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">.trimIndent()</code> used on raw strings — AthkarAfterSalatText.kt:5-8</li>
+            <li style="margin-bottom:0.5rem;">&bull; Trade-off: no I/O, instant load, offline forever; cost: content edits require re-translation</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>Data decision: no assets folder — all data is hardcoded in 11 Kotlin objects in data/text/, and the Repository (AthkarRepository.kt:6) builds 11 lists from these objects. .trimIndent() removes leading whitespace from raw strings (AthkarAfterSalatText.kt:5-8). Trade-off: instant load with zero I/O, but any text edit requires re-translation.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 10: Mental Model -->
+    <section class="slide" data-slide-index="10" data-section="Mental Model">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Mental Model</span>
+        <h2 class="slide-title">Mental Model — MVVM Architecture</h2>
+        <svg viewBox="0 0 760 420" role="img" aria-label="Data flow diagram in MVVM architecture" style="width:100%;max-width:760px;height:auto;display:block;margin:1rem auto 0;" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrowGold" viewBox="0 0 10 10" refX="2" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 10 0 L 0 5 L 10 10 z" fill="#FFE082"/>
+            </marker>
+          </defs>
+          <!-- Arrows pointing left (LTR flow: sources → Repo → VM → UI) -->
+          <line x1="120" y1="70" x2="460" y2="70" stroke="#FFE082" stroke-width="2" marker-end="url(#arrowGold)" stroke-dasharray="6,4"/>
+          <line x1="100" y1="180" x2="440" y2="180" stroke="#FFE082" stroke-width="2" marker-end="url(#arrowGold)" stroke-dasharray="6,4"/>
+          <line x1="140" y1="290" x2="340" y2="290" stroke="#9C27B0" stroke-width="2" marker-end="url(#arrowGold)" stroke-dasharray="6,4"/>
+          <!-- UI Box -->
+          <rect x="640" y="32" width="110" height="76" rx="8" fill="#1A1A1A" stroke="#FFBF00" stroke-width="1.5"/>
+          <text x="695" y="62" text-anchor="middle" fill="#FFE082" font-size="14" font-family="Amiri, serif" font-weight="700">UI</text>
+          <text x="695" y="82" text-anchor="middle" fill="#CCCCCC" font-size="10" font-family="Noto Naskh Arabic, serif">Composables</text>
+          <text x="695" y="98" text-anchor="middle" fill="#B0B0B0" font-size="9" font-family="Noto Naskh Arabic, serif">Observes StateFlow</text>
+          <!-- ViewModel Box -->
+          <rect x="300" y="32" width="240" height="76" rx="8" fill="#1A1A1A" stroke="#FFBF00" stroke-width="1.5"/>
+          <text x="420" y="62" text-anchor="middle" fill="#FFE082" font-size="14" font-family="Amiri, serif" font-weight="700">ViewModel</text>
+          <text x="420" y="82" text-anchor="middle" fill="#CCCCCC" font-size="10" font-family="Noto Naskh Arabic, serif">17 screens × dedicated ViewModel</text>
+          <text x="420" y="98" text-anchor="middle" fill="#B0B0B0" font-size="9" font-family="Noto Naskh Arabic, serif">exposes StateFlow&lt;UiState&gt;</text>
+          <!-- Repository Box -->
+          <rect x="320" y="142" width="300" height="76" rx="8" fill="#1A1A1A" stroke="#FFBF00" stroke-width="1.5"/>
+          <text x="470" y="172" text-anchor="middle" fill="#FFE082" font-size="14" font-family="Amiri, serif" font-weight="700">Repository</text>
+          <text x="470" y="192" text-anchor="middle" fill="#CCCCCC" font-size="10" font-family="Noto Naskh Arabic, serif">AthkarRepository — single source of truth</text>
+          <text x="470" y="208" text-anchor="middle" fill="#B0B0B0" font-size="9" font-family="Noto Naskh Arabic, serif">delegates data reads</text>
+          <!-- Sources Box (split into two) -->
+          <rect x="420" y="252" width="180" height="76" rx="8" fill="#1A1A1A" stroke="#9C27B0" stroke-width="1.5"/>
+          <text x="510" y="282" text-anchor="middle" fill="#CE93D8" font-size="13" font-family="Amiri, serif" font-weight="700">data/text</text>
+          <text x="510" y="302" text-anchor="middle" fill="#CCCCCC" font-size="10" font-family="Noto Naskh Arabic, serif">11 Kotlin objects (categories)</text>
+          <text x="510" y="318" text-anchor="middle" fill="#B0B0B0" font-size="9" font-family="Noto Naskh Arabic, serif">generated from Flutter Dart</text>
+          <!-- Assets label under sources -->
+          <rect x="200" y="252" width="200" height="76" rx="8" fill="#1A1A1A" stroke="#9C27B0" stroke-width="1.5"/>
+          <text x="300" y="282" text-anchor="middle" fill="#CE93D8" font-size="13" font-family="Amiri, serif" font-weight="700">SharedPreferences</text>
+          <text x="300" y="302" text-anchor="middle" fill="#CCCCCC" font-size="10" font-family="Noto Naskh Arabic, serif">notify_* keys</text>
+          <text x="300" y="318" text-anchor="middle" fill="#B0B0B0" font-size="9" font-family="Noto Naskh Arabic, serif">preference &amp; notification state</text>
+          <!-- Labels on arrows -->
+          <text x="180" y="66" text-anchor="middle" fill="#FFE082" font-size="9" font-family="Noto Naskh Arabic, serif">Observe</text>
+          <text x="160" y="176" text-anchor="middle" fill="#FFE082" font-size="9" font-family="Noto Naskh Arabic, serif">Read</text>
+        </svg>
+        <div class="notes">
+          <p>Mental model of data flow: UI (Composables) ← observes StateFlow ← ViewModel (17 ViewModels) ← delegates data reads ← Repository (AthkarRepository — single source of truth) ← reads from data/text (11 Kotlin objects) + SharedPreferences (notify_* keys). Reference: README.md:151-157, AthkarRepository.kt:6.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 11: Product Experience -->
+    <section class="slide" data-slide-index="11" data-section="User Experience">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">User Experience</span>
+        <h2 class="slide-title">Main Screens — Category Grid</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <p style="margin-bottom:0.6rem;color:var(--color-primary-gold);font-weight:700;font-size:1.15rem;">HomeScreen — The Gateway</p>
+          <ul style="list-style:none;padding:0;text-align:left;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>11 category cards</strong> in a scrollable list — each card opens an Athkar screen — HomeScreen.kt:90-105</li>
+            <li style="margin-bottom:0.3rem;">&bull; Search bar + drawer (notifications, contact, share) — HomeScreen.kt:117-171</li>
+            <li style="margin-bottom:0.3rem;">&bull; Navigation via <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">HomeViewModel.navigationEvent</code> (SharedFlow) — HomeViewModel.kt:18-19</li>
+            <li style="margin-bottom:0.3rem;">&bull; One event per card, then redirects to NavHost — HomeViewModel.kt:22-41</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>HomeScreen displays 11 category cards (HomeScreen.kt:90-105) building a list of HomeButtonItem, each card invokes a navigate function in HomeViewModel. The UI does not navigate directly — it listens to SharedFlow navigationEvent (HomeViewModel.kt:18-19) via LaunchedEffect then redirects (HomeScreen.kt:80-86 to onNavigate). The drawer contains notification settings, contact, and share (HomeScreen.kt:117-171). Search via a button in the top bar (HomeScreen.kt:170). Full reference: ui/screens/home/HomeScreen.kt, ui/screens/home/HomeViewModel.kt:16-42.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 12: Product Experience -->
+    <section class="slide" data-slide-index="12" data-section="User Experience">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">User Experience</span>
+        <h2 class="slide-title">Scrolling &amp; Interaction — AthkarTextSlider</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <p style="margin-bottom:0.5rem;color:var(--color-primary-gold);font-weight:700;font-size:1.1rem;">Core loop: text → count → advance</p>
+          <ul style="list-style:none;padding:0;text-align:left;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Tap to advance:</strong> tapping the text increments the counter — AthkarTextSlider.kt:95</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>AUTO_ADVANCE:</strong> resets to zero upon reaching <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">maxCount</code> then moves to the next page — BaseAthkarViewModel.kt:83-96</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>INFINITE_COUNT:</strong> cumulative counter with no page transition; haptic feedback every 100 taps — BaseAthkarViewModel.kt:75-81</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>AthkarIndexDrawer:</strong> side drawer to jump to any page — AthkarIndexDrawer.kt:22-71</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Completion:</strong> on the last page, <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">ShowCompletion</code> is emitted — BaseAthkarViewModel.kt:91-96</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>Full counter logic in incrementPageController (BaseAthkarViewModel.kt:67-100). In AUTO_ADVANCE: newCount reaches maxCount and resets, and if a next page exists it navigates there with haptic feedback (lines :83-91), otherwise it sets isCompleted and sends ShowCompletion (lines :91-96). In INFINITE_COUNT: counter = cumulativeTaps and haptic every 100. AthkarScreen listens to hapticTrigger and invokes performHapticFeedback (AthkarScreen.kt:83-87) and displays a Snackbar for completion (:71-80). AthkarIndexDrawer lists each item with its opening words and tapping calls goToPage (AthkarIndexDrawer.kt:48-62, AthkarScreen.kt:97-100).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 13: Product Experience -->
+    <section class="slide" data-slide-index="13" data-section="User Experience">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">User Experience</span>
+        <h2 class="slide-title">Tasbih Counter — Floating Counter</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <p style="margin-bottom:0.5rem;color:var(--color-primary-gold);font-weight:700;font-size:1.1rem;">FloatingCounterFab + FloatingCounterViewModel</p>
+          <ul style="list-style:none;padding:0;text-align:left;">
+            <li style="margin-bottom:0.3rem;">&bull; Gold circular floating button displaying the number; one tap increments the counter — FloatingCounterFab.kt:13-28</li>
+            <li style="margin-bottom:0.3rem;">&bull; Appears on <strong>8 of 11 Athkar screens</strong> via <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">showFloatingCounter = true</code> (Morning, Evening, After Prayer, Before Sleep, Tasbih, Istighfar, Hamd, Salat on the Prophet) — AthkarixNavGraph.kt:85-200</li>
+            <li style="margin-bottom:0.3rem;">&bull; <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">counters: Map&lt;screenKey, Int&gt;</code> in StateFlow — FloatingCounterViewModel.kt:10-11</li>
+            <li style="margin-bottom:0.3rem;">&bull; Reset button resets via <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">resetPageController</code> — AthkarScreen.kt:145-157</li>
+            <li style="margin-bottom:0.3rem;color:var(--color-text-footer);">&bull; <strong>Honest note:</strong> counters are not persisted — lost when the app closes</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>FloatingCounterFab (FloatingCounterFab.kt:13-28) is a gold circular floating button. Enabled via showFloatingCounter=true on 8 Athkar screens (AthkarixNavGraph.kt:85, :102, :119, :135, :151, :167, :183, :200), adding the button along with a reset button (AthkarScreen.kt:145-165). FloatingCounterViewModel stores Map&lt;String, Int&gt; in StateFlow (FloatingCounterViewModel.kt:10-23) with screenKey as keys. This counter is independent of the page counter in AthkarTextSlider. Transparency note: state is in-memory only — not stored in SharedPreferences, so it does not survive process death (discussed on slide 20).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 14: Product Experience -->
+    <section class="slide" data-slide-index="14" data-section="User Experience">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">User Experience</span>
+        <h2 class="slide-title">Search — Diacritic-Insensitive</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <p style="margin-bottom:0.5rem;color:var(--color-primary-gold);font-weight:700;font-size:1.1rem;">SearchViewModel + DiacriticUtil</p>
+          <ul style="list-style:none;padding:0;text-align:left;">
+            <li style="margin-bottom:0.3rem;">&bull; Searches <strong>10 categories</strong> (excludes Names of Allah) — SearchViewModel.kt:34-45</li>
+            <li style="margin-bottom:0.3rem;">&bull; Character-level <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">contains</code> matching after diacritic removal — SearchViewModel.kt:54,58</li>
+            <li style="margin-bottom:0.3rem;">&bull; <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">DiacriticUtil.remove</code> uses <span style="direction:ltr;display:inline-block;">[\u064B-\u065F\u0670]</span> to strip tashkeel — DiacriticUtil.kt:4-8</li>
+            <li style="margin-bottom:0.3rem;">&bull; Deep navigation from result to <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">SEARCH_RESULT</code> screen passing categoryIndex + itemIndex arguments — AthkarixNavGraph.kt:50,270-278</li>
+          </ul>
+          <p style="margin-top:0.6rem;font-size:0.95rem;color:var(--color-amber);">Example: searching for "الله" matches the diacritic-marked "اللّٰه" as well, thanks to tashkeel stripping.</p>
+        </div>
+        <div class="notes">
+          <p>SearchViewModel builds an allCategories list from 10 categories and explicitly excludes assma_hussna (SearchViewModel.kt:34-45). In search: it normalizes q via DiacriticUtil.remove then lowercase (line :54) and computes a diacritic-stripped text for each item (line :58) before contains. DiacriticUtil.remove is regex [\u064B-\u065F\u0670] (DiacriticUtil.kt:5-7). The SearchResult carries category/categoryKey/item/index (lines :21-26). From SearchScreen, onResultClick builds "&lt;SEARCH_RESULT&gt;" (AthkarixNavGraph.kt:263-266), and the SEARCH_RESULT composable reads Category StringType and itemIndex IntType arguments, then fetches the item via AthkarRepository.getItemByKey (lines :270-281).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 15: Product Experience -->
+    <section class="slide" data-slide-index="15" data-section="User Experience">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">User Experience</span>
+        <h2 class="slide-title">Notifications &amp; Settings</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <p style="margin-bottom:0.5rem;color:var(--color-primary-gold);font-weight:700;font-size:1.1rem;">NotificationSettingsViewModel</p>
+          <ul style="list-style:none;padding:0;text-align:left;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>6 StateFlows:</strong> enable/disable + hour and minute (morning and evening) — NotificationSettingsViewModel.kt:16-32</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Toggle:</strong> saves then schedules or cancels — NotificationSettingsViewModel.kt:35-53</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Time change:</strong> re-schedules if enabled — NotificationSettingsViewModel.kt:56-76</li>
+            <li style="margin-bottom:0.3rem;">&bull; Settings read once in <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">init</code> from SharedPrefsManager then exposed as StateFlow — NotificationSettingsViewModel.kt:11-32</li>
+          </ul>
+          <p style="margin-top:0.6rem;font-size:0.95rem;color:var(--color-amber);">Positive proof: 5 tests cover this behavior — NotificationSettingsViewModelTest.kt:20-102</p>
+        </div>
+        <div class="notes">
+          <p>The ViewModel reads SharedPrefsManager values into its MutableStateFlow properties (NotificationSettingsViewModel.kt:16-32) so state appears instantly without flicker. setMorningEnabled sets the value, saves to prefs, then schedules or cancels via NotificationService (lines :35-43). setMorningTime updates the time, saves it, then re-schedules if enabled (lines :56-65). NotificationSettingsViewModelTest uses MockK to mock SharedPrefsManager and NotificationService, with tests on initial state, toggle, and re-scheduling (NotificationSettingsViewModelTest.kt:20-102).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 16: Technical Deep Dive -->
+    <section class="slide" data-slide-index="16" data-section="Technical Deep Dive">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Technical Deep Dive</span>
+        <h2 class="slide-title">Navigation — Single Activity &amp; 15 Routes</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <p style="margin-bottom:0.4rem;color:var(--color-primary-gold);font-weight:700;font-size:1.05rem;">Routes object — single source of truth for all paths (AthkarixNavGraph.kt:35-51)</p>
+          <p style="margin-bottom:0.5rem;font-size:0.95rem;line-height:1.9;">
+            <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">home · athkar_sabah · athkar_massa · athkar_after_salat · athkar_before_bed · tasbih · estigfar · hamd · salat_ala_rasoul · duaa_quran · duaa_sunnah · assma_hussna · notification_settings · search · search_result/... ·</code>
+          </p>
+          <ul style="list-style:none;padding:0;text-align:left;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Single Activity</strong> (MainActivity) + Navigation Compose 2.7.6 — app/build.gradle.kts:61</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Type-safe arguments</strong> on SEARCH_RESULT: <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">categoryIndex</code> (String) + <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">itemIndex</code> (Int) — AthkarixNavGraph.kt:270-275</li>
+            <li style="margin-bottom:0.3rem;">&bull; Reads arguments and resolves the item via <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">AthkarRepository.getItemByKey</code> — AthkarixNavGraph.kt:277-281</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>All screens live inside a single Activity hosted by NavHost (AthkarixNavGraph.kt:64-67). The Routes object (lines :35-51) holds 15 constants forming the single source of truth for paths: 11 Athkar categories + Settings + Search + Search Result. The SEARCH_RESULT path (line :50) contains placeholders. The SEARCH_RESULT composable accepts two typed arguments (StringType and IntType at lines :270-275) and resolves the item via AthkarRepository.getItemByKey (:279-281) then renders SearchResultScreen (:298-306). Reference: app/build.gradle.kts:61 for navigation-compose:2.7.6.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 17: Technical Deep Dive -->
+    <section class="slide" data-slide-index="17" data-section="Technical Deep Dive">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Technical Deep Dive</span>
+        <h2 class="slide-title">State Management — StateFlow &amp; SharedFlow</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <p style="margin-bottom:0.4rem;color:var(--color-primary-gold);font-weight:700;font-size:1.05rem;">17 ViewModels — every screen has its own ViewModel</p>
+          <ul style="list-style:none;padding:0;text-align:left;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>BaseAthkarViewModel</strong> embodies shared logic: <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">currentPageIndex</code> + <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">currentPageCounter</code> as StateFlow — BaseAthkarViewModel.kt:32-36</li>
+            <li style="margin-bottom:0.3rem;">&bull; One-shot events via <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">SharedFlow</code> (eventFlow with buffer size 1) — BaseAthkarViewModel.kt:38-39</li>
+            <li style="margin-bottom:0.3rem;">&bull; Haptic feedback via <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">hapticTrigger</code> SharedFlow — BaseAthkarViewModel.kt:42-43</li>
+            <li style="margin-bottom:0.3rem;">&bull; Two counter modes: <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">AUTO_ADVANCE</code> (Morning, Evening, etc.) and <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">INFINITE_COUNT</code> (Tasbih, Istighfar, etc.) — BaseAthkarViewModel.kt:75-96</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>BaseAthkarViewModel (BaseAthkarViewModel.kt:24) has currentPageIndex and currentPageCounter as StateFlow (lines :32-36), eventFlow SharedFlow with buffer 1 for ViewEvent (lines :14-19, :38-39), and hapticTrigger (lines :42-43). incrementPageController (lines :67-100) decides the counter: INFINITE_COUNT counts cumulatively and haptics every 100 (:75-81); AUTO_ADVANCE resets at maxCount and advances to the next page, emitting ShowCompletion at the end (:83-96). Category counters: Sabah/Massa/AfterSalat/BeforeBed/DuaQuran/DuaSunnah = default AUTO_ADVANCE; Tasbih/Estigfar/Hamd/SalatAlaRasoul = INFINITE_COUNT (example: TasbihViewModel.kt:11). The viewmodel/ directory contains 15 files + SearchViewModel + HomeViewModel = 17.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 18: Technical Deep Dive -->
+    <section class="slide" data-slide-index="18" data-section="Technical Deep Dive">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Technical Deep Dive</span>
+        <h2 class="slide-title">Compose — Initial Composition vs Recomposition</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">1. Initial Composition:</strong> The UI tree is built once and the composable body runs for the first time.</p>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">2. What determines it?</strong> It reads observed values (StateFlow values) to decide what to render.</p>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">3. What must be avoided?</strong> Non-deterministic reads during composition (e.g., reading SharedPreferences mid-build) make the first frame unpredictable.</p>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);>4. Recomposition:</strong> A subsequent pass re-executing bodies when observed state changes — it must preserve the same tree shape to avoid losing state (survived via remember/saveable).</p>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">5. The wrong pattern:</strong> Reading storage during composition → flash from default to saved value, or corrupted state.</p>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">6. The correct pattern in this project:</strong> ViewModel reads prefs once in init and exposes StateFlow; UI observes StateFlow only; and effects (LaunchedEffect) run after composition completes.</p>
+        </div>
+        <div class="notes">
+          <p>This slide reframes the web concept of "hydration" for native Android. The core: keep state reads deterministic. Actual implementation: NotificationSettingsViewModel reads SharedPrefsManager inside MutableStateFlow properties — not in the composable, but in init (NotificationSettingsViewModel.kt:16-32) — making state deterministic on the first frame. The UI collects via collectAsState, and the only effect (scheduling via NotificationService) happens in named functions (setMorningEnabled...) not during composition (:35-53). Effects like LaunchedEffect run after the composition commit in Compose.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 19: Technical Deep Dive -->
+    <section class="slide" data-slide-index="19" data-section="Technical Deep Dive">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Technical Deep Dive</span>
+        <h2 class="slide-title">Compose — Wrong Pattern vs Correct Pattern</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:1.9;font-size:0.95rem;">
+          <span class="snippet-label">Snippet 1 — Wrong pattern (simplified for illustration)</span>
+<code class="code-block"><span class="cmt">// ❌ anti-pattern — do not read preferences inside composition</span>
+<span class="cmt">// First frame = saved value or default? Depends on timing</span>
+@Composable
+fun BadToggle() {
+    val prefs = context.getSharedPreferences("athkarix_prefs", MODE_PRIVATE)
+    var enabled by remember {
+        mutableStateOf(prefs.getBoolean("notify_morning_enabled", false))
+    }
+    // → flash/mismatch between planned and actual frame
+}</code>
+          <span class="snippet-label">Snippet 2 — Correct pattern in this project (simplified for illustration)</span>
+<code class="code-block"><span class="cmt">// ✅ ViewModel reads prefs once in init and exposes StateFlow</span>
+class NotificationSettingsViewModel(prefs, service) : ViewModel() {
+    private val _morningEnabled = MutableStateFlow(prefs.morningEnabled)
+    val morningEnabled: StateFlow&lt;Boolean&gt; = _morningEnabled.asStateFlow()
+    <span class="cmt">// ... init { /* reads prefs once */ }</span>
+}
+
+<span class="cmt">// ✅ UI observes StateFlow only (does not read storage directly)</span>
+val enabled by vm.morningEnabled.collectAsState()</code>
+        </div>
+        <div class="notes">
+          <p>Snippet 1 demonstrates an anti-pattern: reading a unified field inside the composable body via remember depends on timing of the first frame so the first frame is unpredictable and causes a flash. Snippet 2 demonstrates the project pattern as in NotificationSettingsViewModel.kt:16-32: prefs is read in MutableStateFlow properties (then asStateFlow) so the actual value appears immediately, and the UI collects via collectAsState without any direct storage reads. Toggle functions setMorningEnabled/setEveningEnabled and time conversions (lines :35-76) run after composition, not during it.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 20: Technical Deep Dive -->
+    <section class="slide" data-slide-index="20" data-section="Technical Deep Dive">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Technical Deep Dive</span>
+        <h2 class="slide-title">Process Death &amp; State Recovery</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">What survives process death?</strong></p>
+          <ul style="list-style:none;padding:0;text-align:left;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>SharedPreferences</strong> persist on disk — 6 notification keys — SharedPrefsManager.kt:38-44</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>WorkManager queue</strong> persists in its own database, so it survives restart — no BOOT_COMPLETED receiver needed due to periodic work — NotificationService.kt:40-49</li>
+          </ul>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">What does NOT survive?</strong></p>
+          <ul style="list-style:none;padding:0;text-align:left;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>In-memory StateFlow:</strong> Athkar/floating counters not persisted — BaseAthkarViewModel.kt:32-36, FloatingCounterViewModel.kt:8-24</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Font size and type</strong> not persisted (in-memory only) — FontViewModel.kt:8-40</li>
+          </ul>
+          <p style="margin-bottom:0.4rem;color:var(--color-amber);">Integrity point: on process death the user returns to default values for counters and font.</p>
+        </div>
+        <div class="notes">
+          <p>Details: the six keys persisted via SharedPrefsManager are notify_morning_enabled and notify_evening_enabled and notify_morning_hour (default 8) and notify_morning_minute (0) and notify_evening_hour (17) and notify_evening_minute (0) — SharedPrefsManager.kt:37-45. Periodic scheduling via PeriodicWorkRequestBuilder(1 day) with ExistingPeriodicWorkPolicy.UPDATE (NotificationService.kt:40-48) is managed by WorkManager which adds its jobs to a database, surviving restarts without a BOOT_COMPLETED receiver. Meanwhile counters (BaseAthkarViewModel.kt:32-36), floating counter (FloatingCounterViewModel.kt:10-11) and font size/selection (FontViewModel.kt:10-14) are stored in in-memory StateFlow only and are lost. This is an explicitly documented gap.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 21: Technical Deep Dive -->
+    <section class="slide" data-slide-index="21" data-section="Technical Deep Dive">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Technical Deep Dive</span>
+        <h2 class="slide-title">Data Model &amp; Repository</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <p style="margin-bottom:0.4rem;"><code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">AthkarItem(duaText: String?, footer: String? = null, maxCount: Int = 1)</code> — AthkarItem.kt:4-8</p>
+          <p style="margin-bottom:0.4rem;"><code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">object AthkarRepository</code> holds <strong>11 lists</strong>, and <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">getItemByKey</code> maps 11 keys to the lists — AthkarRepository.kt:6,540-556</p>
+          <p style="margin-bottom:0.2rem;font-weight:700;color:var(--color-primary-gold);">Data gotchas (honest trade-offs):</p>
+          <ul style="list-style:none;padding:0;text-align:left;font-size:0.95rem;">
+            <li style="margin-bottom:0.25rem;">&bull; Evening Athkar skips TEXT_20 — AthkarRepository.kt:55</li>
+            <li style="margin-bottom:0.25rem;">&bull; Tasbih list duplicates TEXT_26 twice — AthkarRepository.kt:111 and :121</li>
+            <li style="margin-bottom:0.25rem;">&bull; Salat on the Prophet list uses TEXT_44 twice — AthkarRepository.kt:217 and :256</li>
+            <li style="margin-bottom:0.25rem;">&bull; Irregular ordering in the Names of Allah list — AthkarRepository.kt:505-508</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>AthkarItem is the foundational unit (data class) flowing through Repository→ViewModel→UI (AthkarItem.kt:4-8). AthkarRepository is an object holding 11 lists (AthkarRepository.kt:6) and converts path keys to lists via getItemByKey (lines :540-556). The gotchas caught from the auto-generated Flutter legacy: massaList skips TEXT_20 (the list jumps from TEXT_19 to TEXT_21 at :54-55); tasbihList duplicates TEXT_26 at lines :111 and :121; salatAlaRasoulList uses TEXT_44 at :217 and :256; and in assmaHussnaList the ordering at :505-508 (TEXT_184-187) is irregular. These are acknowledged content defects.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 22: Technical Deep Dive -->
+    <section class="slide" data-slide-index="22" data-section="Technical Deep Dive">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Technical Deep Dive</span>
+        <h2 class="slide-title">Text Processing &amp; Search</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">DiacriticUtil — diacritic removal:</strong> the regex <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">Regex("[\u064B-\u065F\u0670]")</code> strips Arabic tashkeel marks — DiacriticUtil.kt:4-8</p>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">Search normalization in 4 steps:</strong> remove diacritics ← lowercase ← contains — SearchViewModel.kt:54,58</p>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">Names of Allah exclusion:</strong> search covers 10 categories and excludes <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">assma_hussna</code> — SearchViewModel.kt:34-45</p>
+          <p style="margin-bottom:0.4rem;"><code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">data class SearchResult(category, categoryKey, item, index)</code> carries the key and index for deep navigation — SearchViewModel.kt:21-26</p>
+        </div>
+        <div class="notes">
+          <p>DiacriticUtil.remove replaces regex [\u064B-\u065F\u0670] with empty strings (DiacriticUtil.kt:5-7). SearchViewModel merges it with lowercase: normalizes the query value (normalized) and each item text (text) then matches via contains (lines :54 and :58). Proof: DiacriticUtilTest "remove strips all tashkeel" converts "بِسْمِ..." to "بسم..." (DiacriticUtilTest.kt:8-19) and SearchViewModelTest "matching query returns results" searches "الله" and returns non-empty (SearchViewModelTest.kt:37-40). The SearchResult group (lines :21-26) carries the keys needed to build the SEARCH_RESULT path then resolve via AthkarRepository.getItemByKey.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 23: Technical Deep Dive -->
+    <section class="slide" data-slide-index="23" data-section="Technical Deep Dive">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Technical Deep Dive</span>
+        <h2 class="slide-title">Background Notifications — WorkManager</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <ul style="list-style:none;padding:0;text-align:left;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Channel:</strong> <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">"athkar_reminders"</code> with IMPORTANCE_DEFAULT — NotificationService.kt:15,20-30</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Periodic work:</strong> <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">PeriodicWorkRequestBuilder(1 day)</code> with "type" input (morning/evening) and UPDATE policy — NotificationService.kt:40-49</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Initial delay</strong> computed to the target hour:minute — NotificationService.kt:59-71</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>ReminderWorker:</strong> CoroutineWorker picks a random dhikr and truncates to 200 characters — ReminderWorker.kt:12-27</li>
+            <li style="margin-bottom:0.3rem;">&bull; Notification with BigTextStyle + AtomicInteger identifier — ReminderWorker.kt:33-49</li>
+            <li style="margin-bottom:0.3rem;color:var(--color-text-footer);">&bull; <strong>Honest crash path on API 24/25:</strong> channel creation is not guarded for API 26 (minSdk 24) — NewApi lint at :21,26,29</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>NotificationService.initialize creates the channel with IMPORTANCE_DEFAULT (NotificationService.kt:20-30). More critical: the code creates NotificationChannel directly — available only since API 26 — while minSdk is 24, so on API 24/25 devices it may crash (source of NewApi lint errors at NotificationService.kt:21, :26, and :29). Periodic scheduling via PeriodicWorkRequestBuilder(1 day) with setInitialDelay until the target time (lines :40-49, :59-71) and ExistingPeriodicWorkPolicy.UPDATE; cancellation via cancelUniqueWork (lines :51-57). ReminderWorker (CoroutineWorker) picks from athkarSabahList or athkarMassaList, takes the first 200 characters (ReminderWorker.kt:21, :26) and builds a BigTextStyle notification with AtomicInteger identifier (lines :33-44). Periodic work survives restarts without a BOOT_COMPLETED receiver.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 24: Technical Deep Dive -->
+    <section class="slide" data-slide-index="24" data-section="Technical Deep Dive">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Technical Deep Dive</span>
+        <h2 class="slide-title">Theme, Colors &amp; Fonts</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">The golden dark palette:</strong></p>
+          <p style="margin-bottom:0.4rem;font-size:0.95rem;"><code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">primaryGold 0xFFFFE082 · amber 0xFFFFBF00 · background 0xFF000000 · surface 0xFF1A1A1A · textPrimary 0xFFFFE082 · textSecondary 0xFFCCCCCC · footer 0xFFB0B0B0 · ayahHadith 0xFF9C27B0</code> — AppColor.kt:6-15</p>
+          <ul style="list-style:none;padding:0;text-align:left;">
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Always dark:</strong> darkColorScheme used regardless of isSystemInDarkTheme — AppTheme.kt:14-23</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>RTL enforced:</strong> CompositionLocalProvider forces LayoutDirection.Rtl — MainActivity.kt:19</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Two fonts:</strong> toggle Amiri ↔ Noto Naskh via FontViewModel — FontViewModel.kt:23-25</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Font size:</strong> default 32.0 with <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">±2.0</code> within [24,42] — FontViewModel.kt:16-17,27-39</li>
+            <li style="margin-bottom:0.3rem;">&bull; <strong>Tablet scaling:</strong> ×1.5 when screenWidthDp ≥ 600 — FontScaleUtil.kt:7-19</li>
+            <li style="margin-bottom:0.3rem;color:var(--color-text-footer);">&bull; Font not persisted (memory only) — FontViewModel.kt:8-40</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>AppColor holds all colors (AppColor.kt:6-15). AthkarixTheme uses darkColorScheme exclusively, ignoring isSystemInDarkTheme (imported in AppTheme.kt:3 but unused, and schemed at :14-23) — always a golden dark design. RTL is enforced via CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) in MainActivity.kt:19. FontViewModel holds default fontSize 32.0 and min/max values {24,42} with ±2.0 steps (FontViewModel.kt:16-17, :27-39) and toggleFont switches between "Amiri" and "NotoNaskh" (:23-25). Consumed in AthkarTextSlider.kt:63-64 via res/font for both fonts. FontScaleUtil (FontScaleUtil.kt:7-19) doubles the size ×1.5 on tablets (isTablet = screenWidthDp ≥ 600, line :10). Note: size and type are in-memory only, so they do not survive process death.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 25: Technical Deep Dive -->
+    <section class="slide" data-slide-index="25" data-section="Technical Deep Dive">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Technical Deep Dive</span>
+        <h2 class="slide-title">Tests — 52 Unit Tests</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;">
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">What is covered (8 files):</strong></p>
+          <ul style="list-style:none;padding:0;text-align:left;font-size:0.95rem;">
+            <li style="margin-bottom:0.25rem;">&bull; BaseAthkarViewModelTest — <strong>18</strong> (Turbine + coroutines-test) :41-226</li>
+            <li style="margin-bottom:0.25rem;">&bull; SearchViewModelTest — <strong>7</strong> :12-61</li>
+            <li style="margin-bottom:0.25rem;">&bull; NotificationSettingsViewModelTest — <strong>5</strong> (MockK) :20-102</li>
+            <li style="margin-bottom:0.25rem;">&bull; FontViewModelTest — <strong>6</strong> · HomeViewModelTest — <strong>4</strong> · FloatingCounterViewModelTest — <strong>4</strong> · DiacriticUtilTest — <strong>4</strong> · AthkarRepositoryTest — <strong>4</strong></li>
+            <li style="margin-bottom:0.25rem;color:var(--color-primary-gold);">✓ 6 of 17 ViewModels + DiacriticUtil + AthkarRepository check</li>
+          </ul>
+          <p style="margin-bottom:0.4rem;"><strong style="color:var(--color-primary-gold);">What is NOT covered (honestly):</strong></p>
+          <ul style="list-style:none;padding:0;text-align:left;font-size:0.95rem;">
+            <li style="margin-bottom:0.25rem;">&bull; 10 thin category ViewModels with no direct tests</li>
+            <li style="margin-bottom:0.25rem;">&bull; NotificationService/ReminderWorker (Android framework) untested</li>
+            <li style="margin-bottom:0.25rem;">&bull; SharedPreferences (mocked only); no androidTest or Compose UI tests</li>
+            <li style="margin-bottom:0.25rem;">&bull; ShareUtil / WhatsAppUtil / FontScaleUtil untested</li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>Total: 52 @Test methods across 8 files in app/src/test/java/com/athkarix/app/. Details: BaseAthkarViewModelTest (18, Turbine+StandardTestDispatcher, :41-226), SearchViewModelTest (7, plain JUnit, :12-61), NotificationSettingsViewModelTest (5, MockK, :20-102), FontViewModelTest (6), HomeViewModelTest (4, Turbine), FloatingCounterViewModelTest (4), DiacriticUtilTest (4, :8-44), AthkarRepositoryTest (4, checks sabah/massa lists, :8-30). Coverage: 6 ViewModels (Base, Search, Notification, Font, Home, FloatingCounter) + DiacriticUtil + Repository check. Gaps: 10 thin ViewModels not directly tested, services (NotificationService/ReminderWorker) require the Android framework so are untested, SharedPreferences only mocked, no androidTest or Compose UI tests, no tests for ShareUtil/WhatsAppUtil/FontScaleUtil.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 26: Live Demo -->
+    <section class="slide" data-slide-index="26" data-section="Live Demo">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Live Demo</span>
+        <h2 class="slide-title">Live Demo</h2>
+        <div class="slide-subtitle" style="text-align:center;direction:ltr;line-height:2;">
+          <p style="margin-bottom:0.8rem;font-size:1.25rem;color:var(--color-primary-gold);font-weight:700;">Now we move to a live demonstration of the app</p>
+          <p style="margin-bottom:0.6rem;">Prepared exercises and scenarios are in the demo script file:</p>
+          <p><code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.15em 0.5em;border-radius:4px;font-size:1rem;">presentation/demo-script.md</code></p>
+        </div>
+        <div class="notes">
+          <p>A transition slide that hands off to the live demo. The demo-script.md file contains the planned scenarios: category navigation, Tasbih counter, search, notification settings, font toggle. It is recommended to open the demo on an Android device or emulator.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 27: Trade-offs -->
+    <section class="slide" data-slide-index="27" data-section="Trade-offs">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Trade-offs</span>
+        <h2 class="slide-title">Technical Trade-offs</h2>
+        <div style="display:flex;gap:1.5rem;text-align:left;direction:ltr;margin-top:0.5rem;">
+          <!-- Gained Column -->
+          <div style="flex:1;padding:1rem;border:1px solid rgba(34,197,94,0.3);border-radius:8px;background:rgba(34,197,94,0.04);">
+            <p style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:#22c55e;margin-bottom:0.6rem;">What We Gained</p>
+            <ul style="list-style:none;padding:0;font-size:0.88rem;line-height:1.7;">
+              <li style="margin-bottom:0.3rem;">&bull; No network dependency — works fully offline (README.md:129-131)</li>
+              <li style="margin-bottom:0.3rem;">&bull; Instant content access: Kotlin constants in memory, zero I/O at runtime (AthkarRepository.kt:6)</li>
+              <li style="margin-bottom:0.3rem;">&bull; Deterministic state flow: UI ← ViewModel ← Repository — single source of truth (README.md:151-157)</li>
+              <li style="margin-bottom:0.3rem;">&bull; Manual dependency injection — dependency graph is visible and traceable (AppModule.kt:22-24)</li>
+              <li style="margin-bottom:0.3rem;">&bull; 52 unit tests: counter, search, settings, font, utilities (eight test files)</li>
+            </ul>
+          </div>
+          <!-- Paid Column -->
+          <div style="flex:1;padding:1rem;border:1px solid rgba(239,68,68,0.3);border-radius:8px;background:rgba(239,68,68,0.04);">
+            <p style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:#ef4444;margin-bottom:0.6rem;">What We Paid</p>
+            <ul style="list-style:none;padding:0;font-size:0.88rem;line-height:1.7;">
+              <li style="margin-bottom:0.3rem;">&bull; Content edits require re-translation — data lives in Kotlin source (data/text/*.kt)</li>
+              <li style="margin-bottom:0.3rem;">&bull; Hand-written lists contain errors: Evening skips TEXT_20 (AthkarRepository.kt:55), Tasbih duplicates TEXT_26 twice (:111, :121), and Salat on the Prophet duplicates TEXT_44 (:217, :256)</li>
+              <li style="margin-bottom:0.3rem;">&bull; Counters are <strong>not persisted</strong> — lost when the app closes (BaseAthkarViewModel.kt:32-36, FloatingCounterViewModel.kt:8-24)</li>
+              <li style="margin-bottom:0.3rem;">&bull; Font and size not persisted (FontViewModel.kt:8-40)</li>
+              <li style="margin-bottom:0.3rem;">&bull; Search excludes Names of Allah (SearchViewModel.kt:34-45)</li>
+              <li style="margin-bottom:0.3rem;">&bull; Notification channel creation unguarded for API 26 on minSdk 24 (NotificationService.kt:20-29)</li>
+              <li style="margin-bottom:0.3rem;">&bull; No UI tests and no androidTest directory</li>
+              <li style="margin-bottom:0.3rem;">&bull; POST_NOTIFICATIONS permission not requested at runtime — silent on API 33+ (AndroidManifest.xml:4)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="notes">
+          <p>Technical trade-offs: the goal is complete transparency — we do not hide what was not resolved. What we gained: no network dependency (README.md:129-131, no network deps in build.gradle.kts), instant access via Kotlin constants (AthkarRepository.kt:6), MVVM discipline (README.md:151-157), visible manual DI (AppModule.kt:22-24), and 52 unit tests. What we paid: content edits require re-translation (data/text/*.kt), hand-written list errors (TEXT_20 skipped by Evening AthkarRepository.kt:55, TEXT_26 duplicated in Tasbih :111 and :121), counters and font not persisted, search excludes assma_hussna, notification channel unguarded on API 24/25, and no UI tests. This is not fragility — it is architectural honesty.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 28: Roadmap -->
+    <section class="slide" data-slide-index="28" data-section="Roadmap">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Roadmap</span>
+        <h2 class="slide-title">Roadmap — Risk-Based Priorities</h2>
+        <div class="slide-subtitle" style="text-align:left;direction:ltr;line-height:2;font-size:0.95rem;">
+          <ul style="list-style:none;padding:0;text-align:left;">
+            <li style="margin-bottom:0.5rem;">
+              &bull; <strong style="color:var(--color-primary-gold);">1. Harden the notification channel</strong> — guard <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">Build.VERSION</code> before channel creation
+              <span style="display:block;color:var(--color-text-footer);font-size:0.85em;">Risk: potential crash on API 24/25 · Payoff: stable notifications and zeroing four NewApi lint errors <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;font-size:0.85em;">NotificationService.kt:20-30</code></span>
+            </li>
+            <li style="margin-bottom:0.5rem;">
+              &bull; <strong style="color:var(--color-primary-gold);">2. Request notification permission at runtime</strong> — on API 33+ (the declaration exists, the request is missing)
+              <span style="display:block;color:var(--color-text-footer);font-size:0.85em;">Risk: silent notifications without permission · Payoff: actually visible reminders <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;font-size:0.85em;">AndroidManifest.xml:4</code> · No request in <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;font-size:0.85em;">MainActivity.kt</code></span>
+            </li>
+            <li style="margin-bottom:0.5rem;">
+              &bull; <strong style="color:var(--color-primary-gold);">3. Persist counters</strong> — SharedPreferences or DataStore
+              <span style="display:block;color:var(--color-text-footer);font-size:0.85em;">Risk: loss of dhikr progress after process death · Payoff: continuous experience <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;font-size:0.85em;">BaseAthkarViewModel.kt:32-36</code> · <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;font-size:0.85em;">FloatingCounterViewModel.kt</code></span>
+            </li>
+            <li style="margin-bottom:0.5rem;">
+              &bull; <strong style="color:var(--color-primary-gold);">4. Migrate content to JSON assets</strong>
+              <span style="display:block;color:var(--color-text-footer);font-size:0.85em;">Risk: migration correctness for 11 lists carrying anomalies (TEXT_20/26/44) · Payoff: edit without re-translation and content review capability <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;font-size:0.85em;">AthkarRepository.kt</code></span>
+            </li>
+            <li style="margin-bottom:0.5rem;">
+              &bull; <strong style="color:var(--color-primary-gold);">5. Add Names of Allah to search</strong>
+              <span style="display:block;color:var(--color-text-footer);font-size:0.85em;">Risk: Names of Allah are unsearchable today · Payoff: full content coverage <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;font-size:0.85em;">SearchViewModel.kt:34-45</code></span>
+            </li>
+            <li style="margin-bottom:0.5rem;">
+              &bull; <strong style="color:var(--color-primary-gold);">6. Compose UI tests</strong> — androidTest for critical paths (AthkarScreen counter and search)
+              <span style="display:block;color:var(--color-text-footer);font-size:0.85em;">Risk: critical paths without a safety net · Payoff: protection during refactoring — no androidTest directory today</span>
+            </li>
+            <li style="margin-bottom:0.5rem;">
+              &bull; <strong style="color:var(--color-primary-gold);">7. CI gate</strong> — must pass <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;">./gradlew lint</code>
+              <span style="display:block;color:var(--color-text-footer);font-size:0.85em;">Risk: new errors slipping in · Payoff: automatic quality on every change — currently 4 legacy NewApi errors</span>
+            </li>
+            <li style="margin-bottom:0.2rem;">
+              &bull; <strong style="color:var(--color-accent-purple);">Bonus — standardize list generation</strong> from an indexable source to prevent manual copy errors of type TEXT_20/26/44
+              <code style="direction:ltr;display:inline-block;background:rgba(255,224,130,0.08);padding:0.1em 0.4em;border-radius:3px;font-size:0.85em;">AthkarRepository.kt:6</code>
+            </li>
+          </ul>
+        </div>
+        <div class="notes">
+          <p>Item ordering reflects risk severity: crash probability (1) precedes data loss (3) precedes developer experience (4) precedes coverage and quality (5-7). Item 4 carries the highest execution risk: migrating 11 lists with the TEXT_20, TEXT_26, and TEXT_44 anomalies discovered. Item 7 is the comprehensive quality gate after fixing the four current NewApi errors. Every item is measurable with a clear payoff — this is not a wish list.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 29: Closing -->
+    <section class="slide" data-slide-index="29" data-section="Closing">
+      <div class="slide-content">
+        <span class="slide-number"></span>
+        <span class="slide-section">Closing</span>
+        <h2 class="slide-title">Closing</h2>
+        <div class="slide-subtitle" style="text-align:center;direction:ltr;line-height:2;">
+          <p style="margin-bottom:1.2rem;font-size:1.2rem;color:var(--color-primary-gold);font-weight:700;line-height:1.9;">
+            Honest decisions are more valuable than ideal ones: everything we built is traceable, and every price we paid is declared — that is the most valuable thing we deliver with the code.
+          </p>
+          <p style="margin-bottom:0.6rem;font-weight:700;color:var(--color-primary-gold);">Open questions for discussion:</p>
+          <ul style="list-style:none;padding:0;text-align:left;direction:ltr;">
+            <li style="margin-bottom:0.35rem;text-align:left;">&bull; Why did we choose hardcoded content in code over asset files? — a trade-off we openly declared in slide 9</li>
+            <li style="margin-bottom:0.35rem;text-align:left;">&bull; Is losing counters after process death acceptable, or is persistence a non-negotiable necessity?</li>
+            <li style="margin-bottom:0.35rem;text-align:left;">&bull; Should we migrate from SharedPreferences to DataStore? What is the safe migration path?</li>
+            <li style="margin-bottom:0.35rem;text-align:left;">&bull; Is moving to Hilt worth its cost as the app grows? — the trade-off is documented in AppModule.kt:22-24</li>
+          </ul>
+          <p style="margin-top:1.2rem;font-size:0.95rem;color:var(--color-amber);">We ask Allah to make this work purely for His sake</p>
+        </div>
+        <div class="notes">
+          <p>The closing is composed of three parts: one engineering stance sentence (offline-first with declared trade-offs), then four questions that open discussion with the audience, then a light closing supplication. The agenda (slide 2) allocates 5 minutes for this dialogue. Suggestion: present the four questions as an exit map — ask the audience to prioritize item 1 in slide 28.</p>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /slides-container -->
+
+  <script>
+    (function () {
+      'use strict';
+
+      // ===== State =====
+      var slides = document.querySelectorAll('.slide');
+      var totalSlides = slides.length;
+      var currentSlide = 0;
+      var overviewOpen = false;
+      var notesOpen = false;
+
+      // ===== DOM refs =====
+      var counter = document.getElementById('slideCounter');
+      var overviewPanel = document.getElementById('overviewPanel');
+      var overviewGrid = document.getElementById('overviewGrid');
+      var notesPanel = document.getElementById('notesPanel');
+      var notesBody = document.getElementById('notesBody');
+      var kbdHints = document.getElementById('kbdHints');
+
+      // ===== Reduced motion =====
+      var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // ===== Slide navigation =====
+      function goToSlide(index) {
+        if (index < 0 || index >= totalSlides) return;
+        slides[currentSlide].classList.remove('active');
+        currentSlide = index;
+        slides[currentSlide].classList.add('active');
+        counter.textContent = (currentSlide + 1) + ' / ' + totalSlides;
+        updateNotes();
+        updateOverviewHighlight();
+      }
+
+      function nextSlide() {
+        if (currentSlide < totalSlides - 1) goToSlide(currentSlide + 1);
+      }
+
+      function prevSlide() {
+        if (currentSlide > 0) goToSlide(currentSlide - 1);
+      }
+
+      // ===== Overview panel =====
+      function buildOverview() {
+        overviewGrid.innerHTML = '';
+        for (var i = 0; i < totalSlides; i++) {
+          var slide = slides[i];
+          var thumb = document.createElement('button');
+          thumb.className = 'overview-thumb';
+          if (i === currentSlide) thumb.classList.add('current');
+          thumb.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+
+          var num = document.createElement('span');
+          num.className = 'thumb-number';
+          num.textContent = (i + 1);
+
+          var sec = document.createElement('span');
+          sec.className = 'thumb-section';
+          sec.textContent = slide.getAttribute('data-section') || '';
+
+          var title = document.createElement('span');
+          title.className = 'thumb-title';
+          var titleEl = slide.querySelector('.slide-title');
+          title.textContent = titleEl ? titleEl.textContent : '';
+
+          thumb.appendChild(num);
+          thumb.appendChild(sec);
+          thumb.appendChild(title);
+
+          (function (idx) {
+            thumb.addEventListener('click', function () {
+              goToSlide(idx);
+              toggleOverview(false);
+            });
+          })(i);
+
+          overviewGrid.appendChild(thumb);
+        }
+      }
+
+      function updateOverviewHighlight() {
+        var thumbs = overviewGrid.querySelectorAll('.overview-thumb');
+        for (var i = 0; i < thumbs.length; i++) {
+          thumbs[i].classList.toggle('current', i === currentSlide);
+        }
+      }
+
+      function toggleOverview(forceState) {
+        overviewOpen = typeof forceState === 'boolean' ? forceState : !overviewOpen;
+        overviewPanel.classList.toggle('open', overviewOpen);
+        if (overviewOpen) {
+          updateOverviewHighlight();
+          var currentThumb = overviewGrid.querySelector('.overview-thumb.current');
+          if (currentThumb) currentThumb.focus();
+        }
+      }
+
+      // ===== Speaker notes =====
+      function updateNotes() {
+        var slide = slides[currentSlide];
+        var notesDiv = slide.querySelector('.notes');
+        var notesText = slide.getAttribute('data-notes') || '';
+        if (notesDiv) {
+          notesBody.innerHTML = notesDiv.innerHTML;
+        } else if (notesText) {
+          notesBody.innerHTML = '<p>' + notesText + '</p>';
+        } else {
+          notesBody.innerHTML = '<p class="notes-empty">No notes for this slide.</p>';
+        }
+      }
+
+      function toggleNotes(forceState) {
+        notesOpen = typeof forceState === 'boolean' ? forceState : !notesOpen;
+        notesPanel.classList.toggle('open', notesOpen);
+      }
+
+      // ===== Fullscreen =====
+      function toggleFullscreen() {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+          var el = document.documentElement;
+          if (el.requestFullscreen) {
+            el.requestFullscreen();
+          } else if (el.webkitRequestFullscreen) {
+            el.webkitRequestFullscreen();
+          }
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
+        }
+      }
+
+      // ===== Keyboard navigation =====
+      document.addEventListener('keydown', function (e) {
+        // Don't capture if user is typing in an input
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        var key = e.key;
+
+        switch (key) {
+          case 'ArrowRight':
+          case 'n':
+          case 'N':
+          case ' ':
+            e.preventDefault();
+            if (overviewOpen) return;
+            nextSlide();
+            break;
+          case 'ArrowLeft':
+          case 'p':
+          case 'P':
+            e.preventDefault();
+            if (overviewOpen) return;
+            prevSlide();
+            break;
+          case 'o':
+          case 'O':
+            e.preventDefault();
+            toggleOverview();
+            break;
+          case 'f':
+          case 'F':
+            e.preventDefault();
+            toggleFullscreen();
+            break;
+          case 's':
+          case 'S':
+            e.preventDefault();
+            toggleNotes();
+            break;
+          case 'Escape':
+            e.preventDefault();
+            if (overviewOpen) toggleOverview(false);
+            else if (notesOpen) toggleNotes(false);
+            break;
+        }
+      });
+
+      // ===== Touch swipe =====
+      var touchStartX = 0;
+      var touchStartY = 0;
+      var touchThreshold = 50;
+
+      document.addEventListener('touchstart', function (e) {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+      }, { passive: true });
+
+      document.addEventListener('touchend', function (e) {
+        var diffX = e.changedTouches[0].screenX - touchStartX;
+        var diffY = e.changedTouches[0].screenY - touchStartY;
+
+        // Only handle horizontal swipes (ignore vertical)
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > touchThreshold) {
+          if (diffX > 0) {
+            // Swiped right — in LTR, right = next
+            nextSlide();
+          } else {
+            // Swiped left — in LTR, left = prev
+            prevSlide();
+          }
+        }
+      }, { passive: true });
+
+      // ===== Button bindings =====
+      document.getElementById('btnNext').addEventListener('click', nextSlide);
+      document.getElementById('btnPrev').addEventListener('click', prevSlide);
+      document.getElementById('btnOverview').addEventListener('click', function () { toggleOverview(); });
+      document.getElementById('btnNotes').addEventListener('click', function () { toggleNotes(); });
+      document.getElementById('btnFullscreen').addEventListener('click', toggleFullscreen);
+      document.getElementById('notesClose').addEventListener('click', function () { toggleNotes(false); });
+
+      // ===== Keyboard hints on hover =====
+      var navControls = document.querySelector('.nav-controls');
+      navControls.addEventListener('mouseenter', function () { kbdHints.classList.add('visible'); });
+      navControls.addEventListener('mouseleave', function () { kbdHints.classList.remove('visible'); });
+
+      // ===== Initialize =====
+      counter.textContent = '1 / ' + totalSlides;
+      updateNotes();
+      buildOverview();
+
+    })();
+  </script>
+</body>
+</html>
