@@ -3,6 +3,7 @@ package com.athkarix.app.data.service
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -18,6 +19,8 @@ class NotificationService(private val context: Context) {
     }
 
     fun initialize() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+
         val channel = NotificationChannel(
             CHANNEL_ID,
             context.getString(com.athkarix.app.R.string.notification_channel_name),
