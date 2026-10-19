@@ -318,17 +318,24 @@ Plus/minus buttons in the top bar to adjust text size.
 
 ### AlertExitApp
 
+A custom golden-dark dialog (not the stock `AlertDialog`): a gold icon badge
+(`TaskAlt`), an Amiri-bold title, centered text, and two pill buttons —
+`"لا، متابعة"` (outlined, stays) and `"نعم، إنهاء"` (filled gold, exits).
+
 ```kotlin
 @Composable
-fun AlertExitApp(showDialog: Boolean, onConfirm: () -> Unit, onDismiss: () -> Unit) {
-    if (showDialog) {
-        AlertDialog(
-            containerColor = AppColor.darkGold,  // gold background
-            title = { Text("تنبيه!") },
-            text = { Text("هل أنهيت أذكارك؟") },
-            confirmButton = { CustomButton(text = "نعم", onClick = onConfirm) },
-            dismissButton = { CustomButton(text = "لا", onClick = onDismiss) },
-        )
+fun AlertExitApp(onConfirmExit: () -> Unit, onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            color = AppColor.surface,
+            border = BorderStroke(1.dp, AppColor.primaryGold.copy(alpha = 0.3f)),
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                // gold icon badge -> "تنبيه" title -> "هل أنهيت أذكارك؟"
+                // OutlinedButton "لا، متابعة"  |  Button "نعم، إنهاء"
+            }
+        }
     }
 }
 ```
