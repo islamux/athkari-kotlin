@@ -44,3 +44,11 @@ keystore.properties
 # Flutter project reference (symlink)
 command-center
 gitflow
+
+# Hardened secrets (Task 5)
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
